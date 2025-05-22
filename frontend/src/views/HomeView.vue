@@ -56,7 +56,7 @@
         <div class="product-cards">
           <div 
             v-for="product in topProducts" 
-            :key="product.id" 
+            :key="product.product" 
             class="product-card"
             @click="viewProductDetails(product)"
           >
@@ -152,6 +152,7 @@ const loadTopProducts = async () => {
   
   try {
     const response = await productsService.getTopRateProducts(activeTab.value, 5)
+    console.log('Top products loaded:', response)
     topProducts.value = response
   } catch (err) {
     console.error('Error loading top products:', err)
@@ -168,8 +169,8 @@ const formatRate = (rate) => {
 
 // Check if product has specific join way
 const hasJoinWay = (product, code) => {
-  if (!product || !product.join_way) return false
-  return product.join_way.includes(code)
+  if (!product || !product.financial_product.join_way) return false
+  return product.financial_product.join_way.includes(code)
 }
 
 // Get tab name for display
@@ -184,11 +185,12 @@ const getTabName = (tab) => {
 
 // Navigate to product details
 const viewProductDetails = (product) => {
+  console.log('Navigating to product details:', product)
   router.push({
     name: 'ProductDetail',
     params: { 
       type: activeTab.value,
-      id: product.id
+      id: product.product
     }
   })
 }
