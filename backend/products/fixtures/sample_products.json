@@ -1,0 +1,126 @@
+[
+  {
+    "model": "products.financialproduct",
+    "pk": "SAMPLE0001",
+    "fields": {
+      "kor_co_nm": "샘플은행",
+      "fin_prdt_nm": "샘플 예금상품",
+      "join_way": "인터넷,스마트폰,은행창구",
+      "loan_type": null,
+      "join_member": "제한없음"
+    }
+  },
+  {
+    "model": "products.depositproduct",
+    "pk": "SAMPLE0001",
+    "fields": {
+      "fin_co_no": "SAMPLE01",
+      "dcls_month": "202505",
+      "category": "예금",
+      "intr_rate_type": "단리",
+      "save_trm": 12,
+      "intr_rate": 3.5,
+      "intr_rate2": 4.2
+    }
+  },
+  {
+    "model": "products.financialproduct",
+    "pk": "SAMPLE0002",
+    "fields": {
+      "kor_co_nm": "샘플은행",
+      "fin_prdt_nm": "샘플 적금상품",
+      "join_way": "인터넷,스마트폰",
+      "loan_type": null,
+      "join_member": "제한없음"
+    }
+  },
+  {
+    "model": "products.savingproduct",
+    "pk": "SAMPLE0002",
+    "fields": {
+      "fin_co_no": "SAMPLE01",
+      "dcls_month": "202505",
+      "category": "적금",
+      "intr_rate_type": "복리",
+      "rsrv_type": "자유적립식",
+      "save_trm": 24,
+      "intr_rate": 4.0,
+      "intr_rate2": 5.0
+    }
+  },
+  {
+    "model": "products.financialproduct",
+    "pk": "SAMPLE0003",
+    "fields": {
+      "kor_co_nm": "샘플은행",
+      "fin_prdt_nm": "샘플 주택담보대출",
+      "join_way": "은행창구",
+      "loan_type": "주택담보대출",
+      "join_member": "주택소유자"
+    }
+  },
+  {
+    "model": "products.loanproduct",
+    "pk": "SAMPLE0003",
+    "fields": {
+      "fin_co_no": "SAMPLE01",
+      "dcls_month": "202505",
+      "loan_inci_expn": "취급수수료 없음",
+      "erly_rpay_fee": "중도상환수수료 1.0%",
+      "dly_rate": "연체이자율 6%",
+      "loan_lmt": "최대 5억원"
+    }
+  },
+  {
+    "model": "products.mortgageloanoption",
+    "fields": {
+      "product": "SAMPLE0003",
+      "mrtg_type": "아파트",
+      "rpay_type": "원리금균등분할상환",
+      "lend_rate_type": "고정금리",
+      "lend_rate_min": 3.2,
+      "lend_rate_max": 4.1,
+      "lend_rate_avg": 3.65
+    }
+  },
+  {
+    "model": "products.financialproduct",
+    "pk": "SAMPLE0004",
+    "fields": {
+      "kor_co_nm": "샘플은행",
+      "fin_prdt_nm": "샘플 신용대출",
+      "join_way": "인터넷,은행창구",
+      "loan_type": "신용대출",
+      "join_member": "재직 1년이상"
+    }
+  },
+  {
+    "model": "products.loanproduct",
+    "pk": "SAMPLE0004",
+    "fields": {
+      "fin_co_no": "SAMPLE01",
+      "dcls_month": "202505",
+      "loan_inci_expn": "취급수수료 50,000원",
+      "erly_rpay_fee": "중도상환수수료 없음",
+      "dly_rate": "연체이자율 8%",
+      "loan_lmt": "최대 1억원"
+    }
+  },
+  {
+    "model": "products.creditloanoption",
+    "fields": {
+      "product": "SAMPLE0004",
+      "crdt_prdt_type": "일반신용대출",
+      "crdt_lend_rate_type": "고정금리",
+      "crdt_grad_1": "4.5",
+      "crdt_grad_4": "5.5",
+      "crdt_grad_5": "6.0",
+      "crdt_grad_6": null,
+      "crdt_grad_10": null,
+      "crdt_grad_11": null,
+      "crdt_grad_12": null,
+      "crdt_grad_13": null,
+      "crdt_grad_avg": 5.33
+    }
+  }
+]
