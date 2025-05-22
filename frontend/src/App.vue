@@ -8,6 +8,7 @@
           <router-link to="/" class="nav-link">홈</router-link>
           <router-link to="/products" class="nav-link">금융상품</router-link>
           <router-link to="/articles" class="nav-link">커뮤니티</router-link>
+          <router-link to="/map" class="nav-link">지도</router-link>
           <router-link v-if="isAdmin" to="/admin" class="nav-link">관리자</router-link>
         </nav>
 
