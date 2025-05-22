@@ -37,8 +37,23 @@ export default {
     return apiClient.get(`financial-products/${id}/`).then((response) => response.data)
   },
 
-  // Get all deposit products
+  // Get all deposit products with expanded parameters
   async getDepositProducts(params = {}) {
+    return apiClient.get('deposits/', { params }).then((response) => response.data)
+  },
+
+  // Search deposit products with filtering options
+  async searchDepositProducts({ page = 1, pageSize = 20, minRate, maxRate, bank, term, orderBy }) {
+    const params = { page }
+
+    // Add optional filters if provided
+    if (pageSize) params.page_size = pageSize
+    if (minRate) params.min_rate = minRate
+    if (maxRate) params.max_rate = maxRate
+    if (bank) params.bank = bank
+    if (term) params.save_trm = term
+    if (orderBy) params.ordering = orderBy // e.g. '-intr_rate2' for highest rate first
+
     return apiClient.get('deposits/', { params }).then((response) => response.data)
   },
 
@@ -52,6 +67,31 @@ export default {
     return apiClient.get('savings/', { params }).then((response) => response.data)
   },
 
+  // Search saving products with filtering options
+  async searchSavingProducts({
+    page = 1,
+    pageSize = 20,
+    minRate,
+    maxRate,
+    bank,
+    term,
+    rsrvType,
+    orderBy,
+  }) {
+    const params = { page }
+
+    // Add optional filters if provided
+    if (pageSize) params.page_size = pageSize
+    if (minRate) params.min_rate = minRate
+    if (maxRate) params.max_rate = maxRate
+    if (bank) params.bank = bank
+    if (term) params.save_trm = term
+    if (rsrvType) params.rsrv_type = rsrvType
+    if (orderBy) params.ordering = orderBy // e.g. '-intr_rate2' for highest rate first
+
+    return apiClient.get('savings/', { params }).then((response) => response.data)
+  },
+
   // Get specific saving product
   async getSavingProduct(id) {
     return apiClient.get(`savings/${id}/`).then((response) => response.data)
@@ -59,6 +99,29 @@ export default {
 
   // Get all loan products
   async getLoanProducts(params = {}) {
+    return apiClient.get('loans/', { params }).then((response) => response.data)
+  },
+
+  // Search loan products with filtering options
+  async searchLoanProducts({
+    page = 1,
+    pageSize = 20,
+    bank,
+    loanType,
+    hasMortgage,
+    hasCredit,
+    orderBy,
+  }) {
+    const params = { page }
+
+    // Add optional filters if provided
+    if (pageSize) params.page_size = pageSize
+    if (bank) params.bank = bank
+    if (loanType) params.loan_type = loanType
+    if (hasMortgage) params.has_mortgage = hasMortgage
+    if (hasCredit) params.has_credit = hasCredit
+    if (orderBy) params.ordering = orderBy
+
     return apiClient.get('loans/', { params }).then((response) => response.data)
   },
 
@@ -94,6 +157,31 @@ export default {
       .then((response) => response.data)
   },
 
+  // Admin: Update financial product data
+  async updateAllProducts() {
+    return apiClient.post('admin/update-all/').then((response) => response.data)
+  },
+
+  // Admin: Batch update specific types of financial products
+  async batchUpdateProducts(types = []) {
+    return apiClient.post('admin/batch-update/', { types }).then((response) => response.data)
+  },
+
+  // Get product statistics
+  async getProductStatistics() {
+    return apiClient.get('statistics/').then((response) => response.data)
+  },
+
+  // Filter products by criteria
+  async filterProducts(params = {}) {
+    return apiClient.get('filter/', { params }).then((response) => response.data)
+  },
+
+  // Get personalized product recommendations
+  async getRecommendations() {
+    return apiClient.get('recommendations/').then((response) => response.data)
+  },
+
   // User favorites operations
   async getUserFavorites() {
     return apiClient.get('user/favorites/').then((response) => response.data)
@@ -109,10 +197,6 @@ export default {
   },
 
   // Admin operations - these require admin privileges
-  async updateAllProducts() {
-    return apiClient.post('admin/update-all/').then((response) => response.data)
-  },
-
   async updateDepositProducts() {
     return apiClient.post('admin/update-deposits/').then((response) => response.data)
   },
