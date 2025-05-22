@@ -29,6 +29,12 @@ const routes = [
     meta: { requiresAuth: true }, // Only logged in users can access
   },
   {
+    path: '/map',
+    name: 'Map',
+    component: () => import('@/views/MapView.vue'),
+    meta: { requiresAuth: false },
+  },
+  {
     path: '/articles',
     name: 'Articles',
     component: () => import('@/views/ArticlesView.vue'),
@@ -84,6 +90,12 @@ const routes = [
     path: '/products',
     name: 'Products',
     component: () => import('@/views/products/ProductsView.vue'),
+    meta: { requiresAuth: false },
+  },
+  {
+    path: '/products/dashboard',
+    name: 'ProductDashboard',
+    component: () => import('@/views/products/ProductDashboardView.vue'),
     meta: { requiresAuth: false },
   },
   {
