@@ -1,3 +1,4 @@
+# filepath: /Users/ryong/git/Final-PJT/backend/products/urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
@@ -28,8 +29,18 @@ urlpatterns = [
         "lowest-rate-loans/", views.lowest_rate_loan_products, name="lowest-rate-loans"
     ),
     path("search/", views.search_financial_products, name="search-products"),
+    path("filter/", views.filter_products, name="filter-products"),
+    path("statistics/", views.get_product_statistics, name="product-statistics"),
+    path(
+        "recommendations/",
+        views.get_product_recommendations,
+        name="product-recommendations",
+    ),
     # Admin endpoints for updating financial product data
     path("admin/update-all/", views.update_all_products, name="update-all-products"),
+    path(
+        "admin/batch-update/", views.batch_update_products, name="batch-update-products"
+    ),
     path(
         "admin/update-deposits/",
         views.update_deposit_products,

@@ -58,7 +58,7 @@
           </div>
 
           <div class="product-join-methods">
-            <JoinMethods :joinWay="product.join_way" />
+            <JoinMethods :join_way="product.join_way" />
           </div>
         </div>
 
@@ -293,7 +293,7 @@
             <h3 class="section-title">가입 방법</h3>
 
             <div class="join-methods-detailed">
-              <template v-if="hasJoinWay('1')">
+              <template v-if="hasJoinWay('영업점')">
                 <div class="join-method-item">
                   <div class="join-method-icon">
                     <i class="fas fa-building"></i>
@@ -305,7 +305,7 @@
                 </div>
               </template>
 
-              <template v-if="hasJoinWay('2')">
+              <template v-if="hasJoinWay('인터넷')">
                 <div class="join-method-item">
                   <div class="join-method-icon">
                     <i class="fas fa-laptop"></i>
@@ -319,7 +319,7 @@
                 </div>
               </template>
 
-              <template v-if="hasJoinWay('3')">
+              <template v-if="hasJoinWay('스마트폰')">
                 <div class="join-method-item">
                   <div class="join-method-icon">
                     <i class="fas fa-phone"></i>
@@ -331,7 +331,7 @@
                 </div>
               </template>
 
-              <template v-if="hasJoinWay('4')">
+              <template v-if="hasJoinWay('전화(텔레뱅킹)')">
                 <div class="join-method-item">
                   <div class="join-method-icon">
                     <i class="fas fa-mobile-alt"></i>
@@ -382,7 +382,6 @@ import productsService from '@/services/products'
 import RateDisplay from '@/components/products/RateDisplay.vue'
 import JoinMethods from '@/components/products/JoinMethods.vue'
 import ProductCard from '@/components/products/ProductCard.vue'
-// import BankLogo from '@/components/products/BankLogo.vue';
 
 export default {
   name: 'ProductDetailView',
@@ -568,10 +567,11 @@ export default {
 
     // Check if product has specific join way
     const hasJoinWay = (code) => {
+      console.log(product.value)
       if (!product.value || !product.value.join_way) return false
       return product.value.join_way.includes(code)
     }
-
+    
     // Get product type name for display
     const getProductTypeName = (type) => {
       const types = {

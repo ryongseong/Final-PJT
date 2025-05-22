@@ -15,9 +15,16 @@ from .models import (
 
 
 class FinancialProductSerializer(serializers.ModelSerializer):
+    join_way = serializers.SerializerMethodField()
+
     class Meta:
         model = FinancialProduct
         fields = "__all__"
+
+    def get_join_way(self, obj):
+        if obj.join_way and isinstance(obj.join_way, str):
+            return [s.strip() for s in obj.join_way.split(",") if s.strip()]
+        return []
 
 
 class DepositProductSerializer(serializers.ModelSerializer):
