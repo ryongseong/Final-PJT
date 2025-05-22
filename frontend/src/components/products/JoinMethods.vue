@@ -2,19 +2,19 @@
   <div class="join-methods">
     <div v-if="showLabel" class="join-label">가입 방법:</div>
     <div class="join-badges">
-      <span v-if="hasJoinWay('1')" class="join-badge">
+      <span v-if="hasJoinWay('영업점')" class="join-badge">
         <i class="fas fa-building"></i>
         <span v-if="showText">영업점</span>
       </span>
-      <span v-if="hasJoinWay('2')" class="join-badge">
+      <span v-if="hasJoinWay('인터넷')" class="join-badge">
         <i class="fas fa-laptop"></i>
         <span v-if="showText">인터넷</span>
       </span>
-      <span v-if="hasJoinWay('3')" class="join-badge">
+      <span v-if="hasJoinWay('스마트폰')" class="join-badge">
         <i class="fas fa-phone"></i>
         <span v-if="showText">전화</span>
       </span>
-      <span v-if="hasJoinWay('4')" class="join-badge">
+      <span v-if="hasJoinWay('전화(텔레뱅킹)')" class="join-badge">
         <i class="fas fa-mobile-alt"></i>
         <span v-if="showText">모바일</span>
       </span>
@@ -27,7 +27,7 @@ export default {
   name: 'JoinMethods',
   props: {
     joinWay: {
-      type: String,
+      type: Array,
       required: true
     },
     showLabel: {
@@ -41,7 +41,7 @@ export default {
   },
   methods: {
     hasJoinWay(code) {
-      if (!this.joinWay) return false;
+      if (!this.joinWay || this.joinWay.length === 0) return false;
       return this.joinWay.includes(code);
     }
   }
