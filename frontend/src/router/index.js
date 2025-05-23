@@ -53,6 +53,18 @@ const routes = [
     meta: { requiresAuth: false },
   },
   {
+    path: '/youtube/search',
+    name: 'YoutubeSearch',
+    component: () => import('@/views/youtube/YoutubeSearchView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/youtube/saved',
+    name: 'SavedVideos',
+    component: () => import('@/views/youtube/SavedVideosView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/articles/:id/edit',
     name: 'ArticleEdit',
     component: () => import('@/views/ArticleCreateView.vue'),

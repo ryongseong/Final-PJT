@@ -23,6 +23,7 @@ env = environ.Env(
     GOOGLE_CLIENT_SECRET=(str, ""),
     KAKAO_CLIENT_ID=(str, ""),
     FINANCIAL_API_KEY=(str, ""),
+    YOUTUBE_API_KEY=(str, ""),
 )
 
 # Read .env file if it exists
@@ -57,6 +58,7 @@ INSTALLED_APPS = [
     "accounts",
     "articles",
     "products",
+    "youtube",
     "rest_framework",
     "rest_framework_simplejwt",
     "drf_spectacular",
@@ -87,6 +89,9 @@ REST_FRAMEWORK = {
 
 # Financial API Key for product data
 FINANCIAL_API_KEY = env("DEPOSIT_PRODUCT_API", default="")
+
+# YouTube API Key
+YOUTUBE_API_KEY = env("YOUTUBE_API", default="")
 
 # JWT settings
 from datetime import timedelta
@@ -230,6 +235,16 @@ LOGGING = {
             "level": "DEBUG",
             "propagate": True,
         },
+        "youtube": {
+            "handlers": ["console", "file"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+        "products": {
+            "handlers": ["console", "file"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
     },
 }
 
@@ -251,4 +266,4 @@ FINANCE_API = env("FINANCE_API")
 EXCHANGE_RATE_API = env("EXCHANGE_RATE_API")
 DEPOSIT_PRODUCT_API = env("DEPOSIT_PRODUCT_API")
 DEPOSIT_NEWS_API = env("DEPOSIT_NEWS_API")
-YOUTUBE_API = env("YOUTUBE_API")
+YOUTUBE_API_KEY = env("YOUTUBE_API_KEY", default="")
