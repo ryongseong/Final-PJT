@@ -16,14 +16,14 @@
     </div>
 
     <div v-else class="favorites-grid">
-      <ProductCard 
-        v-for="favorite in favorites" 
+      <ProductCard
+        v-for="favorite in favorites"
         :key="favorite.financial_product.fin_prdt_cd"
         :product="{
           ...favorite.financial_product,
           id: favorite.id,
           type: favorite.product_type || getTypeFromCategory(favorite),
-          product_type: favorite.product_type || getTypeFromCategory(favorite)
+          product_type: favorite.product_type || getTypeFromCategory(favorite),
         }"
         :isFavorite="true"
         :showFavoriteDate="true"
@@ -37,94 +37,102 @@
 </template>
 
 <script>
-import productsService from '@/services/products';
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import ProductCard from '@/components/products/ProductCard.vue';
+import productsService from '@/services/products'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import ProductCard from '@/components/products/ProductCard.vue'
 
 export default {
   name: 'FavoritesView',
   components: {
-    ProductCard
+    ProductCard,
   },
   setup() {
-    const router = useRouter();
-    
-    const favorites = ref([]);
-    const loading = ref(true);
-    const error = ref(null);
+    const router = useRouter()
+
+    const favorites = ref([])
+    const loading = ref(true)
+    const error = ref(null)
 
     // Load user favorites
     const loadFavorites = async () => {
-      loading.value = true;
-      error.value = null;
-      
+      loading.value = true
+      error.value = null
+
       try {
-        const response = await productsService.getUserFavorites();
-        console.log('Favorites loaded:', response);
-        favorites.value = response;
+        const response = await productsService.getUserFavorites()
+        console.log('Favorites loaded:', response)
+        favorites.value = response
+        console.log('Favorites:', favorites.value)
       } catch (err) {
-        console.error('Error loading favorites:', err);
-        error.value = '즐겨찾기 목록을 불러오는데 실패했습니다. 다시 시도해주세요.';
+        console.error('Error loading favorites:', err)
+        error.value = '즐겨찾기 목록을 불러오는데 실패했습니다. 다시 시도해주세요.'
       } finally {
-        loading.value = false;
+        loading.value = false
       }
-    };
+    }
 
     // Remove a product from favorites
     const removeFromFavorites = async (favorite) => {
       try {
-        const productId = favorite.financial_product.fin_prdt_cd;
+        const productId = favorite.financial_product.fin_prdt_cd
         if (!productId) {
-          console.error('No product ID found:', favorite);
-          return;
+          console.error('No product ID found:', favorite)
+          return
         }
-        
-        await productsService.removeFromFavorites(productId);
+
+        await productsService.removeFromFavorites(productId)
         // Remove from local list
-        favorites.value = favorites.value.filter(item => item.id !== favorite.id);
+        favorites.value = favorites.value.filter((item) => item.id !== favorite.id)
       } catch (err) {
-        console.error('Error removing from favorites:', err);
+        console.error('Error removing from favorites:', err)
       }
-    };
+    }
 
     // Navigate to product details
     const viewProductDetails = (product) => {
-      console.log('Viewing product details:', product);
-      const productTypeNew = getTypeFromCategory(product);
+      console.log('Viewing product details:', product)
+      const productTypeNew = getTypeFromCategory(product)
       router.push({
         name: 'ProductDetail',
         params: { id: product.product, type: productTypeNew || product.product_type },
-      });
-    };
+      })
+    }
 
     // Navigate to products page
     const goToProducts = () => {
-      router.push({ name: 'Products' });
-    };
+      router.push({ name: 'Products' })
+    }
 
     const getTypeFromCategory = (product) => {
-      if (product.financial_product.fin_prdt_cd && product.financial_product.fin_prdt_cd.startsWith('DW')) return 'deposit';
-      if (product.financial_product.fin_prdt_cd && product.financial_product.fin_prdt_cd.startsWith('SW')) return 'saving';
-      if (product.financial_product.loan_type) return 'loan';
-      return 'all';
-    };
-
+      if (
+        product.financial_product.fin_prdt_cd &&
+        product.financial_product.fin_prdt_cd.startsWith('DW')
+      )
+        return 'deposit'
+      if (
+        product.financial_product.fin_prdt_cd &&
+        product.financial_product.fin_prdt_cd.startsWith('SW')
+      )
+        return 'saving'
+      if (product.financial_product.loan_type) return 'loan'
+      return 'all'
+    }
 
     // Format date for display
     const formatDate = (dateStr) => {
-      if (!dateStr) return '';
-      const date = new Date(dateStr);
+      if (!dateStr) return ''
+      const date = new Date(dateStr)
       return date.toLocaleDateString('ko-KR', {
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
-      });
-    };
+        day: 'numeric',
+      })
+    }
 
     onMounted(() => {
-      loadFavorites();
-    });
+      loadFavorites()
+    })
 
     return {
       favorites,
@@ -134,9 +142,9 @@ export default {
       viewProductDetails,
       goToProducts,
       formatDate,
-      getTypeFromCategory
-    };
-  }
+      getTypeFromCategory,
+    }
+  },
 }
 </script>
 
@@ -159,7 +167,9 @@ export default {
   gap: 1.5rem;
 }
 
-.loading-indicator, .error-message, .no-favorites {
+.loading-indicator,
+.error-message,
+.no-favorites {
   text-align: center;
   padding: 3rem 0;
   color: #555;
