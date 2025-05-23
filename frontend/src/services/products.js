@@ -29,6 +29,15 @@ export default {
 
   // Alias for getAllFinancialProducts to maintain compatibility
   async getAllProducts(params = {}) {
+    const depositProduct = await apiClient.get('deposits/', { params })
+    const savingProduct = await apiClient.get('savings/', { params })
+    const loanProduct = await apiClient.get('loans/', { params })
+
+    const allProducts = depositProduct.data.concat(savingProduct.data, loanProduct.data)
+    if (allProducts) {
+      return allProducts
+    }
+
     return apiClient.get('financial-products/', { params }).then((response) => response.data)
   },
 
