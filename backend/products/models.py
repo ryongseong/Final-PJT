@@ -100,22 +100,14 @@ class CreditLoanOption(models.Model):
     )
     crdt_prdt_type = models.CharField(max_length=255)  # 신용상품 유형
     crdt_lend_rate_type = models.CharField(max_length=255)  # 금리 유형
-    crdt_grad_1 = models.CharField(max_length=255, null=True, blank=True)  # 신용등급 1
-    crdt_grad_4 = models.CharField(max_length=255, null=True, blank=True)  # 신용등급 4
-    crdt_grad_5 = models.CharField(max_length=255, null=True, blank=True)  # 신용등급 5
-    crdt_grad_6 = models.CharField(max_length=255, null=True, blank=True)  # 신용등급 6
-    crdt_grad_10 = models.CharField(
-        max_length=255, null=True, blank=True
-    )  # 신용등급 10
-    crdt_grad_11 = models.CharField(
-        max_length=255, null=True, blank=True
-    )  # 신용등급 11
-    crdt_grad_12 = models.CharField(
-        max_length=255, null=True, blank=True
-    )  # 신용등급 12
-    crdt_grad_13 = models.CharField(
-        max_length=255, null=True, blank=True
-    )  # 신용등급 13
+    crdt_grad_1 = models.FloatField(null=True, blank=True)  # 신용등급 1
+    crdt_grad_4 = models.FloatField(null=True, blank=True)  # 신용등급 4
+    crdt_grad_5 = models.FloatField(null=True, blank=True)  # 신용등급 5
+    crdt_grad_6 = models.FloatField(null=True, blank=True)  # 신용등급 6
+    crdt_grad_10 = models.FloatField(null=True, blank=True)  # 신용등급 10
+    crdt_grad_11 = models.FloatField(null=True, blank=True)  # 신용등급 11
+    crdt_grad_12 = models.FloatField(null=True, blank=True)  # 신용등급 12
+    crdt_grad_13 = models.FloatField(null=True, blank=True)  # 신용등급 13
     crdt_grad_avg = models.FloatField(null=True, blank=True)  # 평균 금리
 
     def __str__(self):

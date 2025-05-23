@@ -5,97 +5,96 @@
       <div class="welcome-content">
         <h1>환영합니다!</h1>
         <p class="subtitle">당신의 금융 인생을 관리하는 가장 스마트한 방법</p>
-        
+
         <div v-if="isLoggedIn" class="user-greeting">
-          <p>{{ user.nickname }}님, 오늘도 좋은 하루 되세요!</p>
-          <router-link to="/profile" class="cta-button secondary">
-            프로필 관리
-          </router-link>
+          <p>{{ user.nickname || user.username }}님, 오늘도 좋은 하루 되세요!</p>
+          <router-link to="/profile" class="cta-button secondary"> 프로필 관리 </router-link>
         </div>
-        
+
         <div v-else class="auth-buttons">
-          <router-link to="/login" class="cta-button">
-            로그인
-          </router-link>
-          <router-link to="/register" class="cta-button secondary">
-            회원가입
-          </router-link>
+          <router-link to="/login" class="cta-button"> 로그인 </router-link>
+          <router-link to="/register" class="cta-button secondary"> 회원가입 </router-link>
         </div>
-      </div>    </section>
-    
+      </div>
+    </section>
+
     <section class="top-products-section">
       <h2>추천 금융 상품</h2>
-      
+
       <div class="tabs">
-        <button 
-          :class="{'active': activeTab === 'deposit'}"
-          @click="activeTab = 'deposit'">
+        <button :class="{ active: activeTab === 'deposit' }" @click="activeTab = 'deposit'">
           예금 상품
         </button>
-        <button 
-          :class="{'active': activeTab === 'saving'}"
-          @click="activeTab = 'saving'">
+        <button :class="{ active: activeTab === 'saving' }" @click="activeTab = 'saving'">
           적금 상품
         </button>
-        <button 
-          :class="{'active': activeTab === 'loan'}"
-          @click="activeTab = 'loan'">
+        <button :class="{ active: activeTab === 'loan' }" @click="activeTab = 'loan'">
           대출 상품
         </button>
       </div>
-      
+
       <div v-if="topProductsLoading" class="loading-indicator">
         <p>상품 정보를 불러오는 중...</p>
       </div>
-      
+
       <div v-else-if="topProductsError" class="error-message">
         <p>{{ topProductsError }}</p>
       </div>
-      
+
       <div v-else class="products-slider">
         <div class="product-cards">
-          <div 
-            v-for="product in topProducts" 
-            :key="product.product" 
+          <div
+            v-for="product in topProducts"
+            :key="product.product"
             class="product-card"
             @click="viewProductDetails(product)"
           >
             <div class="product-header">
               <h3>{{ product.fin_prdt_nm }}</h3>
-              <span class="bank-name">{{ product.kor_co_nm }}</span>
+              <span class="bank-name" v-if="activeTab === 'deposit' || activeTab === 'saving'">{{
+                product.financial_product.fin_prdt_nm
+              }}</span>
+              <span class="bank-name" v-if="activeTab === 'loan'">{{
+                product.product_info.fin_prdt_nm
+              }}</span>
             </div>
-            
+
             <div class="product-rate" v-if="activeTab === 'deposit' || activeTab === 'saving'">
-              <div class="rate-value">{{ formatRate(product.max_rate) }}%</div>
+              <div class="rate-value">{{ formatRate(product.intr_rate2) }}%</div>
               <div class="rate-label">최고 금리</div>
             </div>
-            
+
             <div class="product-rate" v-if="activeTab === 'loan'">
-              <div class="rate-value">{{ formatRate(product.min_rate) }}%</div>
+              <div class="rate-value">
+                {{ formatRate(product.lending_options[0].lend_rate_min) }}%
+              </div>
               <div class="rate-label">최저 대출금리</div>
             </div>
-            
+
             <div class="product-meta">
               <div class="join-methods">
-                <span v-if="hasJoinWay(product, '2')" class="join-badge">인터넷</span>
-                <span v-if="hasJoinWay(product, '4')" class="join-badge">모바일</span>
+                <span v-if="hasJoinWay(product, '인터넷')" class="join-badge">인터넷</span>
+                <span v-if="hasJoinWay(product, '영업점')" class="join-badge">영업점</span>
+                <span v-if="hasJoinWay(product, '스마트폰')" class="join-badge">스마트폰</span>
+                <span v-if="hasJoinWay(product, '전화(텔레뱅킹)')" class="join-badge"
+                  >전화(텔레뱅킹)</span
+                >
+                <span v-if="hasJoinWay(product, '모집인')" class="join-badge">모집인</span>
               </div>
             </div>
-            
-            <button class="view-details-btn">
-              상세 정보 보기
-            </button>
+
+            <button class="view-details-btn">상세 정보 보기</button>
           </div>
         </div>
-        
+
         <div class="view-all">
-          <router-link :to="{ name: 'Products', query: { tab: activeTab }}" class="view-all-link">
+          <router-link :to="{ name: 'Products', query: { tab: activeTab } }" class="view-all-link">
             모든 {{ getTabName(activeTab) }} 상품 보기
           </router-link>
         </div>
       </div>
     </section>
-    
+
     <section class="features-section">
       <h2>주요 기능</h2>
       <div class="features-grid">
@@ -104,19 +103,19 @@
           <h3>지출 관리</h3>
           <p>일일 지출을 편리하게 기록하고 관리하세요</p>
         </div>
-        
+
         <div class="feature-card">
           <div class="feature-icon">📊</div>
           <h3>분석 리포트</h3>
           <p>지출 패턴을 분석하여 효과적인 재정 관리를 도와드립니다</p>
         </div>
-        
+
         <div class="feature-card">
           <div class="feature-icon">🎯</div>
           <h3>저축 목표</h3>
           <p>목표를 설정하고 진행 상황을 추적하세요</p>
         </div>
-        
+
         <div class="feature-card">
           <div class="feature-icon">🔔</div>
           <h3>알림 서비스</h3>
@@ -149,7 +148,7 @@ const topProductsError = ref(null)
 const loadTopProducts = async () => {
   topProductsLoading.value = true
   topProductsError.value = null
-  
+
   try {
     const response = await productsService.getTopRateProducts(activeTab.value, 5)
     console.log('Top products loaded:', response)
@@ -169,16 +168,34 @@ const formatRate = (rate) => {
 
 // Check if product has specific join way
 const hasJoinWay = (product, code) => {
-  if (!product || !product.financial_product.join_way) return false
+  if (!product) return false
+
+  if (activeTab.value === 'loan') {
+    if (product.join_way && Array.isArray(product.join_way)) {
+      return product.join_way.includes(code)
+    }
+
+    if (product.product_info && product.product_info.join_way) {
+      return product.product_info.join_way.includes(code)
+    }
+
+    if (product.join_ways && Array.isArray(product.join_ways)) {
+      return product.join_ways.some((item) => item.join_way === code)
+    }
+
+    return false
+  }
+
+  if (!product.financial_product || !product.financial_product.join_way) return false
   return product.financial_product.join_way.includes(code)
 }
 
 // Get tab name for display
 const getTabName = (tab) => {
   const names = {
-    'deposit': '예금',
-    'saving': '적금',
-    'loan': '대출'
+    deposit: '예금',
+    saving: '적금',
+    loan: '대출',
   }
   return names[tab] || ''
 }
@@ -188,10 +205,10 @@ const viewProductDetails = (product) => {
   console.log('Navigating to product details:', product)
   router.push({
     name: 'ProductDetail',
-    params: { 
+    params: {
       type: activeTab.value,
-      id: product.product
-    }
+      id: product.product || product.product_info.fin_prdt_cd,
+    },
   })
 }
 
@@ -203,7 +220,7 @@ const watchTabChange = () => {
 onMounted(async () => {
   // Check auth status when the component mounts
   await userStore.checkAuth()
-  
+
   // Load top products for initial tab
   loadTopProducts()
 })
@@ -246,7 +263,8 @@ h1 {
   font-size: 1.2rem;
 }
 
-.auth-buttons, .user-greeting {
+.auth-buttons,
+.user-greeting {
   display: flex;
   gap: 20px;
   justify-content: center;
@@ -476,7 +494,8 @@ h2 {
   color: white;
 }
 
-.loading-indicator, .error-message {
+.loading-indicator,
+.error-message {
   padding: 40px 0;
   color: #6b7280;
 }
@@ -489,16 +508,16 @@ h2 {
   h1 {
     font-size: 2.5rem;
   }
-  
+
   .subtitle {
     font-size: 1.2rem;
   }
-  
+
   .auth-buttons {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .cta-button {
     width: 100%;
     max-width: 300px;

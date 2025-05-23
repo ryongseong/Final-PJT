@@ -7,26 +7,22 @@
         <span v-if="isNewProduct" class="new-badge">신규</span>
       </div>
     </div>
-
     <!-- Product Name and Bank -->
-    <h3 class="product-name">{{ product.fin_prdt_nm }}</h3>
-    <div class="product-bank">{{ product.kor_co_nm }}</div>
-
+    <h3 class="product-name">{{ getProductName }}</h3>
+    <div class="product-bank">{{ getBankName }}</div>
     <!-- Interest Rate Information -->
     <div class="product-rate">
       <template v-if="isDepositOrSaving">
         <div class="rate-info">
           <span class="rate-label">금리</span>
-          <span class="rate-value">{{ formatRate(product.max_rate || product.intr_rate2) }}%</span>
+          <span class="rate-value">{{ getInterestRate('max') }}%</span>
           <span class="rate-subtitle">최고금리</span>
         </div>
       </template>
       <template v-else-if="isLoan">
         <div class="rate-info">
           <span class="rate-label">대출금리</span>
-          <span class="rate-value loan"
-            >{{ formatRate(product.min_rate || product.intr_rate) }}%</span
-          >
+          <span class="rate-value loan">{{ getInterestRate('min') }}%</span>
           <span class="rate-subtitle">최저금리</span>
         </div>
       </template>
@@ -36,22 +32,10 @@
     <div class="product-join-way">
       <span class="join-label">가입방법</span>
       <div class="join-badges">
-        <span v-if="hasJoinWay('1')" class="join-badge">
-          <i class="fas fa-building"></i>
-          영업점
-        </span>
-        <span v-if="hasJoinWay('2')" class="join-badge">
-          <i class="fas fa-laptop"></i>
-          인터넷
-        </span>
-        <span v-if="hasJoinWay('3')" class="join-badge">
-          <i class="fas fa-phone"></i>
-          전화
-        </span>
-        <span v-if="hasJoinWay('4')" class="join-badge">
-          <i class="fas fa-mobile-alt"></i>
-          모바일
-        </span>
+        <span v-if="hasJoinWay('영업점')" class="join-badge"> 영업점 </span>
+        <span v-if="hasJoinWay('인터넷')" class="join-badge"> 인터넷 </span>
+        <span v-if="hasJoinWay('스마트폰')" class="join-badge"> 스마트폰 </span>
+        <span v-if="hasJoinWay('전화(텔레뱅킹)')" class="join-badge"> 전화(텔레뱅킹) </span>
       </div>
     </div>
 
@@ -68,6 +52,8 @@
 </template>
 
 <script>
+import { formatRate } from '@/utils/rateUtils.js'
+
 export default {
   name: 'ProductCard',
   props: {
@@ -97,9 +83,25 @@ export default {
     },
   },
   computed: {
+    getProductName() {
+      // Try to get product name from various possible locations
+      return (
+        this.product.fin_prdt_nm ||
+        (this.product.financial_product && this.product.financial_product.fin_prdt_nm) ||
+        '상품명 없음'
+      )
+    },
+    getBankName() {
+      // Try to get bank name from various possible locations
+      return (
+        this.product.kor_co_nm ||
+        (this.product.financial_product && this.product.financial_product.kor_co_nm) ||
+        '은행명 없음'
+      )
+    },
     isDepositOrSaving() {
       const type = this.product.product_type || this.getTypeFromCategory()
-      return type === 'deposit' || type === 'saving'
+      return type === 'deposit' || type === 'saving' || type === 'all'
     },
     isLoan() {
       const type = this.product.product_type || this.getTypeFromCategory()
@@ -115,18 +117,23 @@ export default {
       return types[type] || '금융상품'
     },
     isNewProduct() {
-      if (!this.product.fin_prdt_launch_dt) return false
+      // Get launch date either directly or from nested financial_product
+      const launchDate =
+        this.product.fin_prdt_launch_dt ||
+        (this.product.financial_product && this.product.financial_product.fin_prdt_launch_dt)
 
-      const launchDate = new Date(
-        this.product.fin_prdt_launch_dt.substring(0, 4),
-        this.product.fin_prdt_launch_dt.substring(4, 6) - 1,
-        this.product.fin_prdt_launch_dt.substring(6, 8),
+      if (!launchDate) return false
+
+      const parsedDate = new Date(
+        launchDate.substring(0, 4),
+        launchDate.substring(4, 6) - 1,
+        launchDate.substring(6, 8),
       )
 
       const threeMonthsAgo = new Date()
       threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3)
 
-      return launchDate >= threeMonthsAgo
+      return parsedDate >= threeMonthsAgo
     },
   },
   methods: {
@@ -141,9 +148,15 @@ export default {
       if (this.product.loan_type) return 'loan'
       return 'unknown'
     },
-    formatRate(rate) {
-      if (!rate) return '0.00'
-      return parseFloat(rate).toFixed(2)
+    getInterestRate(type) {
+      let rate = 0.0
+      if (type === 'max') {
+        rate = this.product.intr_rate2
+      } else {
+        console.error('Invalid rate type:', type)
+        return '알 수 없음'
+      }
+      return formatRate(rate)
     },
     formatDate(dateString) {
       if (!dateString) return '알 수 없음'
@@ -155,13 +168,34 @@ export default {
       })
     },
     hasJoinWay(code) {
-      if (!this.product || !this.product.join_way) return false
-      return this.product.join_way.includes(code)
+      // Check if join_way is directly on the product
+      if (this.product && this.product.join_way) {
+        return this.product.join_way.includes(code)
+      }
+
+      // Check if join_way is in the nested financial_product
+      if (
+        this.product &&
+        this.product.financial_product &&
+        this.product.financial_product.join_way
+      ) {
+        return this.product.financial_product.join_way.includes(code)
+      }
+
+      return false
     },
     viewProductDetails() {
       // Get the product type and ensure we have an ID
       const type = this.product.product_type || this.getTypeFromCategory()
-      const id = this.product.fin_prdt_cd || this.financial_product.fin_prdt_cd || this.product.id
+
+      // Handle nested structure or direct access
+      let id
+      if (this.product.financial_product) {
+        id =
+          this.product.financial_product.fin_prdt_cd || this.product.fin_prdt_cd || this.product.id
+      } else {
+        id = this.product.fin_prdt_cd || this.product.id
+      }
 
       if (!id) {
         console.error('Missing product ID:', this.product)

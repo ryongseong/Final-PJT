@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
-from products.utils import update_all_financial_products
+from products.utils import update_all_financial_products, fetch_products_by_type
 import time
+import json
 
 
 class Command(BaseCommand):
@@ -10,13 +11,19 @@ class Command(BaseCommand):
         parser.add_argument(
             "--type",
             type=str,
-            choices=["deposit", "saving", "mortgage", "credit", "all"],
+            choices=["deposit", "saving", "mortgage", "credit", "rent", "all"],
             default="all",
             help="Type of financial products to update",
+        )
+        parser.add_argument(
+            "--verbose",
+            action="store_true",
+            help="Print detailed results",
         )
 
     def handle(self, *args, **options):
         product_type = options["type"]
+        verbose = options["verbose"]
 
         self.stdout.write(
             self.style.SUCCESS(f"Starting update of {product_type} products...")
@@ -26,39 +33,54 @@ class Command(BaseCommand):
 
         if product_type == "all":
             results = update_all_financial_products()
-
-            for product_type, success in results.items():
-                status = "SUCCESS" if success else "FAILED"
-                self.stdout.write(
-                    self.style.SUCCESS(f"{status}: Updated {product_type}")
-                    if success
-                    else self.style.ERROR(f"{status}: Failed to update {product_type}")
-                )
         else:
-            from products.utils import (
-                fetch_deposit_products,
-                fetch_saving_products,
-                fetch_mortgage_loan_products,
-                fetch_credit_loan_products,
-            )
+            results = fetch_products_by_type([product_type])
 
-            if product_type == "deposit":
-                success = fetch_deposit_products()
-            elif product_type == "saving":
-                success = fetch_saving_products()
-            elif product_type == "mortgage":
-                success = fetch_mortgage_loan_products()
-            elif product_type == "credit":
-                success = fetch_credit_loan_products()
-
-            status = "SUCCESS" if success else "FAILED"
+        # Print results
+        if verbose:
             self.stdout.write(
-                self.style.SUCCESS(f"{status}: Updated {product_type} products")
-                if success
-                else self.style.ERROR(
-                    f"{status}: Failed to update {product_type} products"
+                self.style.SUCCESS(
+                    f"Detailed Results:\n{json.dumps(results, indent=2, ensure_ascii=False)}"
                 )
             )
+        else:
+            # Print summary
+            summary = results.get("summary", {})
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"Update completed in {summary.get('total_time_taken', 'unknown')} time"
+                )
+            )
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"Total products updated: {summary.get('total_updated', 0)}"
+                )
+            )
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"All operations successful: {summary.get('all_success', False)}"
+                )
+            )  # Print individual results
+            for product_name, result in results.items():
+                if product_name != "summary":
+                    status = "SUCCESS" if result.get("success", False) else "FAILED"
+                    count = result.get("count", 0)
+                    time_taken = result.get("time_taken", "unknown")
 
-        elapsed_time = time.time() - start_time
-        self.stdout.write(self.style.SUCCESS(f"Finished in {elapsed_time:.2f} seconds"))
+                    if result.get("success", False):
+                        self.stdout.write(
+                            self.style.SUCCESS(
+                                f"{status}: {product_name} - {count} products in {time_taken}"
+                            )
+                        )
+                    else:
+                        self.stdout.write(
+                            self.style.ERROR(
+                                f"{status}: {product_name} - Failed in {time_taken}"
+                            )
+                        )
+
+        total_time = time.time() - start_time
+        self.stdout.write(
+            self.style.SUCCESS(f"Command completed in {total_time:.2f} seconds")
+        )

@@ -159,16 +159,19 @@ class SavingProductViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class LoanProductViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = LoanProduct.objects.all().select_related("product")
+    queryset = (
+        LoanProduct.objects.all()
+        .select_related("product")
+        .prefetch_related("product__mortgage_options", "product__credit_options")
+    )
     filterset_fields = ["dcls_month"]  # We can filter by disclosure month
     search_fields = ["product__fin_prdt_nm", "product__kor_co_nm", "product__loan_type"]
     ordering_fields = ["product__kor_co_nm", "product__fin_prdt_nm"]
     permission_classes = [AllowAny]
 
     def get_serializer_class(self):
-        if self.action == "retrieve":
-            return LoanProductDetailSerializer
-        return LoanProductSerializer
+        # Use the detail serializer for both list and retrieve to include options
+        return LoanProductDetailSerializer
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -270,14 +273,20 @@ def get_product_recommendations(request):
     if not user_favorites.exists():
         # Get top deposit and saving products
         top_deposits = DepositProduct.objects.all().order_by("-intr_rate2")[:3]
-        top_savings = SavingProduct.objects.all().order_by("-intr_rate2")[:3]
-
-        # Get lowest rate loans
-        lowest_loans = LoanProduct.objects.all().select_related("product")[:3]
+        top_savings = SavingProduct.objects.all().order_by("-intr_rate2")[
+            :3
+        ]  # Get lowest rate loans
+        lowest_loans = (
+            LoanProduct.objects.all()
+            .select_related("product")
+            .prefetch_related("product__mortgage_options", "product__credit_options")[
+                :3
+            ]
+        )
 
         deposit_serializer = DepositProductSerializer(top_deposits, many=True)
         saving_serializer = SavingProductSerializer(top_savings, many=True)
-        loan_serializer = LoanProductSerializer(lowest_loans, many=True)
+        loan_serializer = LoanProductDetailSerializer(lowest_loans, many=True)
 
         return Response(
             {
@@ -336,27 +345,35 @@ def get_product_recommendations(request):
         # Also find some high-rate savings they might not have seen
         other_savings = SavingProduct.objects.exclude(
             product__kor_co_nm__in=favorite_institutions
-        ).order_by("-intr_rate2")[:2]
-
-        # Combine the results
+        ).order_by("-intr_rate2")[
+            :2
+        ]  # Combine the results
         recommended_savings = list(savings_from_favorites) + list(other_savings)
         saving_serializer = SavingProductSerializer(recommended_savings, many=True)
         recommendations["savings"] = saving_serializer.data
 
     if interested_in_loans:
         # Find best loan options from favorite institutions
-        loans_from_favorites = LoanProduct.objects.filter(
-            product__kor_co_nm__in=favorite_institutions
-        ).select_related("product")[:3]
+        loans_from_favorites = (
+            LoanProduct.objects.filter(product__kor_co_nm__in=favorite_institutions)
+            .select_related("product")
+            .prefetch_related("product__mortgage_options", "product__credit_options")[
+                :3
+            ]
+        )
 
         # Also suggest some other good options
-        other_loans = LoanProduct.objects.exclude(
-            product__kor_co_nm__in=favorite_institutions
-        ).select_related("product")[:2]
+        other_loans = (
+            LoanProduct.objects.exclude(product__kor_co_nm__in=favorite_institutions)
+            .select_related("product")
+            .prefetch_related("product__mortgage_options", "product__credit_options")[
+                :2
+            ]
+        )
 
         # Combine the results
         recommended_loans = list(loans_from_favorites) + list(other_loans)
-        loan_serializer = LoanProductSerializer(recommended_loans, many=True)
+        loan_serializer = LoanProductDetailSerializer(recommended_loans, many=True)
         recommendations["loans"] = loan_serializer.data
 
     return Response(
@@ -416,15 +433,14 @@ def get_top_rate_products(request, product_type):
 
         # Annotate LoanProduct with the minimum rate from its options
         # We'll prioritize mortgage loans, then credit loans if no mortgage options exist or if their rates are not comparable
-        # This example prioritizes mortgage loan rates.
-
-        # Attempt to get the minimum mortgage loan rate
+        # This example prioritizes mortgage loan rates.        # Attempt to get the minimum mortgage loan rate
         loans_with_min_mortgage_rate = (
             LoanProduct.objects.annotate(
                 min_rate=Subquery(mortgage_options_subquery, output_field=FloatField())
             )
             .filter(min_rate__isnull=False)
             .select_related("product")
+            .prefetch_related("product__mortgage_options", "product__credit_options")
             .order_by("min_rate")[:limit]
         )
 
@@ -438,13 +454,16 @@ def get_top_rate_products(request, product_type):
                 )
                 .filter(min_rate__isnull=False)
                 .select_related("product")
+                .prefetch_related(
+                    "product__mortgage_options", "product__credit_options"
+                )
                 .order_by("min_rate")[:limit]
             )
             products = loans_with_min_credit_rate
         else:
             products = loans_with_min_mortgage_rate
 
-        serializer = LoanProductSerializer(products, many=True)
+        serializer = LoanProductDetailSerializer(products, many=True)
     else:
         return Response(
             {"detail": "Invalid product type"}, status=status.HTTP_400_BAD_REQUEST
@@ -503,13 +522,14 @@ def lowest_rate_loan_products(request):
         .annotate(min_rate=Min("lend_rate_min"))
         .order_by("min_rate")[:limit]
     )
-
     product_ids = [item["product"] for item in mortgage_loans]
-    products = LoanProduct.objects.filter(
-        product__fin_prdt_cd__in=product_ids
-    ).select_related("product")
+    products = (
+        LoanProduct.objects.filter(product__fin_prdt_cd__in=product_ids)
+        .select_related("product")
+        .prefetch_related("product__mortgage_options", "product__credit_options")
+    )
 
-    serializer = LoanProductSerializer(products, many=True)
+    serializer = LoanProductDetailSerializer(products, many=True)
     return Response(serializer.data)
 
 
@@ -522,9 +542,7 @@ def search_financial_products(request):
     if not query:
         return Response(
             {"detail": "검색어를 입력해주세요."}, status=status.HTTP_400_BAD_REQUEST
-        )
-
-    # Search in FinancialProduct model
+        )  # Search in FinancialProduct model
     financial_products = FinancialProduct.objects.filter(
         fin_prdt_nm__icontains=query
     ) | FinancialProduct.objects.filter(kor_co_nm__icontains=query)
@@ -539,14 +557,16 @@ def search_financial_products(request):
     savings = SavingProduct.objects.filter(
         product__fin_prdt_cd__in=product_ids
     ).select_related("product")
-    loans = LoanProduct.objects.filter(
-        product__fin_prdt_cd__in=product_ids
-    ).select_related("product")
+    loans = (
+        LoanProduct.objects.filter(product__fin_prdt_cd__in=product_ids)
+        .select_related("product")
+        .prefetch_related("product__mortgage_options", "product__credit_options")
+    )
 
     # Serialize the results
     deposit_serializer = DepositProductSerializer(deposits, many=True)
     saving_serializer = SavingProductSerializer(savings, many=True)
-    loan_serializer = LoanProductSerializer(loans, many=True)
+    loan_serializer = LoanProductDetailSerializer(loans, many=True)
     # Return combined results
     return Response(
         {
@@ -629,7 +649,11 @@ def filter_products(request):
         savings = SavingProduct.objects.none()
 
     if product_type == "loan" or product_type == "all":
-        loans = LoanProduct.objects.all().select_related("product")
+        loans = (
+            LoanProduct.objects.all()
+            .select_related("product")
+            .prefetch_related("product__mortgage_options", "product__credit_options")
+        )
 
         # Apply filters
         if institution:
@@ -648,14 +672,12 @@ def filter_products(request):
     page = int(request.GET.get("page", 1))
     page_size = int(request.GET.get("page_size", 10))
     start_idx = (page - 1) * page_size
-    end_idx = page * page_size
-
-    # Serialize
+    end_idx = page * page_size  # Serialize
     deposit_serializer = DepositProductSerializer(
         deposits[start_idx:end_idx], many=True
     )
     saving_serializer = SavingProductSerializer(savings[start_idx:end_idx], many=True)
-    loan_serializer = LoanProductSerializer(loans[start_idx:end_idx], many=True)
+    loan_serializer = LoanProductDetailSerializer(loans[start_idx:end_idx], many=True)
 
     # Count total results for pagination
     total_count = {

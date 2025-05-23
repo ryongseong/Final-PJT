@@ -1,5 +1,5 @@
 <template>
-  <div class="rate-display" :class="{ 'highlight': highlight }">
+  <div class="rate-display" :class="{ highlight: highlight }">
     <div class="rate-value" :class="{ 'loan-rate': isLoan }">{{ formattedRate }}</div>
     <div class="rate-label">{{ displayLabel }}</div>
   </div>
@@ -11,43 +11,43 @@ export default {
   props: {
     rate: {
       type: [Number, String],
-      required: true
+      required: true,
     },
     type: {
       type: String,
       default: 'deposit', // 'deposit', 'saving', or 'loan'
-      validator: value => ['deposit', 'saving', 'loan'].includes(value)
+      validator: (value) => ['deposit', 'saving', 'loan'].includes(value),
     },
     rateType: {
       type: String,
       default: 'max', // 'max', 'min', 'base'
-      validator: value => ['max', 'min', 'base'].includes(value)
+      validator: (value) => ['max', 'min', 'base'].includes(value),
     },
     highlight: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   computed: {
     formattedRate() {
-      if (!this.rate) return '0.00%';
-      return parseFloat(this.rate).toFixed(2) + '%';
+      if (!this.rate) return '0.00%'
+      return parseFloat(this.rate).toFixed(2) + '%'
     },
     isLoan() {
-      return this.type === 'loan';
+      return this.type === 'loan'
     },
     displayLabel() {
       if (this.type === 'loan') {
-        if (this.rateType === 'min') return '최저 대출금리';
-        if (this.rateType === 'max') return '최고 대출금리';
-        return '기준 대출금리';
+        if (this.rateType === 'min') return '최저 대출금리'
+        if (this.rateType === 'max') return '최고 대출금리'
+        return '기준 대출금리'
       } else {
-        if (this.rateType === 'max') return '최고 금리';
-        if (this.rateType === 'min') return '최저 금리';
-        return '기준 금리';
+        if (this.rateType === 'max') return '최고 금리'
+        if (this.rateType === 'min') return '최저 금리'
+        return '기준 금리'
       }
-    }
-  }
+    },
+  },
 }
 </script>
 
