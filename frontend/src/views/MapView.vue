@@ -3,27 +3,33 @@
   <div class="map-view">
     <h1>금융기관 위치 검색</h1>
     <div class="instructions">
-      <p>지역(시/도, 구/군)과 은행을 선택하여 원하는 은행을 검색하거나, 현재 위치 근처의 은행을 검색할 수 있습니다.</p>
+      <p>
+        지역(시/도, 구/군)과 은행을 선택하여 원하는 은행을 검색하거나, 현재 위치 근처의 은행을
+        검색할 수 있습니다.
+      </p>
     </div>
-    
+
     <div class="map-wrapper">
-      <KakaoMap 
+      <KakaoMap
         ref="kakaoMap"
         :markers="markers"
         @location-changed="onLocationChanged"
         @marker-clicked="onMarkerClicked"
         @map-clicked="onMapClicked"
         @bank-clicked="onBankClicked"
+        @current-location="onCurrentLocation"
       />
     </div>
-    
+
     <div class="info-panel" v-if="selectedLocation">
       <h3>선택된 위치 정보</h3>
       <div v-if="selectedBank">
         <p><strong>은행명:</strong> {{ selectedBank.place_name }}</p>
         <p><strong>주소:</strong> {{ selectedBank.address_name }}</p>
         <p v-if="selectedBank.phone"><strong>전화번호:</strong> {{ selectedBank.phone }}</p>
-        <p v-if="selectedBank.distance"><strong>거리:</strong> {{ formatDistance(selectedBank.distance) }}</p>
+        <p v-if="selectedBank.distance">
+          <strong>거리:</strong> {{ formatDistance(selectedBank.distance) }}
+        </p>
         <div class="directions-link" v-if="selectedBank.road_address_name">
           <a :href="getKakaoMapUrl(selectedBank)" target="_blank" class="btn btn-directions">
             길찾기
@@ -43,83 +49,89 @@
 </template>
 
 <script>
-import KakaoMap from '@/components/KakaoMap.vue';
+import KakaoMap from '@/components/KakaoMap.vue'
 
 export default {
   name: 'MapView',
   components: {
-    KakaoMap
+    KakaoMap,
   },
   data() {
     return {
       markers: [],
       selectedLocation: null,
       selectedBank: null,
-    };
+      currentLocation: null,
+    }
   },
   methods: {
     onLocationChanged(location) {
-      console.log('Location changed:', location);
-      this.selectedLocation = location;
-      this.selectedBank = null;
+      console.log('Location changed:', location)
+      this.selectedLocation = location
+      this.selectedBank = null
     },
-    
+
+    onCurrentLocation(location) {
+      console.log('Current location:', location)
+      this.currentLocation = location
+    },
+
     onMarkerClicked(marker) {
-      console.log('Marker clicked:', marker);
-      this.selectedLocation = marker;
+      console.log('Marker clicked:', marker)
+      this.selectedLocation = marker
       // Check if the marker is a bank
       if (marker.place_name) {
-        this.selectedBank = marker;
+        this.selectedBank = marker
       } else {
-        this.selectedBank = null;
+        this.selectedBank = null
       }
     },
-    
+
     onBankClicked(bank) {
-      console.log('Bank clicked:', bank);
+      console.log('Bank clicked:', bank)
       this.selectedLocation = {
         address: bank.address_name,
         lat: bank.y,
-        lng: bank.x
-      };
-      this.selectedBank = bank;
+        lng: bank.x,
+      }
+      this.selectedBank = bank
     },
-    
+
     onMapClicked(location) {
-      console.log('Map clicked:', location);
+      console.log('Map clicked:', location)
       this.selectedLocation = {
         address: '선택한 위치',
-        ...location
-      };
-      this.selectedBank = null;
-      
+        ...location,
+      }
+      this.selectedBank = null
+
       // We don't need to add a marker here, as the component will handle it
     },
-    
+
     formatDistance(distanceInMeters) {
       if (distanceInMeters < 1000) {
-        return `${distanceInMeters}m`;
+        return `${distanceInMeters}m`
       } else {
-        return `${(distanceInMeters / 1000).toFixed(1)}km`;
+        return `${(distanceInMeters / 1000).toFixed(1)}km`
       }
     },
-    
+
     getKakaoMapUrl(bank) {
-      return `https://map.kakao.com/link/to/${encodeURIComponent(bank.place_name)},${bank.y},${bank.x}`;
+      return `https://map.kakao.com/link/to/${encodeURIComponent(bank.place_name)},${bank.y},${bank.x}/from/${encodeURIComponent('현재위치')},${this.currentLocation.lat},${this.currentLocation.lng}`
     },
-    
+
     getNaverMapUrl(bank) {
       // Construct a Naver Maps URL with search terms
-      return `https://map.naver.com/v5/search/${encodeURIComponent(bank.place_name + ' ' + bank.address_name)}`;
+      return `https://map.naver.com/v5/search/${encodeURIComponent(bank.place_name + ' ' + bank.address_name)}`
     },
-    
+
     // Helper method for saving favorite locations (can be implemented if needed)
     saveFavoriteLocation(bank) {
-      console.log('Saving bank to favorites:', bank);
+      console.log('Saving bank to favorites:', bank)
       // Call your API or store in local storage
-    }
-  }
-};
+    },
+  },
+}
 </script>
 
 <style scoped>
@@ -207,7 +219,7 @@ h1 {
   .map-view {
     padding: 10px;
   }
-  
+
   .directions-link {
     flex-direction: column;
   }
