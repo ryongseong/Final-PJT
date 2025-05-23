@@ -72,12 +72,10 @@ export default {
     },
 
     onCurrentLocation(location) {
-      console.log('Current location:', location)
       this.currentLocation = location
     },
 
     onMarkerClicked(marker) {
-      console.log('Marker clicked:', marker)
       this.selectedLocation = marker
       // Check if the marker is a bank
       if (marker.place_name) {
@@ -88,7 +86,6 @@ export default {
     },
 
     onBankClicked(bank) {
-      console.log('Bank clicked:', bank)
       this.selectedLocation = {
         address: bank.address_name,
         lat: bank.y,
@@ -98,7 +95,6 @@ export default {
     },
 
     onMapClicked(location) {
-      console.log('Map clicked:', location)
       this.selectedLocation = {
         address: '선택한 위치',
         ...location,
