@@ -9,6 +9,7 @@
           <router-link to="/products" class="nav-link">금융상품</router-link>
           <router-link to="/articles" class="nav-link">커뮤니티</router-link>
           <router-link to="/map" class="nav-link">지도</router-link>
+          <router-link to="/youtube/search" class="nav-link">주식영상</router-link>
           <router-link v-if="isAdmin" to="/admin" class="nav-link">관리자</router-link>
         </nav>
 
@@ -30,6 +31,9 @@
                 <router-link to="/favorites" class="dropdown-item">
                   <i class="icon">⭐</i> 즐겨찾기
                 </router-link>
+                <router-link to="/youtube/saved" class="dropdown-item">
+                  <i class="icon">🎬</i> 저장된 주식영상
+                </router-link>
                 <div class="dropdown-divider"></div>
                 <button @click="logout" class="dropdown-item logout">
                   <i class="icon">🚪</i> 로그아웃
@@ -47,6 +51,7 @@
     </header>
 
     <main>
+      <PhishingModal />
       <router-view />
     </main>
 
@@ -61,6 +66,8 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useUserStore } from '@/stores/user'
+// PhishingModal
+import PhishingModal from '@/components/main/VoiceModal.vue'
 // import { useRoute } from 'vue-router'
 
 const userStore = useUserStore()
