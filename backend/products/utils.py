@@ -3,7 +3,7 @@ import logging
 import os
 from django.conf import settings
 from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
+from urllib3.util.retry import Retry
 from .models import (
     FinancialProduct,
     DepositProduct,
