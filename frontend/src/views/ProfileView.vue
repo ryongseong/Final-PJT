@@ -152,10 +152,10 @@ const profileImage = computed(() => {
 
 const profileForm = reactive({
   nickname: '',
-  age: '',
+  age: 0,
   gender: '',
-  salary: '',
-  money: '',  // Add money field
+  salary: 0,
+  money: 0,  // Add money field
 })
 
 const fileInput = ref(null)

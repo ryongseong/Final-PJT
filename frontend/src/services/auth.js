@@ -220,6 +220,7 @@ export default {
     try {
       // For file uploads, we need FormData
       if (profileData instanceof FormData) {
+        console.log(profileData)
         const response = await axios.post(`${API_URL}update-profile/`, profileData, {
           headers: {
             'Content-Type': 'multipart/form-data',
