@@ -140,6 +140,7 @@ def login_view(request):
             "gender": user.gender,
             "money": user.money,
             "salary": user.salary,
+            "is_superuser": user.is_superuser,
         }
 
         return JsonResponse(

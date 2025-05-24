@@ -1,7 +1,8 @@
 from django.shortcuts import get_object_or_404
+from django.db.models import Count
 from rest_framework import viewsets, status, permissions
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 import logging
 
@@ -20,6 +21,13 @@ class ArticleViewSet(viewsets.ModelViewSet):
         if self.action == "list":
             return ArticleListSerializer
         return ArticleSerializer
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        # Make sure the request is in the context
+        if not context.get("request") and hasattr(self, "request"):
+            context["request"] = self.request
+        return context
 
     def perform_create(self, serializer):
         serializer.save(writer=self.request.user)
@@ -43,6 +51,34 @@ class ArticleViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN,
             )
         return super().destroy(request, *args, **kwargs)
+
+    @action(detail=True, methods=["post"])
+    def like(self, request, pk=None):
+        article = self.get_object()
+        user = request.user
+
+        if article.likes.filter(id=user.id).exists():
+            # User has already liked this article, so unlike it
+            article.likes.remove(user)
+            return Response({"status": "unliked"})
+        else:
+            # User hasn't liked this article yet, so like it
+            article.likes.add(user)
+            return Response({"status": "liked"})
+
+    @action(detail=False, methods=["get"])
+    def sort_by_likes(self, request):
+        # Use annotate to count likes and order by that annotation
+        articles = Article.objects.annotate(likes_count=Count("likes")).order_by(
+            "-likes_count"
+        )
+        page = self.paginate_queryset(articles)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(articles, many=True)
+        return Response(serializer.data)
 
 
 @api_view(["POST"])

@@ -9,9 +9,13 @@ class Article(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    likes = models.ManyToManyField(User, related_name="liked_articles", blank=True)
 
     def __str__(self):
         return self.title
+
+    def likes_count(self):
+        return self.likes.count()
 
 
 class Comment(models.Model):

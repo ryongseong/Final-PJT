@@ -4,35 +4,32 @@
     <div class="articles-header">
       <h2>커뮤니티 게시판</h2>
       <p class="subtitle">금융 정보와 팁을 공유하는 공간입니다</p>
-      
+
       <!-- Search and filter bar -->
       <div class="search-filter-bar">
         <div class="search-box">
-          <input 
-            type="text" 
-            v-model="searchQuery" 
-            placeholder="게시글 검색..." 
+          <input
+            type="text"
+            v-model="searchQuery"
+            placeholder="게시글 검색..."
             @input="filterArticles"
           />
           <i class="search-icon">🔍</i>
         </div>
         <div class="filter-options">
-          <button 
-            @click="sortArticles('latest')" 
-            :class="{ active: currentSort === 'latest' }"
-          >
+          <button @click="sortArticles('latest')" :class="{ active: currentSort === 'latest' }">
             최신순
           </button>
-          <button 
-            @click="sortArticles('comments')" 
-            :class="{ active: currentSort === 'comments' }"
-          >
+          <button @click="sortArticles('comments')" :class="{ active: currentSort === 'comments' }">
             댓글순
+          </button>
+          <button @click="sortArticles('likes')" :class="{ active: currentSort === 'likes' }">
+            좋아요순
           </button>
         </div>
       </div>
     </div>
-    
+
     <div v-if="loading" class="loading-box">
       <div class="spinner"></div>
       <p>게시글 로딩 중...</p>
@@ -48,29 +45,33 @@
       <!-- Articles List -->
       <div class="articles-list">
         <div v-if="filteredArticles.length === 0" class="no-articles">
-          <img src="https://cdn-icons-png.flaticon.com/512/6598/6598519.png" alt="No articles" class="empty-icon">
+          <img
+            src="https://cdn-icons-png.flaticon.com/512/6598/6598519.png"
+            alt="No articles"
+            class="empty-icon"
+          />
           <p>검색 결과가 없습니다</p>
           <button @click="resetSearch" class="reset-search-btn">전체 게시글 보기</button>
         </div>
 
-        <div 
-          v-for="article in filteredArticles" 
-          :key="article.id" 
+        <div
+          v-for="article in filteredArticles"
+          :key="article.id"
           class="article-card"
           @click="navigateToDetail(article.id)"
-        > 
+        >
           <div class="article-header">
             <h3 class="article-title">{{ article.title }}</h3>
             <p class="article-excerpt">{{ getExcerpt(article.content || '') }}</p>
           </div>
-          
+
           <div class="article-meta">
             <div class="author-info">
               <div class="avatar-wrapper">
-                <img 
-                  v-if="article.writer.profile_img" 
-                  :src="article.writer.profile_img" 
-                  alt="Avatar" 
+                <img
+                  v-if="article.writer.profile_img"
+                  :src="article.writer.profile_img"
+                  alt="Avatar"
                   class="avatar-small"
                   @error="handleAvatarError"
                 />
@@ -80,8 +81,14 @@
               </div>
               <span class="author-name">{{ article.writer.nickname }}</span>
             </div>
-            
+
             <div class="article-stats">
+              <span class="stat like-stat" @click.stop="toggleLike(article)">
+                <i class="icon" :class="{ liked: article.is_liked }">{{
+                  article.is_liked ? '❤️' : '🤍'
+                }}</i>
+                {{ article.likes_count || 0 }}
+              </span>
               <span class="stat">
                 <i class="icon">💬</i>
                 {{ article.comment_count }}
@@ -108,33 +115,38 @@ const articles = ref([])
 const loading = ref(true)
 const error = ref(null)
 const searchQuery = ref('')
-const currentSort = ref('latest') // 'latest' or 'comments'
+const currentSort = ref('latest') // 'latest', 'comments', or 'likes'
 
 const fetchArticles = async () => {
   loading.value = true
   error.value = null
 
   try {
-    const data = await articlesService.getArticles()
-    articles.value = data
-    
-    // Fetch full article content for excerpts if needed
-    // This is optional and depends on your API - only if content isn't included in list view
-    if (data.length > 0 && !data[0].content) {
-      for (let i = 0; i < data.length; i++) {
-        try {
-          const fullArticle = await articlesService.getArticle(data[i].id)
-          articles.value[i].content = fullArticle.content
-        } catch (err) {
-          console.error(`Error fetching content for article ${data[i].id}:`, err)
-          articles.value[i].content = '' // Default to empty string
+    if (currentSort.value === 'likes') {
+      articles.value = await articlesService.getArticlesSortedByLikes()
+    } else {
+      const data = await articlesService.getArticles()
+      articles.value = data
+
+      // Fetch full article content for excerpts if needed
+      // This is optional and depends on your API - only if content isn't included in list view
+      if (data.length > 0 && !data[0].content) {
+        for (let i = 0; i < data.length; i++) {
+          try {
+            const fullArticle = await articlesService.getArticle(data[i].id)
+            articles.value[i].content = fullArticle.content
+          } catch (err) {
+            console.error(`Error fetching content for article ${data[i].id}:`, err)
+            articles.value[i].content = '' // Default to empty string
+          }
         }
       }
+
+      // Apply default sorting
+      if (currentSort.value === 'comments') {
+        sortArticles('comments', false)
+      }
     }
-    
-    // Apply default sorting
-    sortArticles(currentSort.value, false)
-    
   } catch (err) {
     console.error('Error fetching articles:', err)
     error.value = '게시글을 불러오는 데 실패했습니다.'
@@ -159,11 +171,11 @@ const navigateToCreate = () => {
 const formatDate = (dateString) => {
   const date = new Date(dateString)
   const now = new Date()
-  
+
   // Calculate difference in milliseconds
   const diffMs = now - date
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-  
+
   if (diffDays === 0) {
     // Today: show hours and minutes
     return `오늘 ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`
@@ -176,7 +188,7 @@ const formatDate = (dateString) => {
     return date.toLocaleDateString('ko-KR', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     })
   }
 }
@@ -215,12 +227,38 @@ const resetSearch = () => {
 const sortArticles = (sortBy, updateState = true) => {
   if (updateState) {
     currentSort.value = sortBy
+    fetchArticles()
+    return
   }
-  
+
   if (sortBy === 'latest') {
     articles.value.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
   } else if (sortBy === 'comments') {
     articles.value.sort((a, b) => b.comment_count - a.comment_count)
+  } else if (sortBy === 'likes') {
+    articles.value.sort((a, b) => b.likes_count - a.likes_count)
+  }
+}
+
+// Toggle like for an article
+const toggleLike = async (article) => {
+  if (!userStore.isLoggedIn) {
+    router.push('/login?redirect=/articles')
+    return
+  }
+
+  try {
+    const response = await articlesService.toggleLike(article.id)
+    // Update the article's like status locally
+    if (response.status === 'liked') {
+      article.is_liked = true
+      article.likes_count = (article.likes_count || 0) + 1
+    } else {
+      article.is_liked = false
+      article.likes_count = Math.max(0, (article.likes_count || 1) - 1)
+    }
+  } catch (err) {
+    console.error('Error toggling like:', err)
   }
 }
 
@@ -229,12 +267,13 @@ const filteredArticles = computed(() => {
   if (!searchQuery.value.trim()) {
     return articles.value
   }
-  
+
   const query = searchQuery.value.toLowerCase()
-  return articles.value.filter(article => 
-    article.title.toLowerCase().includes(query) || 
-    (article.content && article.content.toLowerCase().includes(query)) ||
-    article.writer.nickname.toLowerCase().includes(query)
+  return articles.value.filter(
+    (article) =>
+      article.title.toLowerCase().includes(query) ||
+      (article.content && article.content.toLowerCase().includes(query)) ||
+      article.writer.nickname.toLowerCase().includes(query),
   )
 })
 
@@ -362,8 +401,12 @@ h2 {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .articles-content {
@@ -385,7 +428,9 @@ h2 {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.3s, background-color 0.3s;
+  transition:
+    transform 0.3s,
+    background-color 0.3s;
   z-index: 100;
 }
 
@@ -416,7 +461,9 @@ h2 {
   white-space: nowrap;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s, visibility 0.3s;
+  transition:
+    opacity 0.3s,
+    visibility 0.3s;
 }
 
 .fab-button:hover .fab-tooltip {
@@ -437,7 +484,9 @@ h2 {
   padding: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -616,25 +665,42 @@ h2 {
   box-shadow: 0 2px 5px rgba(239, 68, 68, 0.3);
 }
 
+.like-stat {
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.like-stat:hover {
+  transform: scale(1.15);
+}
+
+.like-stat .icon.liked {
+  color: #ef4444;
+}
+
+.like-stat:hover .icon:not(.liked) {
+  opacity: 0.8;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .articles-list {
     grid-template-columns: 1fr;
   }
-  
+
   .search-filter-bar {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .search-box {
     margin-bottom: 10px;
   }
-  
+
   .filter-options {
     justify-content: center;
   }
-  
+
   h2 {
     font-size: 2rem;
   }
