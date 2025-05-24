@@ -1,7 +1,7 @@
-# filepath: /Users/ryong/git/Final-PJT/backend/products/urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
+from . import admin_views
 
 router = DefaultRouter()
 router.register(r"financial-products", views.FinancialProductViewSet)
@@ -9,8 +9,16 @@ router.register(r"deposits", views.DepositProductViewSet)
 router.register(r"savings", views.SavingProductViewSet)
 router.register(r"loans", views.LoanProductViewSet)
 
+# Admin router for administrative actions
+admin_router = DefaultRouter()
+admin_router.register(r"financial-products", admin_views.AdminFinancialProductViewSet)
+admin_router.register(r"deposits", admin_views.AdminDepositProductViewSet)
+admin_router.register(r"savings", admin_views.AdminSavingProductViewSet)
+admin_router.register(r"loans", admin_views.AdminLoanProductViewSet)
+
 urlpatterns = [
     path("", include(router.urls)),
+    path("admin/", include(admin_router.urls)),
     path("user/favorites/", views.get_user_favorites, name="user-favorites"),
     path(
         "user/favorites/<str:fin_prdt_cd>/add/",

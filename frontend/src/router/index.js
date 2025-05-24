@@ -130,6 +130,36 @@ const routes = [
     meta: { requiresAuth: false },
   },
   {
+    path: '/admin',
+    name: 'Admin',
+    component: () => import('@/views/admin/AdminDashboardView.vue'),
+    meta: { requiresAdmin: true },
+  },
+  {
+    path: '/admin/financial-products',
+    name: 'AdminFinancialProducts',
+    component: () => import('@/views/admin/FinancialProductsView.vue'),
+    meta: { requiresAdmin: true },
+  },
+  {
+    path: '/admin/deposits',
+    name: 'AdminDepositProducts',
+    component: () => import('@/views/admin/DepositProductsView.vue'),
+    meta: { requiresAdmin: true },
+  },
+  {
+    path: '/admin/savings',
+    name: 'AdminSavingProducts',
+    component: () => import('@/views/admin/SavingProductsView.vue'),
+    meta: { requiresAdmin: true },
+  },
+  {
+    path: '/admin/loans',
+    name: 'AdminLoanProducts',
+    component: () => import('@/views/admin/LoanProductsView.vue'),
+    meta: { requiresAdmin: true },
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('@/views/NotFoundView.vue'),
