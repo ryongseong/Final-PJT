@@ -95,31 +95,30 @@
       </div>
     </section>
 
-    <section class="features-section">
-      <h2>주요 기능</h2>
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon">💰</div>
-          <h3>지출 관리</h3>
-          <p>일일 지출을 편리하게 기록하고 관리하세요</p>
-        </div>
+    <section class="financial-data-section">
+      <div class="container">
+        <h2>금융 시장 데이터</h2>
+        <div class="financial-charts">
+          <div class="chart-card">
+            <h3>기준 금리 추이</h3>
+            <div class="chart-container interest-chart">
+              <canvas ref="interestRateChart"></canvas>
+            </div>
+          </div>
 
-        <div class="feature-card">
-          <div class="feature-icon">📊</div>
-          <h3>분석 리포트</h3>
-          <p>지출 패턴을 분석하여 효과적인 재정 관리를 도와드립니다</p>
-        </div>
+          <div class="chart-card">
+            <h3>금/은 시세</h3>
+            <div class="chart-container precious-metals-chart">
+              <canvas ref="preciousMetalsChart"></canvas>
+            </div>
+          </div>
 
-        <div class="feature-card">
-          <div class="feature-icon">🎯</div>
-          <h3>저축 목표</h3>
-          <p>목표를 설정하고 진행 상황을 추적하세요</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">🔔</div>
-          <h3>알림 서비스</h3>
-          <p>중요한 금융 일정을 놓치지 않도록 알림을 받으세요</p>
+          <div class="chart-card">
+            <h3>주요 환율</h3>
+            <div class="chart-container exchange-rate-chart">
+              <canvas ref="exchangeRateChart"></canvas>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -127,9 +126,10 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, onBeforeUnmount } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
+import Chart from 'chart.js/auto'
 import productsService from '@/services/products'
 
 const userStore = useUserStore()
@@ -143,6 +143,13 @@ const activeTab = ref('deposit')
 const topProducts = ref([])
 const topProductsLoading = ref(false)
 const topProductsError = ref(null)
+
+const interestRateChart = ref(null)
+const preciousMetalsChart = ref(null)
+const exchangeRateChart = ref(null)
+let interestRateChartInstance = null
+let preciousMetalsChartInstance = null
+let exchangeRateChartInstance = null
 
 // Load top products based on active tab
 const loadTopProducts = async () => {
@@ -159,6 +166,223 @@ const loadTopProducts = async () => {
   } finally {
     topProductsLoading.value = false
   }
+}
+
+const createInterestRateChart = () => {
+  if (!interestRateChart.value) return
+
+  const ctx = interestRateChart.value.getContext('2d')
+
+  // 기준 금리 데이터 (최근 12개월)
+  const data = {
+    labels: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+    datasets: [
+      {
+        label: '한국은행 기준금리',
+        data: [3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 3.25, 3.25, 3.0, 3.0, 2.75, 2.75],
+        borderColor: '#A38D77',
+        backgroundColor: 'rgba(163, 141, 119, 0.1)',
+        tension: 0.4,
+        fill: true,
+      },
+      {
+        label: '미 연준 기준금리',
+        data: [4.75, 4.75, 5.0, 5.0, 5.25, 5.25, 5.25, 5.25, 5.25, 5.25, 5.0, 5.0],
+        borderColor: '#6D4C3D',
+        backgroundColor: 'rgba(109, 76, 61, 0.1)',
+        tension: 0.4,
+        fill: true,
+      },
+    ],
+  }
+
+  interestRateChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: data,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+        },
+      },
+      scales: {
+        y: {
+          min: 2.0,
+          max: 6.0,
+          ticks: {
+            stepSize: 0.5,
+          },
+        },
+      },
+    },
+  })
+}
+
+const createPreciousMetalsChart = () => {
+  if (!preciousMetalsChart.value) return
+
+  const ctx = preciousMetalsChart.value.getContext('2d')
+
+  // 금/은 시세 데이터 (최근 6개월)
+  const data = {
+    labels: ['7월', '8월', '9월', '10월', '11월', '12월'],
+    datasets: [
+      {
+        label: '금 시세 (USD/온스)',
+        data: [1950, 1925, 2000, 2050, 2100, 2075],
+        borderColor: '#D4AF37',
+        backgroundColor: 'rgba(212, 175, 55, 0.1)',
+        tension: 0.4,
+        fill: true,
+        yAxisID: 'y',
+      },
+      {
+        label: '은 시세 (USD/온스)',
+        data: [24.5, 24.0, 25.2, 26.1, 27.5, 26.8],
+        borderColor: '#C0C0C0',
+        backgroundColor: 'rgba(192, 192, 192, 0.1)',
+        tension: 0.4,
+        fill: true,
+        yAxisID: 'y1',
+      },
+    ],
+  }
+
+  preciousMetalsChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: data,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+        },
+      },
+      scales: {
+        y: {
+          type: 'linear',
+          display: true,
+          position: 'left',
+          title: {
+            display: true,
+            text: '금 (USD)',
+          },
+          min: 1800,
+          max: 2200,
+        },
+        y1: {
+          type: 'linear',
+          display: true,
+          position: 'right',
+          title: {
+            display: true,
+            text: '은 (USD)',
+          },
+          min: 20,
+          max: 30,
+          grid: {
+            drawOnChartArea: false,
+          },
+        },
+      },
+    },
+  })
+}
+
+const createExchangeRateChart = () => {
+  if (!exchangeRateChart.value) return
+
+  const ctx = exchangeRateChart.value.getContext('2d')
+
+  // 환율 데이터 (최근 12개월)
+  const labels = [
+    '1월',
+    '2월',
+    '3월',
+    '4월',
+    '5월',
+    '6월',
+    '7월',
+    '8월',
+    '9월',
+    '10월',
+    '11월',
+    '12월',
+  ]
+  const data = {
+    labels: labels,
+    datasets: [
+      {
+        type: 'line',
+        label: '달러/원',
+        data: [1270, 1290, 1310, 1320, 1330, 1320, 1300, 1290, 1280, 1275, 1270, 1260],
+        borderColor: '#3772FF',
+        backgroundColor: 'rgba(55, 114, 255, 0.1)',
+        tension: 0.4,
+        fill: true,
+      },
+      {
+        type: 'line',
+        label: '유로/원',
+        data: [1380, 1390, 1400, 1410, 1420, 1410, 1400, 1390, 1380, 1375, 1370, 1365],
+        borderColor: '#F2B705',
+        backgroundColor: 'rgba(242, 183, 5, 0.1)',
+        tension: 0.4,
+        fill: true,
+      },
+      {
+        type: 'line',
+        label: '엔/원(100엔)',
+        data: [920, 925, 930, 940, 950, 945, 940, 935, 930, 925, 920, 915],
+        borderColor: '#D95D39',
+        backgroundColor: 'rgba(217, 93, 57, 0.1)',
+        tension: 0.4,
+        fill: true,
+      },
+    ],
+  }
+
+  exchangeRateChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: data,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+        },
+      },
+    },
+  })
+}
+
+// 차트 초기화 함수
+const initCharts = () => {
+  // 기존 차트 인스턴스 정리
+  if (interestRateChartInstance) interestRateChartInstance.destroy()
+  if (preciousMetalsChartInstance) preciousMetalsChartInstance.destroy()
+  if (exchangeRateChartInstance) exchangeRateChartInstance.destroy()
+
+  // 새 차트 생성
+  createInterestRateChart()
+  createPreciousMetalsChart()
+  createExchangeRateChart()
 }
 
 // Format interest rate for display
@@ -223,6 +447,16 @@ onMounted(async () => {
 
   // Load top products for initial tab
   loadTopProducts()
+
+  setTimeout(() => {
+    initCharts()
+  }, 100)
+})
+
+onBeforeUnmount(() => {
+  if (interestRateChartInstance) interestRateChartInstance.destroy()
+  if (preciousMetalsChartInstance) preciousMetalsChartInstance.destroy()
+  if (exchangeRateChartInstance) exchangeRateChartInstance.destroy()
 })
 
 // Watch for tab changes
@@ -504,6 +738,51 @@ h2 {
   color: #ef4444;
 }
 
+.financial-data-section {
+  padding: 80px 20px;
+  background-color: var(--color-white);
+  border-top: 1px solid var(--color-secondary);
+}
+
+.financial-data-section h2 {
+  font-family: var(--font-heading);
+  color: var(--color-accent);
+  margin-bottom: 50px;
+  text-align: center;
+}
+
+.financial-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 30px;
+  margin: 0 auto;
+}
+
+.chart-card {
+  background-color: var(--color-white);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-normal);
+}
+
+.chart-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.chart-card h3 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: var(--color-accent);
+  font-family: var(--font-heading);
+}
+
+.chart-container {
+  height: 300px;
+  position: relative;
+}
+
 @media (max-width: 768px) {
   h1 {
     font-size: 2.5rem;
@@ -521,6 +800,21 @@ h2 {
   .cta-button {
     width: 100%;
     max-width: 300px;
+  }
+  .chart-container {
+    height: 250px;
+  }
+
+  .features-section h2,
+  .top-products-section h2,
+  .testimonials-section h2 {
+    font-size: var(--font-size-2xl);
+    margin-bottom: 40px;
+  }
+
+  .features-grid,
+  .product-cards {
+    gap: 20px;
   }
 }
 </style>
