@@ -58,24 +58,21 @@
           </div>
 
           <div class="product-join-methods">
-            <JoinMethods :join_way="product.join_way" />
+            <p>가입 방법: {{ product.join_way.join(', ') }}</p>
           </div>
         </div>
 
         <!-- Rate highlight section based on product type -->
         <div class="product-rate-highlight">
           <template v-if="product.product_type === 'deposit' || product.product_type === 'saving'">
-            <RateDisplay
-              :rate="product.max_rate"
-              :type="product.product_type"
-              rateType="max"
-              :highlight="true"
-            />
+            <div class="rate-value">{{ formatRate(product.max_rate || product.intr_rate2) }}%</div>
+            <div class="rate-label">최고 우대금리</div>
             <div class="rate-info">* 최고 우대금리 기준</div>
           </template>
 
           <template v-else-if="product.product_type === 'loan'">
-            <RateDisplay :rate="product.min_rate" type="loan" rateType="min" :highlight="true" />
+            <div class="rate-value loan-rate">{{ formatRate(product.min_rate) }}%</div>
+            <div class="rate-label">최저 금리</div>
             <div class="rate-info">* 최저 금리 기준</div>
           </template>
         </div>
@@ -129,7 +126,11 @@
               <div class="info-item">
                 <div class="info-label">가입 방법</div>
                 <div class="info-value">
-                  <JoinMethods :joinWay="product.join_way" :showLabel="false" />
+                  <div class="join-badges">
+                    <span v-for="way in product.join_way" :key="way" class="join-badge">
+                      {{ way }}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -178,77 +179,59 @@
 
         <!-- Rates tab -->
         <div v-if="activeTab === 'rates'" class="tab-panel">
-          <template v-if="product.product_type === 'deposit' || product.product_type === 'saving'">
-            <div class="info-section">
-              <h3 class="section-title">금리 정보</h3>
-
-              <div class="rates-grid">
-                <div class="rate-card">
-                  <div class="rate-card-title">기본금리</div>
-                  <RateDisplay
-                    :rate="product.base_rate"
-                    :type="product.product_type"
-                    rateType="base"
-                  />
+          <!-- Rate Information Section -->
+          <div class="product-info-section">
+            <h3>금리 정보</h3>
+            
+            <!-- Max/Standard Rate Display -->
+            <div class="rate-display">
+              <!-- Max Rate (for savings) or Standard Rate (for loans) -->
+              <div v-if="product.product_type === 'SAVINGS' || product.product_type === 'DEPOSIT'">
+                <div :class="['rate-value', getRateClass(product.product_type, true)]">
+                  {{ formatRate(product.max_rate || product.intr_rate2) }}%
                 </div>
-
-                <div class="rate-card">
-                  <div class="rate-card-title">최고금리</div>
-                  <RateDisplay
-                    :rate="product.max_rate"
-                    :type="product.product_type"
-                    rateType="max"
-                    :highlight="true"
-                  />
-                </div>
+                <div class="rate-label">최고 우대금리</div>
               </div>
-
-              <div class="info-item wide">
-                <div class="info-label">이자 지급 방식</div>
-                <div class="info-value">
-                  {{ getInterestPaymentMethod(product.intr_rate_type_nm) }}
+              <div v-else>
+                <div :class="['rate-value', getRateClass(product.product_type, true)]">
+                  {{ formatRate(product.intr_rate || product.intr_rate2) }}%
                 </div>
+                <div class="rate-label">기준금리</div>
               </div>
-
-              <div class="disclaimer">
-                * 실제 적용금리는 고객의 신용도, 대출기간, 대출금액 등에 따라 달라질 수 있습니다. *
-                금리 우대조건은 은행 홈페이지에서 확인하시기 바랍니다.
+              
+              <!-- Base Rate (for savings) -->
+              <div v-if="product.product_type !== 'LOAN' && (product.intr_rate || product.intr_rate2)">
+                <div :class="['rate-value', getRateClass(product.product_type)]">
+                  {{ formatRate(product.intr_rate || product.intr_rate2) }}%
+                </div>
+                <div class="rate-label">기본금리</div>
+              </div>
+              
+              <!-- Min Rate (for loans) -->
+              <div v-if="product.product_type === 'LOAN' && product.min_rate">
+                <div :class="['rate-value', getRateClass(product.product_type)]">
+                  {{ formatRate(product.min_rate) }}%
+                </div>
+                <div class="rate-label">최저금리</div>
               </div>
             </div>
-          </template>
-
-          <template v-else-if="product.product_type === 'loan'">
-            <div class="info-section">
-              <h3 class="section-title">대출 금리 정보</h3>
-
-              <div class="rates-grid">
-                <div class="rate-card">
-                  <div class="rate-card-title">최저금리</div>
-                  <RateDisplay
-                    :rate="product.min_rate"
-                    type="loan"
-                    rateType="min"
-                    :highlight="true"
-                  />
-                </div>
-
-                <div class="rate-card">
-                  <div class="rate-card-title">최고금리</div>
-                  <RateDisplay :rate="product.max_rate" type="loan" rateType="max" />
-                </div>
+            
+            <!-- Rate Details -->
+            <div class="rate-details">
+              <div v-if="product.intr_rate_type_nm" class="detail-item">
+                <span class="detail-label">금리유형:</span>
+                <span class="detail-value">{{ product.intr_rate_type_nm }}</span>
               </div>
-
-              <div class="info-item wide">
-                <div class="info-label">금리 유형</div>
-                <div class="info-value">{{ getLoanRateType(product.lend_rate_type) }}</div>
+              <div v-if="product.rsrv_type_nm" class="detail-item">
+                <span class="detail-label">적립유형:</span>
+                <span class="detail-value">{{ product.rsrv_type_nm || getSavingType(product) }}</span>
               </div>
-
-              <div class="disclaimer">
-                * 실제 적용금리는 고객의 신용도, 대출기간, 대출금액 등에 따라 달라질 수 있습니다. *
-                대출금리 우대조건은 은행 홈페이지에서 확인하시기 바랍니다.
+              <div v-if="product.product_type === 'SAVINGS'" class="detail-item">
+                <span class="detail-label">저축방식:</span>
+                <span class="detail-value">{{ getSavingType(product) }}</span>
               </div>
             </div>
-          </template>
+          </div>
         </div>
 
         <!-- Conditions tab -->
@@ -376,18 +359,14 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import productsService from '@/services/products'
-import RateDisplay from '@/components/products/RateDisplay.vue'
-import JoinMethods from '@/components/products/JoinMethods.vue'
 import ProductCard from '@/components/products/ProductCard.vue'
 
 export default {
   name: 'ProductDetailView',
   components: {
-    RateDisplay,
-    JoinMethods,
     ProductCard,
   },
   setup() {
@@ -451,9 +430,54 @@ export default {
 
         // Load related products
         loadRelatedProducts()
+
+        console.log('Product details loaded:', product.value)
       } catch (err) {
         console.error('Error loading product details:', err)
         error.value = '상품 정보를 불러오는데 실패했습니다. 다시 시도해주세요.'
+      } finally {
+        loading.value = false
+      }
+    }
+
+    // Fetch product by id with enhanced data
+    const fetchProduct = async (id) => {
+      loading.value = true
+      error.value = null
+      
+      try {
+        // First try the generic endpoint to get basic info
+        const basicProduct = await productsService.getFinancialProduct(id)
+        
+        product.value = basicProduct
+        
+        // Then try to get more detailed info based on product type
+        if (basicProduct && basicProduct.product_type) {
+          try {
+            const detailedProduct = await productsService.getProductByTypeAndId(
+              basicProduct.product_type, 
+              id
+            )
+            
+            // Merge the detailed product data with the basic product data
+            product.value = {
+              ...basicProduct,
+              ...detailedProduct
+            }
+            
+            // Log the final product object for debugging
+            console.log('Final product object:', product.value)
+            
+            // After loading product data, check favorites and load related products
+            checkIfFavorite()
+            loadRelatedProducts()
+          } catch (detailError) {
+            console.warn('Could not fetch detailed product info:', detailError)
+          }
+        }
+      } catch (err) {
+        error.value = '상품 정보를 불러오는데 실패했습니다. 다시 시도해주세요.'
+        console.error('Error loading product:', err)
       } finally {
         loading.value = false
       }
@@ -544,7 +568,15 @@ export default {
     // Format interest rate for display
     const formatRate = (rate) => {
       if (!rate) return '0.00'
-      return parseFloat(rate).toFixed(2)
+      
+      // Handle potential string or number inputs
+      const numRate = typeof rate === 'string' ? parseFloat(rate) : rate
+      
+      // Check if conversion resulted in a valid number
+      if (isNaN(numRate)) return '0.00'
+      
+      // Format with 2 decimal places
+      return numRate.toFixed(2)
     }
 
     // Format date (YYYYMMDD to YYYY-MM-DD)
@@ -571,7 +603,7 @@ export default {
       if (!product.value || !product.value.join_way) return false
       return product.value.join_way.includes(code)
     }
-    
+
     // Get product type name for display
     const getProductTypeName = (type) => {
       const types = {
@@ -592,11 +624,36 @@ export default {
       return method
     }
 
-    // Get saving type name
-    const getSavingType = (saving) => {
-      console.log(saving)
-      // Implementation would depend on what data is available
-      // This is a placeholder
+    // Get the savings type based on product data
+    const getSavingType = (product) => {
+      if (!product) return '정보 없음'
+      
+      // First check if rsrv_type_nm is available (best source)
+      if (product.rsrv_type_nm) {
+        return product.rsrv_type_nm
+      }
+      
+      // Then check for rsrv_type
+      if (product.rsrv_type) {
+        if (product.rsrv_type === 1) return '자유적립식'
+        if (product.rsrv_type === 2) return '정액적립식'
+        if (typeof product.rsrv_type === 'string') return product.rsrv_type
+        return `적립 유형: ${product.rsrv_type}`
+      }
+      
+      // Next check based on product name patterns
+      const name = product.fin_prdt_nm?.toLowerCase() || ''
+      if (name.includes('자유')) return '자유적립식'
+      if (name.includes('정액')) return '정액적립식'
+      if (name.includes('정기')) return '정기적금'
+      
+      // Check based on etc_note if available
+      const description = product.etc_note?.toLowerCase() || ''
+      if (description.includes('자유적립')) return '자유적립식'
+      if (description.includes('정액적립')) return '정액적립식'
+      
+      // Default fallback
+      if (product.product_type === 'DEPOSIT') return '정기예금'
       return '정기적금'
     }
 
@@ -643,9 +700,27 @@ export default {
 
     // Get bank logo
     const getBankLogo = (bankName) => {
-      // This would be replaced with actual bank logo logic
-      // For now, return a placeholder
-      return `https://via.placeholder.com/50?text=${encodeURIComponent(bankName.charAt(0))}`
+      const banks = [
+        'SC제일은행',
+        '광주은행',
+        '국민은행',
+        '기업은행',
+        '농협',
+        '대구은행',
+        '부산은행',
+        '새마을금고',
+        '수협은행',
+        '신한은행',
+        '신협',
+        '씨티뱅크',
+        '우리은행',
+        '하나은행',
+      ]
+      // bankName이 배열에 포함되는 은행명을 포함하면 해당 은행명으로 bankName을 변경
+      const matched = banks.find((b) => bankName.includes(b))
+      if (matched) bankName = matched
+
+      return new URL(`/src/assets/${bankName}.png`, import.meta.url).href
     }
 
     // Visit bank website
@@ -663,7 +738,6 @@ export default {
         산업은행: 'https://www.kdb.co.kr',
         새마을금고: 'https://www.kfcc.co.kr',
         수협은행: 'https://www.suhyup-bank.com',
-        카카오뱅크: 'https://www.kakaobank.com',
         토스뱅크: 'https://www.tossbank.com',
         케이뱅크: 'https://www.kbanknow.com',
       }
@@ -695,9 +769,40 @@ export default {
       }
     }
 
+    // Determine rate CSS class based on product type
+    const getRateClass = (type, highlight = false) => {
+      const classes = []
+      
+      // Add highlight class if needed
+      if (highlight) classes.push('highlight')
+      
+      // Add type-specific class
+      if (type === 'LOAN' || type === 'loan') {
+        classes.push('loan-rate')
+      } else {
+        classes.push('savings-rate')
+      }
+      
+      return classes.join(' ')
+    }
+
     // Load data on component mount
     onMounted(() => {
-      loadProductDetails()
+      // Get the product id from the route parameters
+      const id = route.params.id
+      
+      if (id) {
+        fetchProduct(id)
+      } else {
+        loadProductDetails()
+      }
+    })
+    
+    // Watch for product changes to log rate fields
+    watch(product, (newVal) => {
+      if (newVal) {
+        logRateFields(newVal)
+      }
     })
 
     return {
@@ -725,6 +830,8 @@ export default {
       isProductInFavorites,
       toggleRelatedFavorite,
       loadProductDetails,
+      getRateClass,
+      logRateFields,
     }
   },
 }
@@ -964,10 +1071,62 @@ export default {
   min-width: 150px;
 }
 
-.rate-info {
-  font-size: 0.8rem;
-  color: #64748b;
-  margin-top: 0.5rem;
+.rate-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.rate-value {
+  font-size: 1.8rem;
+  font-weight: bold;
+  line-height: 1;
+  margin-bottom: 5px;
+  transition: color 0.3s ease;
+}
+
+.rate-value.savings-rate {
+  color: #4caf50;
+}
+
+.rate-value.loan-rate {
+  color: #2196f3;
+}
+
+.rate-value.highlight {
+  font-size: 2.2rem;
+  color: #ff5722;
+}
+
+.rate-label {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.rate-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.detail-item {
+  display: flex;
+  gap: 10px;
+}
+
+.detail-label {
+  font-weight: 500;
+  color: #666;
+  min-width: 80px;
+}
+
+.detail-value {
+  color: #333;
 }
 
 /* Tabs */

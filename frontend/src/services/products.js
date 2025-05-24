@@ -221,4 +221,24 @@ export default {
   async updateCreditProducts() {
     return apiClient.post('admin/update-credit-loans/').then((response) => response.data)
   },
+
+  // Get detailed product information by ID and type
+  async getProductByTypeAndId(type, id) {
+    if (!type || !id) {
+      throw new Error('Type and ID are required')
+    }
+    
+    const typeEndpoints = {
+      'DEPOSIT': 'deposits',
+      'SAVINGS': 'savings',
+      'LOAN': 'loans'
+    }
+    
+    const endpoint = typeEndpoints[type.toUpperCase()] || 'financial-products'
+    return apiClient.get(`${endpoint}/${id}/`).then((response) => {
+      // Log the structure of the response to help with debugging
+      console.log(`API Response for ${type} product ${id}:`, response.data)
+      return response.data
+    })
+  },
 }
