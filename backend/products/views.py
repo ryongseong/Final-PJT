@@ -408,48 +408,28 @@ def get_top_rate_products(request, product_type):
     elif product_type == "loan":
         # For loan products, we need to consider options.
         # This is a simplified approach: fetch loans and their first mortgage option, order by min rate.
-        # A more robust solution might involve aggregating min rates from all options.
-
-        # Fetch distinct loan product IDs that have mortgage options, ordered by the minimum lending rate
+        # A more robust solution might involve aggregating min rates from all options.        # Fetch distinct loan product IDs that have mortgage options, ordered by the minimum lending rate
         mortgage_options_subquery = (
-            MortgageLoanOption.objects.filter(
-                product_id=OuterRef(
-                    "product_id"
-                )  # Corrected to OuterRef('product_id') assuming LoanProduct's PK is 'id' and FK in MortgageLoanOption is 'product_id'
-            )
+            MortgageLoanOption.objects.filter(product_id=OuterRef("product_id"))
             .order_by("lend_rate_min")
             .values("lend_rate_min")[:1]
         )
 
         credit_options_subquery = (
-            CreditLoanOption.objects.filter(
-                product_id=OuterRef(
-                    "product_id"
-                )  # Corrected to OuterRef('product_id') assuming LoanProduct's PK is 'id' and FK in CreditLoanOption is 'product_id'
-            )
+            CreditLoanOption.objects.filter(product_id=OuterRef("product_id"))
             .order_by("crdt_grad_1")
             .values("crdt_grad_1")[:1]
         )  # Changed to use crdt_grad_1
 
         # Annotate LoanProduct with the minimum rate from its options
         # We'll prioritize mortgage loans, then credit loans if no mortgage options exist or if their rates are not comparable
-        # This example prioritizes mortgage loan rates.        # Attempt to get the minimum mortgage loan rate
-        loans_with_min_mortgage_rate = (
-            LoanProduct.objects.annotate(
-                min_rate=Subquery(mortgage_options_subquery, output_field=FloatField())
-            )
-            .filter(min_rate__isnull=False)
-            .select_related("product")
-            .prefetch_related("product__mortgage_options", "product__credit_options")
-            .order_by("min_rate")[:limit]
-        )
-
-        if not loans_with_min_mortgage_rate.exists():
-            # If no mortgage loans with rates, try credit loans
-            loans_with_min_credit_rate = (
+        # This example prioritizes mortgage loan rates.
+        # Attempt to get the minimum mortgage loan rate
+        try:
+            loans_with_min_mortgage_rate = (
                 LoanProduct.objects.annotate(
                     min_rate=Subquery(
-                        credit_options_subquery, output_field=FloatField()
+                        mortgage_options_subquery, output_field=FloatField()
                     )
                 )
                 .filter(min_rate__isnull=False)
@@ -459,9 +439,35 @@ def get_top_rate_products(request, product_type):
                 )
                 .order_by("min_rate")[:limit]
             )
-            products = loans_with_min_credit_rate
-        else:
-            products = loans_with_min_mortgage_rate
+
+            if not loans_with_min_mortgage_rate.exists():
+                # If no mortgage loans with rates, try credit loans
+                loans_with_min_credit_rate = (
+                    LoanProduct.objects.annotate(
+                        min_rate=Subquery(
+                            credit_options_subquery, output_field=FloatField()
+                        )
+                    )
+                    .filter(min_rate__isnull=False)
+                    .select_related("product")
+                    .prefetch_related(
+                        "product__mortgage_options", "product__credit_options"
+                    )
+                    .order_by("min_rate")[:limit]
+                )
+                products = loans_with_min_credit_rate
+            else:
+                products = loans_with_min_mortgage_rate
+        except Exception as e:
+            # Fallback if there's an error with the rate-based sorting
+            products = (
+                LoanProduct.objects.all()
+                .select_related("product")
+                .prefetch_related(
+                    "product__mortgage_options", "product__credit_options"
+                )
+                .order_by("product__kor_co_nm")[:limit]
+            )
 
         serializer = LoanProductDetailSerializer(products, many=True)
     else:

@@ -53,6 +53,18 @@ const routes = [
     meta: { requiresAuth: false },
   },
   {
+    path: '/youtube/search',
+    name: 'YoutubeSearch',
+    component: () => import('@/views/youtube/YoutubeSearchView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/youtube/saved',
+    name: 'SavedVideos',
+    component: () => import('@/views/youtube/SavedVideosView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/articles/:id/edit',
     name: 'ArticleEdit',
     component: () => import('@/views/ArticleCreateView.vue'),
@@ -116,6 +128,42 @@ const routes = [
     name: 'ProductComparison',
     component: () => import('@/views/products/ProductComparisonView.vue'),
     meta: { requiresAuth: false },
+  },
+  {
+    path: '/settings',
+    name: 'Settings',
+    component: () => import('@/views/SettingsView.vue'),
+    meta: { requiresAuth: false },
+  },
+  {
+    path: '/admin',
+    name: 'Admin',
+    component: () => import('@/views/admin/AdminDashboardView.vue'),
+    meta: { requiresAdmin: true },
+  },
+  {
+    path: '/admin/financial-products',
+    name: 'AdminFinancialProducts',
+    component: () => import('@/views/admin/FinancialProductsView.vue'),
+    meta: { requiresAdmin: true },
+  },
+  {
+    path: '/admin/deposits',
+    name: 'AdminDepositProducts',
+    component: () => import('@/views/admin/DepositProductsView.vue'),
+    meta: { requiresAdmin: true },
+  },
+  {
+    path: '/admin/savings',
+    name: 'AdminSavingProducts',
+    component: () => import('@/views/admin/SavingProductsView.vue'),
+    meta: { requiresAdmin: true },
+  },
+  {
+    path: '/admin/loans',
+    name: 'AdminLoanProducts',
+    component: () => import('@/views/admin/LoanProductsView.vue'),
+    meta: { requiresAdmin: true },
   },
   {
     path: '/:pathMatch(.*)*',

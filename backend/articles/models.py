@@ -13,7 +13,7 @@ class Article(models.Model):
 
     def __str__(self):
         return self.title
-        
+
     def likes_count(self):
         return self.likes.count()
 

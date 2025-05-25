@@ -70,9 +70,14 @@ export default {
   deleteComment(commentId) {
     return apiClient.delete(`comments/${commentId}/`).then((response) => response.data)
   },
-  
-  // Toggle like for an article
+
+  // Like or unlike an article
   toggleLike(articleId) {
     return apiClient.post(`${articleId}/like/`).then((response) => response.data)
+  },
+
+  // Get articles sorted by likes
+  getArticlesSortedByLikes() {
+    return apiClient.get('sort_by_likes/').then((response) => response.data)
   },
 }

@@ -132,137 +132,75 @@ export default {
 
 <style scoped>
 .map-view {
-  padding: 30px 20px;
+  padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
 h1 {
-  margin-bottom: 20px;
-  color: var(--color-accent);
-  font-family: var(--font-heading);
-  font-size: var(--font-size-3xl);
-  text-align: center;
-  animation: fadeIn 0.8s ease-out;
+  margin-bottom: 10px;
+  color: #333;
 }
 
 .instructions {
-  margin-bottom: 30px;
-  color: var(--color-text);
-  font-size: var(--font-size-base);
-  line-height: 1.6;
-  text-align: center;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-  background: linear-gradient(to right, var(--color-background-start), var(--color-background-end));
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: var(--shadow-sm);
-  animation: fadeIn 1s ease-out;
+  margin-bottom: 20px;
+  color: #666;
+  font-size: 16px;
+  line-height: 1.5;
 }
 
 .map-wrapper {
-  margin-bottom: 30px;
-  border-radius: 15px;
+  margin-bottom: 20px;
+  border-radius: 10px;
   overflow: hidden;
-  box-shadow: var(--shadow-lg);
-  border: 2px solid var(--color-secondary);
-  animation: slideInUp 1.2s ease-out;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .info-panel {
-  background: linear-gradient(to bottom, var(--color-background-start), var(--color-background-end));
-  border-radius: 12px;
-  padding: 25px;
-  margin-top: 30px;
-  box-shadow: var(--shadow-md);
-  animation: fadeIn 1.4s ease-out;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .info-panel h3 {
   margin-top: 0;
-  margin-bottom: 20px;
-  color: var(--color-accent);
-  font-family: var(--font-heading);
-  font-size: var(--font-size-xl);
-  border-bottom: 1px solid var(--color-secondary);
+  margin-bottom: 15px;
+  color: #333;
+  border-bottom: 1px solid #ddd;
   padding-bottom: 10px;
 }
 
 .info-panel p {
-  margin: 12px 0;
-  font-size: var(--font-size-base);
-  line-height: 1.6;
-  color: var(--color-text);
-  display: flex;
-  align-items: center;
-}
-
-.info-panel p strong {
-  color: var(--color-accent);
-  margin-right: 10px;
-  min-width: 80px;
-  display: inline-block;
-  font-family: var(--font-heading);
+  margin: 10px 0;
+  font-size: 15px;
+  line-height: 1.5;
 }
 
 .directions-link {
-  margin-top: 25px;
+  margin-top: 15px;
   display: flex;
-  gap: 15px;
+  gap: 10px;
 }
 
 .btn {
   display: inline-block;
-  padding: 12px 20px;
-  border-radius: 30px;
+  padding: 8px 16px;
+  border-radius: 4px;
   text-decoration: none;
-  color: var(--color-white);
+  color: white;
   font-weight: 500;
-  font-family: var(--font-body);
-  transition: all var(--transition-normal);
+  transition: background-color 0.3s;
   text-align: center;
-  box-shadow: var(--shadow-sm);
-}
-
-.btn:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-md);
-}
-
-.btn:active {
-  transform: translateY(-1px);
 }
 
 .btn-directions {
-  background-color: var(--color-primary);
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-directions::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    to right,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.3) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  transition: all 0.6s;
+  background-color: #f9a825;
 }
 
 .btn-directions:hover {
-  background-color: var(--color-primary-dark);
-}
-
-.btn-directions:hover::before {
-  left: 100%;
+  background-color: #f57f17;
 }
 
 .btn-directions.naver {
@@ -273,46 +211,13 @@ h1 {
   background-color: #02a54a;
 }
 
-@media (max-width: 992px) {
-  h1 {
-    font-size: var(--font-size-2xl);
-  }
-  
-  .instructions {
-    font-size: var(--font-size-sm);
-  }
-}
-
 @media (max-width: 768px) {
   .map-view {
-    padding: 20px 15px;
-  }
-  
-  .instructions {
-    padding: 15px;
+    padding: 10px;
   }
 
   .directions-link {
     flex-direction: column;
-  }
-  
-  .info-panel {
-    padding: 20px;
-  }
-  
-  .btn {
-    width: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  h1 {
-    font-size: var(--font-size-xl);
-  }
-  
-  .info-panel p strong {
-    min-width: 70px;
-    font-size: var(--font-size-sm);
   }
 }
 </style>

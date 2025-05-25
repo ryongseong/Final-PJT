@@ -28,22 +28,34 @@ class CommentSerializer(serializers.ModelSerializer):
 class ArticleListSerializer(serializers.ModelSerializer):
     writer = UserSimpleSerializer(read_only=True)
     comment_count = serializers.IntegerField(source="comments.count", read_only=True)
-    likes_count = serializers.SerializerMethodField()
+    likes_count = serializers.IntegerField(source="likes.count", read_only=True)
+    is_liked = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
-        fields = ("id", "writer", "title", "created_at", "comment_count", "likes_count")
-        
-    def get_likes_count(self, obj):
-        return obj.likes.count()
+        fields = (
+            "id",
+            "writer",
+            "title",
+            "created_at",
+            "comment_count",
+            "likes_count",
+            "is_liked",
+        )
+
+    def get_is_liked(self, obj):
+        request = self.context.get("request")
+        if not request or not request.user.is_authenticated:
+            return False
+        return request.user in obj.likes.all()
 
 
 class ArticleSerializer(serializers.ModelSerializer):
     writer = UserSimpleSerializer(read_only=True)
     comments = CommentSerializer(many=True, read_only=True)
     comment_count = serializers.IntegerField(source="comments.count", read_only=True)
-    likes = UserSimpleSerializer(many=True, read_only=True)
-    likes_count = serializers.SerializerMethodField()
+    likes_count = serializers.IntegerField(source="likes.count", read_only=True)
+    is_liked = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
@@ -56,10 +68,13 @@ class ArticleSerializer(serializers.ModelSerializer):
             "updated_at",
             "comments",
             "comment_count",
-            "likes",
             "likes_count",
+            "is_liked",
         )
         read_only_fields = ("id", "created_at", "updated_at")
-        
-    def get_likes_count(self, obj):
-        return obj.likes.count()
+
+    def get_is_liked(self, obj):
+        request = self.context.get("request")
+        if not request or not request.user.is_authenticated:
+            return False
+        return request.user in obj.likes.all()

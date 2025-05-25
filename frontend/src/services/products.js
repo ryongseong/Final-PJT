@@ -68,7 +68,10 @@ export default {
 
   // Get specific deposit product
   async getDepositProduct(id) {
-    return apiClient.get(`deposits/${id}/`).then((response) => response.data)
+    return apiClient.get(`deposits/${id}/?include_requirements=true`).then((response) => {
+      console.log('Deposit product response with requirements:', response.data)
+      return response.data
+    })
   },
 
   // Get all saving products
@@ -103,7 +106,10 @@ export default {
 
   // Get specific saving product
   async getSavingProduct(id) {
-    return apiClient.get(`savings/${id}/`).then((response) => response.data)
+    return apiClient.get(`savings/${id}/?include_requirements=true`).then((response) => {
+      console.log('Saving product response with requirements:', response.data)
+      return response.data
+    })
   },
 
   // Get all loan products
@@ -220,5 +226,30 @@ export default {
 
   async updateCreditProducts() {
     return apiClient.post('admin/update-credit-loans/').then((response) => response.data)
+  },
+
+  // Get detailed product information by ID and type
+  async getProductByTypeAndId(type, id) {
+    if (!type || !id) {
+      throw new Error('Type and ID are required')
+    }
+
+    const typeEndpoints = {
+      deposit: 'deposits',
+      DEPOSIT: 'deposits',
+      saving: 'savings',
+      SAVINGS: 'savings',
+      loan: 'loans',
+      LOAN: 'loans',
+    }
+
+    const endpoint = typeEndpoints[type] || 'financial-products'
+
+    // Include requirements=true parameter to get requirement options data
+    return apiClient.get(`${endpoint}/${id}/?include_requirements=true`).then((response) => {
+      // Log the structure of the response to help with debugging
+      console.log(`API Response for ${type} product ${id}:`, response.data)
+      return response.data
+    })
   },
 }

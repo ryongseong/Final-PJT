@@ -140,6 +140,7 @@ def login_view(request):
             "gender": user.gender,
             "money": user.money,
             "salary": user.salary,
+            "is_superuser": user.is_superuser,
         }
 
         return JsonResponse(
@@ -175,13 +176,14 @@ def update_profile(request):
     # For multipart/form-data, data comes from request.POST and request.FILES
     # For JSON, data is parsed automatically by DRF in request.data
     data = request.data
+    print("data: ", data)
 
     # Get values from request.data
     nickname = data.get("nickname")
     age = data.get("age")
     gender = data.get("gender")
     salary = data.get("salary")
-    money = data.get("money")  # Add money field
+    money = data.get("money")
 
     # Handle image file upload
     image = request.FILES.get("profile_img") if hasattr(request, "FILES") else None
@@ -224,10 +226,10 @@ def update_profile(request):
     if gender is not None:
         user.gender = gender
 
-    if salary is not None:
+    if salary != "":
         user.salary = salary
 
-    if money is not None:
+    if money != "":
         try:
             # Convert to integer to ensure it's a valid amount
             money_amount = int(money)

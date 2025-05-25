@@ -101,7 +101,7 @@ export default {
       const script = document.createElement('script')
       /* global kakao */
       script.onload = () => kakao.maps.load(this.initializeMap)
-      script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${import.meta.env.VITE_KAKAO_MAPS_API_KEY}&libraries=services,clusterer,drawing&autoload=false`
+      script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${import.meta.env.VITE_KAKAO_API}&libraries=services,clusterer,drawing&autoload=false`
       document.head.appendChild(script)
     }
   },
@@ -489,139 +489,77 @@ export default {
 }
 
 .location-selector {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   display: flex;
-  gap: 15px;
+  gap: 10px;
   flex-wrap: wrap;
-  background: linear-gradient(to right, var(--color-background-start), var(--color-background-end));
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: var(--shadow-sm);
 }
 
 .location-selector select {
-  padding: 10px 15px;
-  border-radius: 6px;
-  border: 1px solid var(--color-secondary);
-  font-family: var(--font-body);
-  font-size: var(--font-size-base);
-  min-width: 180px;
-  background-color: var(--color-white);
-  color: var(--color-text);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-  appearance: none;
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23A38D77' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  padding-right: 30px;
-}
-
-.location-selector select:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(163, 141, 119, 0.2);
-}
-
-.location-selector select:disabled {
-  background-color: var(--color-secondary);
-  opacity: 0.7;
-  cursor: not-allowed;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  min-width: 150px;
 }
 
 .search-button {
-  padding: 10px 20px;
-  background-color: var(--color-primary);
-  color: var(--color-white);
+  padding: 8px 16px;
+  background-color: #4caf50;
+  color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
-  font-family: var(--font-body);
-  font-size: var(--font-size-base);
-  font-weight: 500;
-  transition: all var(--transition-normal);
-  min-width: 150px;
-  box-shadow: var(--shadow-sm);
+  font-size: 14px;
+  transition: background-color 0.3s;
 }
 
-.search-button:hover:not(:disabled) {
-  background-color: var(--color-primary-dark);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.search-button:active:not(:disabled) {
-  transform: translateY(0);
+.search-button:hover {
+  background-color: #45a049;
 }
 
 .search-button:disabled {
-  background-color: var(--color-secondary);
-  color: var(--color-text-light);
+  background-color: #cccccc;
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
 }
 
 #map {
   width: 100%;
-  height: 550px;
-  border-radius: 12px;
+  height: 500px;
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: var(--shadow-md);
-  margin-bottom: 30px;
-  border: 2px solid var(--color-secondary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
 }
 
 .search-results {
-  background: linear-gradient(to bottom, var(--color-background-start), var(--color-background-end));
-  border-radius: 12px;
-  padding: 25px;
-  margin-top: 30px;
-  box-shadow: var(--shadow-md);
-  animation: fadeIn var(--transition-normal);
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .search-results h3 {
   margin-top: 0;
-  margin-bottom: 20px;
-  color: var(--color-accent);
-  font-family: var(--font-heading);
-  font-size: var(--font-size-xl);
-  border-bottom: 1px solid var(--color-secondary);
-  padding-bottom: 10px;
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 18px;
 }
 
 .bank-list {
   list-style: none;
   padding: 0;
   margin: 0;
-  max-height: 400px;
+  max-height: 300px;
   overflow-y: auto;
-  border-radius: 8px;
-  background-color: var(--color-white);
-  box-shadow: var(--shadow-sm);
-}
-
-.bank-list::-webkit-scrollbar {
-  width: 8px;
-}
-
-.bank-list::-webkit-scrollbar-track {
-  background: var(--color-secondary);
-  border-radius: 10px;
-}
-
-.bank-list::-webkit-scrollbar-thumb {
-  background-color: var(--color-primary);
-  border-radius: 10px;
 }
 
 .bank-item {
-  padding: 15px 20px;
-  border-bottom: 1px solid var(--color-secondary);
+  padding: 12px;
+  border-bottom: 1px solid #eee;
   cursor: pointer;
-  transition: all var(--transition-fast);
-  position: relative;
-  overflow: hidden;
+  transition: background-color 0.2s;
 }
 
 .bank-item:last-child {
@@ -629,83 +567,24 @@ export default {
 }
 
 .bank-item:hover {
-  background-color: var(--color-background-start);
-  transform: translateX(5px);
-}
-
-.bank-item::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 4px;
-  height: 100%;
-  background-color: transparent;
-  transition: background-color var(--transition-fast);
-}
-
-.bank-item:hover::before {
-  background-color: var(--color-primary);
+  background-color: #f0f0f0;
 }
 
 .bank-name {
-  font-weight: 600;
-  margin-bottom: 6px;
-  color: var(--color-accent);
-  font-family: var(--font-heading);
-  font-size: var(--font-size-base);
+  font-weight: bold;
+  margin-bottom: 4px;
+  color: #333;
 }
 
 .bank-address {
-  font-size: var(--font-size-sm);
-  color: var(--color-text);
-  margin-bottom: 6px;
-  font-family: var(--font-body);
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 4px;
 }
 
 .bank-distance {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-light);
+  font-size: 13px;
+  color: #888;
   font-style: italic;
-  display: flex;
-  align-items: center;
-}
-
-.bank-distance::before {
-  content: "📍";
-  margin-right: 5px;
-  font-style: normal;
-}
-
-/* Responsive styles */
-@media (max-width: 768px) {
-  .location-selector {
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .location-selector select,
-  .search-button {
-    width: 100%;
-    min-width: 0;
-  }
-  
-  #map {
-    height: 400px;
-  }
-}
-
-@media (max-width: 480px) {
-  .search-results {
-    padding: 15px;
-  }
-  
-  .bank-item {
-    padding: 12px 15px;
-  }
-  
-  #map {
-    height: 350px;
-  }
 }
 </style>

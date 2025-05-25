@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import authService from '@/services/auth'
 import router from '@/router'
 // Integrate with imageUtils for consistent image URL handling
-import { processUserWithImage } from '@/utils/imageUtils'
+// import { processUserWithImage } from '@/utils/imageUtils'
 
 export const useUserStore = defineStore('user', {
   state: () => ({
