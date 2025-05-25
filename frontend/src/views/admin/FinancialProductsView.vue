@@ -1,118 +1,151 @@
 <template>
-  <div class="admin-products">
+  <div class="admin-products-view">
     <AdminNavbar />
 
-    <div class="products-content">
-      <h1>Financial Products Management</h1>
+    <div class="view-content">
+      <header class="view-header">
+        <h1>전체 금융 상품 관리</h1>
+        <p class="subtitle">등록된 모든 금융 상품을 확인하고 관리합니다.</p>
+      </header>
 
-      <div class="search-controls">
-        <div class="search-box">
-          <input
-            type="text"
-            v-model="searchQuery"
-            placeholder="Search products..."
-            @keyup.enter="searchProducts"
-          />
-          <select v-model="categoryFilter" @change="searchProducts">
-            <option value="">All Categories</option>
-            <option value="deposit">Deposit</option>
-            <option value="saving">Saving</option>
-            <option value="loan">Loan</option>
-          </select>
-          <button class="btn btn-primary" @click="searchProducts" :disabled="loading">
-            Search
+      <section class="controls-section card-style">
+        <div class="search-filter-bar">
+          <div class="search-input-group">
+            <i class="icon search-icon">🔍</i>
+            <input
+              type="text"
+              v-model="searchQuery"
+              placeholder="상품명, 금융사명 등으로 검색..."
+              @keyup.enter="searchProducts"
+              class="search-input"
+            />
+          </div>
+          <div class="filter-input-group">
+            <i class="icon filter-icon">📊</i>
+            <select v-model="categoryFilter" @change="searchProducts" class="filter-select">
+              <option value="">전체 카테고리</option>
+              <option value="deposit">예금</option>
+              <option value="saving">적금</option>
+              <option value="loan">대출</option>
+            </select>
+          </div>
+          <button class="action-btn primary-btn" @click="searchProducts" :disabled="loading">
+            <i class="icon"></i> 검색
           </button>
         </div>
-      </div>
+      </section>
 
-      <div v-if="loading" class="loading-spinner">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
+      <div v-if="loading" class="loading-indicator">
+        <div class="spinner"></div>
+        <p>상품 목록을 불러오는 중...</p>
       </div>
 
       <div
         v-if="message"
-        :class="['alert', messageType === 'error' ? 'alert-danger' : 'alert-success']"
+        :class="['alert-message', messageType === 'error' ? 'error' : 'success']"
       >
+        <i :class="['icon', messageType === 'error' ? '⚠️' : '✅']"></i>
         {{ message }}
       </div>
 
-      <div class="products-table">
-        <table>
-          <thead>
-            <tr>
-              <th>금융상품 코드</th>
-              <th>금융회사명</th>
-              <th>상품명</th>
-              <th>가입방법</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="product in products" :key="product.fin_prdt_cd">
-              <td>{{ product.fin_prdt_cd }}</td>
-              <td>{{ product.kor_co_nm }}</td>
-              <td>{{ product.fin_prdt_nm }}</td>
-              <td>{{ product.join_way.join(', ') }}</td>
-              <td class="actions">
-                <button @click="editProduct(product)" class="btn btn-sm btn-info">Edit</button>
-                <button @click="confirmDelete(product)" class="btn btn-sm btn-danger">
-                  Delete
-                </button>
-              </td>
-            </tr>
-            <tr v-if="products.length === 0 && !loading">
-              <td colspan="6" class="no-data">No financial products found</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <section class="table-section card-style">
+        <div class="table-header-actions">
+          <h3>상품 목록</h3>
+          <button @click="createNewProduct" class="action-btn success-btn add-product-btn">
+            <i class="icon">➕</i> 새 상품 추가
+          </button>
+        </div>
+        <div class="products-table-responsive">
+          <table class="products-table">
+            <thead>
+              <tr>
+                <th>금융상품 코드</th>
+                <th>금융회사명</th>
+                <th>상품명</th>
+                <th>가입방법</th>
+                <th>작업</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="product in products" :key="product.id || product.fin_prdt_cd">
+                <td data-label="금융상품 코드">{{ product.fin_prdt_cd }}</td>
+                <td data-label="금융회사명">{{ product.kor_co_nm }}</td>
+                <td data-label="상품명">{{ product.fin_prdt_nm }}</td>
+                <td data-label="가입방법">{{ Array.isArray(product.join_way) ? product.join_way.join(', ') : product.join_way }}</td>
+                <td data-label="작업" class="actions-cell">
+                  <button @click="editProduct(product)" class="action-btn icon-btn edit-btn" title="수정">
+                    <i class="icon">✏️</i>
+                  </button>
+                  <button @click="confirmDelete(product)" class="action-btn icon-btn delete-btn" title="삭제">
+                    <i class="icon">🗑️</i>
+                  </button>
+                </td>
+              </tr>
+              <tr v-if="products.length === 0 && !loading">
+                <td colspan="5" class="no-data">
+                  <p>표시할 금융 상품이 없습니다.</p>
+                  <p v-if="searchQuery || categoryFilter">다른 검색어나 필터를 시도해보세요.</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-      <!-- Edit Modal -->
-      <div v-if="showEditModal" class="modal-backdrop">
-        <div class="modal-content">
+      <!-- Edit/Create Modal -->
+      <div v-if="showEditModal" class="modal-overlay" @click.self="closeModal">
+        <div class="modal-container card-style">
           <div class="modal-header">
-            <h2>{{ editMode === 'create' ? 'Create New Product' : 'Edit Product' }}</h2>
-            <button class="close-btn" @click="closeModal">×</button>
+            <h3>{{ editMode === 'create' ? '새 금융 상품 추가' : '금융 상품 정보 수정' }}</h3>
+            <button class="close-modal-btn" @click="closeModal"><i class="icon">✕</i></button>
           </div>
           <div class="modal-body">
-            <form @submit.prevent="saveProduct">
-              <div class="form-group">
-                <label for="fin_prdt_cd">금융상품 코드</label>
-                <input
-                  type="text"
-                  id="fin_prdt_cd"
-                  v-model="editedProduct.fin_prdt_cd"
-                  :disabled="editMode === 'edit'"
-                  required
-                />
+            <form @submit.prevent="saveProduct" class="modal-form">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="fin_prdt_cd">금융상품 코드</label>
+                  <input
+                    type="text"
+                    id="fin_prdt_cd"
+                    v-model="editedProduct.fin_prdt_cd"
+                    :disabled="editMode === 'edit'"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="kor_co_nm">금융회사명</label>
+                  <input type="text" id="kor_co_nm" v-model="editedProduct.kor_co_nm" required />
+                </div>
+                <div class="form-group full-width">
+                  <label for="fin_prdt_nm">금융상품명</label>
+                  <input type="text" id="fin_prdt_nm" v-model="editedProduct.fin_prdt_nm" required />
+                </div>
+                <div class="form-group full-width">
+                  <label for="join_way">가입방법 (쉼표로 구분)</label>
+                  <input type="text" id="join_way" v-model="editedProduct.join_way" placeholder="예: 인터넷,스마트폰,전화(텔레뱅킹)" required />
+                </div>
+                <div class="form-group">
+                  <label for="loan_type">대출 종류 (해당하는 경우)</label>
+                  <input type="text" id="loan_type" v-model="editedProduct.loan_type" />
+                </div>
+                <div class="form-group">
+                  <label for="product_type">상품 유형</label>
+                  <select id="product_type" v-model="editedProduct.product_type">
+                    <option value="deposit">예금</option>
+                    <option value="saving">적금</option>
+                    <option value="loan">대출</option>
+                    <option value="">기타</option>
+                  </select>
+                </div>
+                <div class="form-group full-width">
+                  <label for="join_member">가입대상</label>
+                  <textarea id="join_member" v-model="editedProduct.join_member" rows="3"></textarea>
+                </div>
               </div>
-              <div class="form-group">
-                <label for="kor_co_nm">금융회사명</label>
-                <input type="text" id="kor_co_nm" v-model="editedProduct.kor_co_nm" required />
-              </div>
-              <div class="form-group">
-                <label for="fin_prdt_nm">금융상품명</label>
-                <input type="text" id="fin_prdt_nm" v-model="editedProduct.fin_prdt_nm" required />
-              </div>
-              <div class="form-group">
-                <label for="join_way">가입방법</label>
-                <input type="text" id="join_way" v-model="editedProduct.join_way" required />
-              </div>
-              <div class="form-group">
-                <label for="loan_type">대출종류</label>
-                <input type="text" id="loan_type" v-model="editedProduct.loan_type" />
-              </div>
-              <div class="form-group">
-                <label for="join_member">가입대상</label>
-                <textarea id="join_member" v-model="editedProduct.join_member" rows="3"></textarea>
-              </div>
-
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
-                <button type="submit" class="btn btn-primary" :disabled="savingChanges">
-                  {{ savingChanges ? 'Saving...' : 'Save Changes' }}
+              <div class="modal-actions">
+                <button type="button" class="action-btn secondary-btn" @click="closeModal">취소</button>
+                <button type="submit" class="action-btn primary-btn" :disabled="savingChanges">
+                  {{ savingChanges ? '저장 중...' : (editMode === 'create' ? '추가하기' : '변경사항 저장') }}
                 </button>
               </div>
             </form>
@@ -121,448 +154,587 @@
       </div>
 
       <!-- Delete Confirmation Modal -->
-      <div v-if="showDeleteModal" class="modal-backdrop">
-        <div class="modal-content delete-modal">
+      <div v-if="showDeleteModal" class="modal-overlay" @click.self="cancelDelete">
+        <div class="modal-container confirmation-modal card-style">
           <div class="modal-header">
-            <h2>Confirm Delete</h2>
-            <button class="close-btn" @click="cancelDelete">×</button>
+            <h3>삭제 확인</h3>
+            <button class="close-modal-btn" @click="cancelDelete"><i class="icon">✕</i></button>
           </div>
           <div class="modal-body">
-            <p>Are you sure you want to delete this product?</p>
-            <p>
-              <strong>{{ productToDelete?.fin_prdt_nm }}</strong> from
-              <strong>{{ productToDelete?.kor_co_nm }}</strong>
-            </p>
-            <p class="warning">This action cannot be undone!</p>
+            <p>정말로 이 금융 상품을 삭제하시겠습니까?</p>
+            <div v-if="productToDelete" class="product-info-delete">
+              <strong>상품명:</strong> {{ productToDelete.fin_prdt_nm }}<br />
+              <strong>금융사:</strong> {{ productToDelete.kor_co_nm }}
+            </div>
+            <p class="warning-text"><i class="icon">⚠️</i> 이 작업은 되돌릴 수 없습니다!</p>
           </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" @click="cancelDelete">Cancel</button>
-            <button class="btn btn-danger" @click="deleteProduct" :disabled="deleting">
-              {{ deleting ? 'Deleting...' : 'Delete' }}
+          <div class="modal-actions">
+            <button class="action-btn secondary-btn" @click="cancelDelete">취소</button>
+            <button class="action-btn danger-btn" @click="deleteProduct" :disabled="deleting">
+              {{ deleting ? '삭제 중...' : '삭제' }}
             </button>
           </div>
         </div>
-      </div>
-
-      <!-- Create Product Button -->
-      <div class="create-product">
-        <button @click="createNewProduct" class="btn btn-success">Create New Product</button>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-import adminService from '@/services/admin'
+<script setup>
+import { ref, onMounted, computed } from 'vue'
+// pjt0의 productsService 사용 (adminService 대신)
+import productsService from '@/services/products'
 import AdminNavbar from '@/components/admin/AdminNavbar.vue'
 
-export default {
-  name: 'AdminFinancialProducts',
-  components: { AdminNavbar },
-  data() {
-    return {
-      products: [],
-      loading: false,
-      message: '',
-      messageType: 'success',
-      searchQuery: '',
-      categoryFilter: '',
+const products = ref([])
+const loading = ref(false)
+const message = ref('')
+const messageType = ref('success')
+const searchQuery = ref('')
+const categoryFilter = ref('') // 'deposit', 'saving', 'loan', '' for all
 
-      // Edit modal
-      showEditModal: false,
-      editMode: 'edit', // 'edit' or 'create'
-      editedProduct: {
-        fin_prdt_cd: '',
-        kor_co_nm: '',
-        fin_prdt_nm: '',
-        join_way: '',
-        loan_type: '',
-        join_member: '',
-      },
-      savingChanges: false,
+const showEditModal = ref(false)
+const editMode = ref('edit') // 'create' or 'edit'
+const editedProduct = ref({
+  id: null,
+  fin_prdt_cd: '',
+  kor_co_nm: '',
+  fin_prdt_nm: '',
+  join_way: '',       // 문자열로 처리 (쉼표 구분)
+  loan_type: '',      // pjt0에는 없는 필드, Final-PJT 참고
+  join_member: '',    // pjt0에 없는 필드, Final-PJT 참고
+  product_type: '', // 'deposit', 'saving', 'loan' - pjt0에는 없는 필드, Final-PJT 참고. 저장 시 사용
+})
+const savingChanges = ref(false)
 
-      // Delete modal
-      showDeleteModal: false,
-      productToDelete: null,
-      deleting: false,
-    }
-  },
-  created() {
-    this.fetchProducts()
-  },
-  methods: {
-    async fetchProducts() {
-      try {
-        this.loading = true
-        this.message = ''
+const showDeleteModal = ref(false)
+const productToDelete = ref(null)
+const deleting = ref(false)
 
-        this.products = await adminService.getFinancialProducts()
-      } catch (error) {
-        this.showMessage('Failed to load products: ' + error.message, 'error')
-        console.error('Error fetching products:', error)
-      } finally {
-        this.loading = false
-      }
-    },
-
-    async searchProducts() {
-      try {
-        this.loading = true
-        this.message = ''
-
-        // If search query is empty and no category filter, fetch all
-        if (!this.searchQuery && !this.categoryFilter) {
-          await this.fetchProducts()
-          return
-        }
-
-        this.products = await adminService.searchFinancialProducts(
-          this.searchQuery,
-          this.categoryFilter,
-        )
-      } catch (error) {
-        this.showMessage('Search failed: ' + error.message, 'error')
-        console.error('Error searching products:', error)
-      } finally {
-        this.loading = false
-      }
-    },
-
-    createNewProduct() {
-      this.editMode = 'create'
-      this.editedProduct = {
-        fin_prdt_cd: '',
-        kor_co_nm: '',
-        fin_prdt_nm: '',
-        join_way: '',
-        loan_type: '',
-        join_member: '',
-      }
-      this.showEditModal = true
-    },
-
-    editProduct(product) {
-      this.editMode = 'edit'
-      this.editedProduct = { ...product }
-      this.showEditModal = true
-    },
-
-    closeModal() {
-      this.showEditModal = false
-    },
-
-    async saveProduct() {
-      try {
-        this.savingChanges = true
-
-        if (this.editMode === 'create') {
-          await adminService.createFinancialProduct(this.editedProduct)
-          this.showMessage('Product created successfully!')
-        } else {
-          await adminService.updateFinancialProduct(
-            this.editedProduct.fin_prdt_cd,
-            this.editedProduct,
-          )
-          this.showMessage('Product updated successfully!')
-        }
-
-        await this.fetchProducts()
-        this.closeModal()
-      } catch (error) {
-        this.showMessage('Failed to save product: ' + error.message, 'error')
-        console.error('Error saving product:', error)
-      } finally {
-        this.savingChanges = false
-      }
-    },
-
-    confirmDelete(product) {
-      this.productToDelete = product
-      this.showDeleteModal = true
-    },
-
-    cancelDelete() {
-      this.showDeleteModal = false
-      this.productToDelete = null
-    },
-
-    async deleteProduct() {
-      try {
-        this.deleting = true
-
-        await adminService.deleteFinancialProduct(this.productToDelete.fin_prdt_cd)
-        this.showMessage('Product deleted successfully!')
-
-        await this.fetchProducts()
-        this.cancelDelete()
-      } catch (error) {
-        this.showMessage('Failed to delete product: ' + error.message, 'error')
-        console.error('Error deleting product:', error)
-      } finally {
-        this.deleting = false
-      }
-    },
-
-    getProductType(product) {
-      if (product.deposit_product) return 'Deposit'
-      if (product.saving_product) return 'Saving'
-      if (product.loan_product) return 'Loan'
-      return 'Unknown'
-    },
-
-    showMessage(msg, type = 'success') {
-      this.message = msg
-      this.messageType = type
-
-      // Clear message after 5 seconds
-      setTimeout(() => {
-        this.message = ''
-      }, 5000)
-    },
-  },
+const showMessage = (msg, type = 'success') => {
+  message.value = msg
+  messageType.value = type
+  setTimeout(() => {
+    message.value = ''
+  }, 5000)
 }
+
+// pjt0에는 adminService가 별도로 없으므로, productsService를 사용합니다.
+// Final-PJT의 adminService.getFinancialProducts(), getDepositProducts() 등은
+// pjt0의 productsService.getAllFinancialProducts(), getDepositProducts() 등으로 매칭됩니다.
+const fetchProducts = async () => {
+  try {
+    loading.value = true
+    message.value = ''
+    let serviceCall
+    const params = { query: searchQuery.value } // 검색어는 모든 호출에 포함 가능
+
+    switch (categoryFilter.value) {
+      case 'deposit':
+        serviceCall = productsService.getDepositProducts(params)
+        break
+      case 'saving':
+        serviceCall = productsService.getSavingProducts(params)
+        break
+      case 'loan':
+        serviceCall = productsService.getLoanProducts(params)
+        break
+      default:
+        // searchQuery가 있으면 searchProducts를, 없으면 getAllFinancialProducts를 사용
+        // pjt0의 getAllFinancialProducts는 params를 받지 않으므로, 검색은 searchProducts로 통합
+        if (searchQuery.value) {
+          serviceCall = productsService.searchProducts(searchQuery.value) // pjt0의 searchProducts는 query만 받음
+        } else {
+          serviceCall = productsService.getAllFinancialProducts()
+        }
+    }
+    const response = await serviceCall
+    // pjt0의 searchProducts는 { deposits: [], savings: [], loans: [] } 형태일 수 있음
+    if (searchQuery.value && !categoryFilter.value && response && (response.deposits || response.savings || response.loans)) {
+      products.value = [...(response.deposits || []), ...(response.savings || []), ...(response.loans || [])]
+    } else {
+      products.value = Array.isArray(response) ? response : (response.results || [])
+    }
+
+  } catch (error) {
+    showMessage(`상품 목록 로딩 실패: ${error.message}`, 'error')
+    console.error('Error fetching products:', error)
+    products.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
+const searchProducts = async () => {
+  // categoryFilter 변경 시 fetchProducts가 호출되므로, 여기서는 searchQuery에 의한 호출만 처리
+  await fetchProducts()
+}
+
+const createNewProduct = () => {
+  editMode.value = 'create'
+  editedProduct.value = {
+    id: null,
+    fin_prdt_cd: '',
+    kor_co_nm: '',
+    fin_prdt_nm: '',
+    join_way: '',
+    loan_type: '',
+    join_member: '',
+    product_type: 'deposit', // 기본값
+  }
+  showEditModal.value = true
+}
+
+const editProduct = (product) => {
+  editMode.value = 'edit'
+  // pjt0의 상품 데이터에는 product_type이 없을 수 있으므로, 간단히 추론하거나 기본값을 사용.
+  // Final-PJT의 determineProductType 로직을 참고하여 단순화
+  let pType = ''
+  if (product.fin_prdt_cd) {
+    if (product.options && product.options.length > 0 && product.options[0].save_trm) pType = 'deposit' // 예금/적금 공통 옵션 save_trm
+    else if (product.lending_options && product.lending_options.length > 0) pType = 'loan'
+    else if (product.fin_prdt_cd.includes('D')) pType = 'deposit' // 임시 방편
+    else if (product.fin_prdt_cd.includes('S')) pType = 'saving'  // 임시 방편
+  }
+  
+  editedProduct.value = {
+    ...product,
+    join_way: Array.isArray(product.join_way) ? product.join_way.join(',') : (product.join_way || ''),
+    // product_type이 백엔드에서 올 수도 있고, 없을 수도 있음. 없으면 위에서 추론한 값 사용.
+    product_type: product.product_type || pType || 'deposit' 
+  }
+  showEditModal.value = true
+}
+
+const closeModal = () => {
+  showEditModal.value = false
+}
+
+// pjt0의 productsService에는 상품 생성/수정/삭제 기능이 없습니다.
+// 이 부분은 Final-PJT의 adminService를 모방하거나, pjt0 백엔드 API에 맞춰 새로 구현해야 합니다.
+// 여기서는 UI만 구현하고 실제 동작은 백엔드 API 연동이 필요함을 명시합니다.
+const saveProduct = async () => {
+  savingChanges.value = true
+  message.value = ''
+  try {
+    const payload = {
+      ...editedProduct.value,
+      join_way: editedProduct.value.join_way.split(',').map(s => s.trim()).filter(s => s),
+    }
+    console.log('Saving product (pjt0 - UI only):', payload)
+    // TODO: pjt0 백엔드 API에 맞춰 상품 생성/수정 로직 구현 필요
+    // 예시: if (editMode.value === 'create') { await productsService.createProduct(payload) }
+    //      else { await productsService.updateProduct(payload.id, payload) }
+    showMessage('상품 정보가 (UI상에서) 저장되었습니다. 백엔드 연동 필요', 'success')
+    closeModal()
+    await fetchProducts()
+  } catch (error) {
+    showMessage(`상품 저장 실패: ${error.message}`, 'error')
+    console.error('Error saving product:', error)
+  } finally {
+    savingChanges.value = false
+  }
+}
+
+const confirmDelete = (product) => {
+  productToDelete.value = product
+  showDeleteModal.value = true
+}
+
+const cancelDelete = () => {
+  productToDelete.value = null
+  showDeleteModal.value = false
+}
+
+const deleteProduct = async () => {
+  if (!productToDelete.value) return
+  deleting.value = true
+  message.value = ''
+  try {
+    console.log('Deleting product (pjt0 - UI only):', productToDelete.value)
+    // TODO: pjt0 백엔드 API에 맞춰 상품 삭제 로직 구현 필요
+    // 예시: await productsService.deleteProduct(productToDelete.value.id, productToDelete.value.product_type)
+    showMessage(`상품 '${productToDelete.value.fin_prdt_nm}'이(가) (UI상에서) 삭제되었습니다. 백엔드 연동 필요`, 'success')
+    productToDelete.value = null
+    showDeleteModal.value = false
+    await fetchProducts()
+  } catch (error) {
+    showMessage(`상품 삭제 실패: ${error.message}`, 'error')
+    console.error('Error deleting product:', error)
+  } finally {
+    deleting.value = false
+  }
+}
+
+onMounted(() => {
+  fetchProducts()
+})
+
 </script>
 
 <style scoped>
-.admin-products {
-  max-width: 1200px;
-  margin: 0 auto;
+/* General View Styles - Consistent with other admin views */
+.admin-products-view {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--background-primary);
+}
+
+.view-content {
+  flex-grow: 1;
   padding: 2rem;
-}
-
-h1 {
-  font-size: 2.5rem;
-  margin-bottom: 1.5rem;
-  color: #333;
-}
-
-.search-controls {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-}
-
-.search-box {
-  display: flex;
-  gap: 0.5rem;
+  max-width: var(--max-width-content, 1400px); /* Wider for tables */
+  margin: 0 auto;
   width: 100%;
 }
 
-.search-box input {
-  flex: 1;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+.view-header {
+  margin-bottom: 2rem;
 }
 
-.search-box select {
-  width: 150px;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+.view-header h1 {
+  font-size: 2.2rem; /* Consistent with other admin views */
+  color: var(--text-primary);
+  margin-bottom: 0.4rem;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
 }
 
-.products-table {
-  margin-top: 1.5rem;
-  overflow-x: auto;
+.view-header .subtitle {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
+.card-style {
+  background-color: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--card-shadow);
+  margin-bottom: 2rem;
+  border: 1px solid var(--card-border);
 }
 
-th,
-td {
-  padding: 0.75rem 1rem;
-  text-align: left;
-  border-bottom: 1px solid #eaeaea;
+/* Controls Section */
+.controls-section .search-filter-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Adjusted minmax */
+  gap: 1rem;
+  align-items: center;
 }
 
-th {
-  background-color: #f5f5f5;
-  font-weight: 600;
-}
-
-td.actions {
+.search-input-group, .filter-input-group {
   display: flex;
-  gap: 0.5rem;
+  align-items: center;
+  background-color: var(--background-primary); /* Lighter background for inputs */
+  border-radius: var(--border-radius-md);
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--border-color);
 }
 
-.btn {
-  padding: 0.5rem 1rem;
+.search-input-group .icon, .filter-input-group .icon {
+  color: var(--text-secondary);
+  margin-right: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.search-input, .filter-select {
   border: none;
-  border-radius: 4px;
+  outline: none;
+  background-color: transparent;
+  flex-grow: 1;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  padding: 0.3rem; /* Remove extra padding if already in group */
+}
+
+.filter-select {
   cursor: pointer;
+}
+
+/* Action Buttons (Shared) */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--border-radius-md);
   font-weight: 500;
-  transition: background-color 0.3s;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  text-align: center;
+  font-size: 0.9rem;
+  border: 1px solid transparent;
 }
 
-.btn-sm {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.875rem;
+.action-btn .icon {
+  margin-right: 0.5rem;
 }
 
-.btn-primary {
-  background-color: #007bff;
+.action-btn.primary-btn {
+  background-color: var(--accent-color);
+  color: var(--button-text);
+  border-color: var(--accent-color);
+  /* Ensure it doesn't take full grid width unless specified */
+  grid-column: span 1; 
+}
+.action-btn.primary-btn:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.action-btn.secondary-btn {
+  background-color: var(--background-primary);
+  color: var(--text-secondary);
+  border-color: var(--border-color);
+}
+.action-btn.secondary-btn:hover:not(:disabled) {
+  background-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.action-btn.success-btn {
+  background-color: var(--accent-color); /* Using accent for success too */
+  color: var(--button-text);
+  border-color: var(--accent-color);
+}
+.action-btn.success-btn:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.action-btn.danger-btn {
+  background-color: #EF4444; /* Standard Red for Danger */
   color: white;
+  border-color: #EF4444;
+}
+.action-btn.danger-btn:hover:not(:disabled) {
+  background-color: #DC2626;
+  border-color: #DC2626;
 }
 
-.btn-info {
-  background-color: #17a2b8;
-  color: white;
-}
-
-.btn-danger {
-  background-color: #dc3545;
-  color: white;
-}
-
-.btn-success {
-  background-color: #28a745;
-  color: white;
-}
-
-.btn-secondary {
-  background-color: #6c757d;
-  color: white;
-}
-
-.btn:hover {
-  opacity: 0.9;
-}
-
-.btn:disabled {
+.action-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.loading-spinner {
+.action-btn.icon-btn {
+  padding: 0.5rem;
+  background-color: transparent;
+  border: none;
+  color: var(--text-secondary);
+}
+.action-btn.icon-btn .icon {
+  margin-right: 0;
+  font-size: 1.2rem;
+}
+.action-btn.icon-btn.edit-btn:hover {
+  color: var(--accent-color);
+}
+.action-btn.icon-btn.delete-btn:hover {
+  color: #EF4444;
+}
+
+/* Loading and Alerts */
+.loading-indicator {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
   margin: 2rem 0;
+  color: var(--text-secondary);
 }
 
-.alert {
-  padding: 0.75rem 1rem;
-  margin: 1rem 0;
-  border-radius: 4px;
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--accent-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-.alert-success {
-  background-color: #d4edda;
-  color: #155724;
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
-.alert-danger {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-
-.no-data {
-  text-align: center;
-  padding: 2rem 0;
-  color: #666;
-}
-
-.create-product {
-  margin-top: 2rem;
-  display: flex;
-  justify-content: flex-end;
-}
-
-/* Modal styles */
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+.alert-message {
+  padding: 1rem 1.5rem;
+  border-radius: var(--border-radius-md);
+  margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
-  justify-content: center;
-  z-index: 1000;
+  font-weight: 500;
+}
+.alert-message .icon { margin-right: 0.75rem; font-size: 1.2rem; }
+.alert-message.success {
+  background-color: rgba(var(--accent-color-rgb, 163, 184, 153), 0.15);
+  color: var(--accent-color);
+  border: 1px solid rgba(var(--accent-color-rgb, 163, 184, 153), 0.3);
+}
+.alert-message.error {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
-.modal-content {
-  background-color: white;
-  border-radius: 8px;
-  width: 500px;
-  max-width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-}
-
-.delete-modal {
-  width: 400px;
-}
-
-.modal-header {
+/* Table Section */
+.table-section .table-header-actions {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #eaeaea;
-}
-
-.modal-header h2 {
-  margin: 0;
-  font-size: 1.5rem;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #666;
-}
-
-.modal-body {
-  padding: 1.5rem;
-}
-
-.modal-footer {
-  padding: 1rem 1.5rem;
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  border-top: 1px solid #eaeaea;
-}
-
-.form-group {
   margin-bottom: 1rem;
 }
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
+.table-section .table-header-actions h3 {
+  font-size: 1.3rem;
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
-.form-group input,
-.form-group textarea,
-.form-group select {
+.products-table-responsive { overflow-x: auto; }
+.products-table {
   width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.products-table th, .products-table td {
+  padding: 0.8rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+.products-table th {
+  background-color: var(--background-primary); /* Lighter header for table */
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.products-table tbody tr:hover {
+  background-color: rgba(var(--accent-color-rgb, 163, 184, 153), 0.05); /* Subtle hover */
+}
+.actions-cell { display: flex; gap: 0.5rem; align-items: center; white-space: nowrap; }
+.no-data td { text-align: center; padding: 2rem; color: var(--text-secondary); }
+.no-data p { margin-bottom: 0.5rem; }
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6); /* Darker overlay */
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1050; padding: 1rem;
+}
+.modal-container {
+  /* background-color: var(--card-bg); Handled by card-style */
+  /* padding: 1.5rem; Handled by card-style */
+  /* border-radius: var(--border-radius-lg); Handled by card-style */
+  /* box-shadow: var(--card-shadow); Handled by card-style */
+  /* border: 1px solid var(--card-border); Handled by card-style */
+  width: 100%;
+  max-width: 600px; /* Default modal width */
+  max-height: 90vh;
+  overflow-y: auto; /* Add scroll for long content */
+}
+.modal-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-bottom: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color);
+}
+.modal-header h3 { font-size: 1.4rem; color: var(--text-primary); font-weight: 600; margin: 0; }
+.close-modal-btn {
+  background: none; border: none; font-size: 1.5rem; line-height: 1;
+  cursor: pointer; color: var(--text-secondary); padding: 0.3rem; /* Ensure clickable area */
+}
+.close-modal-btn:hover { color: var(--text-primary); }
+
+.modal-form .form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.2rem;
+}
+.modal-form .form-group { margin-bottom: 0; } /* Removed default margin, using gap */
+.modal-form .form-group.full-width { grid-column: 1 / -1; }
+.modal-form label {
+  display: block; margin-bottom: 0.5rem; font-weight: 500;
+  color: var(--text-secondary); font-size: 0.85rem;
+}
+.modal-form input[type="text"],
+.modal-form input[type="number"],
+.modal-form textarea,
+.modal-form select {
+  width: 100%; padding: 0.7rem 0.9rem; border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm); /* Slightly smaller radius for inputs */
+  font-size: 0.95rem; background-color: var(--background-primary);
+  color: var(--text-primary);
+  transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+}
+.modal-form input[type="text"]:focus,
+.modal-form input[type="number"]:focus,
+.modal-form textarea:focus,
+.modal-form select:focus {
+  outline: none; border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb, 163, 184, 153), 0.2);
+}
+.modal-form textarea { resize: vertical; min-height: 80px; }
+
+.modal-actions {
+  display: flex; justify-content: flex-end; gap: 0.8rem; margin-top: 2rem;
+  padding-top: 1.5rem; border-top: 1px solid var(--border-color);
 }
 
-.warning {
-  color: #dc3545;
-  font-weight: 500;
+/* Confirmation Modal Specifics */
+.confirmation-modal .modal-body p { margin-bottom: 0.8rem; font-size: 1.05rem; color: var(--text-primary); }
+.confirmation-modal .product-info-delete {
+  background-color: var(--background-primary); padding: 0.8rem; border-radius: var(--border-radius-sm);
+  margin-bottom: 1rem; border: 1px solid var(--border-color); font-size: 0.9rem;
+}
+.confirmation-modal .warning-text {
+  color: #D97706; /* Orange for warning */
+  font-weight: 500; display: flex; align-items: center;
+}
+.confirmation-modal .warning-text .icon { margin-right: 0.4rem; font-size: 1.1rem; }
+
+/* Responsive Table */
+@media (max-width: 992px) { /* Adjusted breakpoint */
+  .products-table thead { display: none; }
+  .products-table tr { display: block; margin-bottom: 1rem; border: 1px solid var(--border-color); border-radius: var(--border-radius-md); box-shadow: var(--card-shadow-sm); }
+  .products-table td { display: block; text-align: right; padding-left: 50%; position: relative; border-bottom: 1px solid var(--border-color); }
+  .products-table td:last-child { border-bottom: none; }
+  .products-table td::before {
+    content: attr(data-label);
+    position: absolute; left: 1rem; font-weight: 600;
+    color: var(--text-secondary); text-align: left; white-space: nowrap;
+  }
+  .actions-cell { justify-content: flex-end; } 
 }
 
 @media (max-width: 768px) {
-  .search-box {
-    flex-direction: column;
+  .view-header h1 { font-size: 1.8rem; }
+  .controls-section .search-filter-bar {
+    grid-template-columns: 1fr; /* Stack filters on smaller screens */
   }
-
-  td.actions {
-    flex-direction: column;
+  .modal-form .form-grid {
+    grid-template-columns: 1fr; /* Stack form elements in modal */
   }
 }
+
+/* Fix for search button icon */
+.controls-section .action-btn .icon:not(:last-child) { /* if icon is not the only child */
+  margin-right: 0.5rem;
+}
+.controls-section .action-btn .icon:empty { /* if icon has no content, like from a class */
+  /* You might need to target specific icon classes if they are empty by default */
+  /* For now, assuming it might be an empty <i> or <span> */
+  display: inline-block; /* or 'none' if it should be hidden if empty */
+  width: 1em; /* placeholder for an icon */
+  height: 1em;
+  /* background-image: url('path/to/default-search-icon.svg'); */
+  /* background-repeat: no-repeat; */
+  /* background-position: center; */
+  /* margin-right: 0.5rem; */
+}
+.controls-section .action-btn i.icon:before { /* If using font-icon and it's not rendering */
+  content: "🔎"; /* Fallback or ensure font is loaded */
+  font-family: initial; /* Reset font if it's a special icon font */
+}
+
 </style>

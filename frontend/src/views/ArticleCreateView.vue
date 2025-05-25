@@ -131,71 +131,110 @@ onMounted(() => {
 <style scoped>
 .article-form-container {
   max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  font-family: var(--font-family-base, 'Pretendard Variable', Pretendard, sans-serif);
 }
 
-h2 {
+.article-form-container h2 {
+  font-size: 2.2rem; /* Title size */
+  color: var(--text-primary);
+  margin-bottom: 2rem;
   text-align: center;
-  margin-bottom: 30px;
+  font-weight: 700;
+  font-family: 'Playfair Display', serif;
 }
 
 .article-form {
-  background-color: white;
-  padding: 24px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background-color: var(--card-bg);
+  padding: 2rem 2.5rem; /* Increased padding */
+  border-radius: 16px; /* More rounded */
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--card-border);
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 1.8rem; /* Spacing between form groups */
 }
 
 label {
   display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
+  margin-bottom: 0.75rem; /* Spacing below label */
+  font-weight: 600; /* Bolder label */
+  color: var(--text-primary);
+  font-size: 1rem;
 }
 
-input, textarea {
+input[type="text"],
+textarea {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 16px;
+  padding: 0.9rem 1.2rem; /* Increased padding */
+  border: 1px solid var(--border-color);
+  border-radius: 8px; /* More rounded inputs */
+  font-size: 1rem;
+  background-color: var(--background-primary); /* Input background */
+  color: var(--text-primary);
+  transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+input[type="text"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(var(--accent-color-rgb, 163, 184, 153), 0.2); /* Accent focus shadow */
 }
 
 textarea {
   resize: vertical;
-  min-height: 200px;
+  min-height: 250px; /* Increased min-height */
+  line-height: 1.6; /* Improved readability */
 }
 
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 1rem; /* Spacing between buttons */
+  margin-top: 2rem;
 }
 
-.cancel-btn, .submit-btn {
-  padding: 10px 20px;
+.cancel-btn,
+.submit-btn {
+  padding: 0.75rem 1.5rem; /* Consistent button padding */
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all var(--transition-speed);
 }
 
 .cancel-btn {
-  background-color: #e5e7eb;
+  background-color: var(--background-primary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.cancel-btn:hover {
+  background-color: var(--border-color);
+  color: var(--text-primary);
 }
 
 .submit-btn {
-  background-color: #4f46e5;
-  color: white;
+  background-color: var(--accent-color);
+  color: var(--button-text);
+  border: 1px solid var(--accent-color);
+}
+
+.submit-btn:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
 
 .submit-btn:disabled {
-  background-color: #a5a3d8;
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+  color: rgba(var(--button-text-rgb, 255, 255, 255), 0.7);
+  opacity: 0.7;
   cursor: not-allowed;
 }
 </style>

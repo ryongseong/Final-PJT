@@ -4,6 +4,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import i18n from './i18n' // i18n 추가
+import './assets/variables.css' // CSS 변수 파일 import
 
 // Import Vue Toast Notification
 import ToastPlugin from 'vue-toast-notification'

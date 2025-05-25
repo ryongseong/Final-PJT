@@ -96,27 +96,8 @@
               <h1>{{ $t('hero.tagline') }}</h1>
               <p>{{ $t('hero.subtitle') }}</p>
               <div class="hero-buttons">
-                <button class="hero-btn primary">{{ $t('hero.ctaButton') }}</button>
-                <button class="hero-btn secondary">{{ $t('hero.learnMore') }}</button>
-              </div>
-            </div>
-            <div class="hero-card">
-              <div class="card-header">
-                <h3>{{ $t('hero.cardTitle') }}</h3>
-              </div>
-              <div class="card-body">
-                <div class="feature-item">
-                  <div class="feature-icon">💰</div>
-                  <div class="feature-text">{{ $t('hero.feature1') }}</div>
-                </div>
-                <div class="feature-item">
-                  <div class="feature-icon">📊</div>
-                  <div class="feature-text">{{ $t('hero.feature2') }}</div>
-                </div>
-                <div class="feature-item">
-                  <div class="feature-icon">🔒</div>
-                  <div class="feature-text">{{ $t('hero.feature3') }}</div>
-                </div>
+                <router-link to="/products/ai-recommendations" class="hero-btn primary">{{ $t('hero.ctaButton') }}</router-link>
+                <router-link to="/products" class="hero-btn secondary">{{ $t('hero.learnMore') }}</router-link>
               </div>
             </div>
           </div>
@@ -234,6 +215,8 @@ onBeforeUnmount(() => {
 
 body {
   font-family:
+    'Pretendard Variable',
+    Pretendard,
     'Inter',
     'Noto Sans KR',
     -apple-system,
@@ -333,72 +316,6 @@ main {
   font-family: 'Inter', sans-serif;
 }
 
-.hero-card {
-  flex: 1;
-  max-width: 450px;
-  background-color: var(--card-bg);
-  border-radius: 16px;
-  box-shadow: var(--card-shadow);
-  overflow: hidden;
-  border: 1px solid var(--card-border);
-  transition:
-    transform var(--transition-speed),
-    box-shadow var(--transition-speed);
-}
-
-.hero-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-}
-
-.card-header {
-  padding: 1.5rem;
-  background-color: var(--accent-color);
-  color: white;
-}
-
-.card-header h3 {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-  font-family: 'Playfair Display', serif;
-}
-
-.card-body {
-  padding: 1.5rem;
-}
-
-.feature-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1.2rem;
-  padding-bottom: 1.2rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.feature-item:last-child {
-  margin-bottom: 0;
-  padding-bottom: 0;
-  border-bottom: none;
-}
-
-.feature-icon {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  margin-right: 1rem;
-}
-
-.feature-text {
-  flex: 1;
-  font-size: 1.1rem;
-  color: var(--text-primary);
-  font-family: 'Inter', sans-serif;
-}
-
 .hero-buttons {
   display: flex;
   gap: 1rem;
@@ -470,11 +387,6 @@ main {
   .hero-buttons {
     justify-content: center;
   }
-
-  .hero-card {
-    width: 100%;
-    max-width: 500px;
-  }
 }
 
 @media (max-width: 768px) {
@@ -507,52 +419,67 @@ main {
 /* Header styles */
 .app-header {
   background-color: var(--header-bg);
-  box-shadow: 0 2px 4px var(--shadow-color);
+  padding: 0.8rem 2rem;
+  box-shadow: 0 2px 8px var(--shadow-color);
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1000;
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .header-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-  height: 70px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  max-width: 1300px;
+  margin: 0 auto;
 }
 
 .logo {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   font-weight: 700;
   color: var(--accent-color);
-  font-family: 'Playfair Display', serif;
+  text-decoration: none;
+  transition: color var(--transition-speed);
+}
+
+.logo:hover {
+  color: var(--accent-hover);
 }
 
 .main-nav {
   display: flex;
-  gap: 20px;
+  gap: 1rem;
 }
 
-.nav-link {
-  font-weight: 500;
+.main-nav .nav-link {
   color: var(--text-secondary);
-  padding: 8px 12px;
-  border-radius: 4px;
-  transition: all 0.2s;
+  text-decoration: none;
+  padding: 0.8rem 1.2rem;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all var(--transition-speed);
+  display: flex;
+  align-items: center;
+  line-height: 1;
 }
 
-.nav-link:hover,
-.nav-link.router-link-active {
+.main-nav .nav-link i {
+  margin-right: 0.5rem;
+}
+
+.main-nav .nav-link:hover,
+.main-nav .nav-link.router-link-active {
   color: var(--accent-color);
-  background-color: rgba(79, 70, 229, 0.1);
+  background-color: rgba(var(--accent-color-rgb, 80, 200, 120), 0.1);
+  box-shadow: 0 2px 4px rgba(var(--accent-color-rgb, 80, 200, 120), 0.2);
 }
 
 .user-menu {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 1rem;
 }
 
 .theme-toggle,

@@ -132,92 +132,153 @@ export default {
 
 <style scoped>
 .map-view {
-  padding: 20px;
+  padding: 2rem; /* Consistent padding */
   max-width: 1200px;
   margin: 0 auto;
+  font-family: var(--font-family-base); /* Apply global font */
+  color: var(--text-primary);
+  background-color: var(--background-primary); /* Ensure view has background */
 }
 
-h1 {
-  margin-bottom: 10px;
-  color: #333;
+.map-view h1 {
+  font-family: 'Playfair Display', serif; /* Title font */
+  font-size: 2.2rem;
+  color: var(--text-primary);
+  margin-bottom: 1rem; /* Consistent margin */
+  text-align: center; /* Center title */
 }
 
 .instructions {
-  margin-bottom: 20px;
-  color: #666;
-  font-size: 16px;
-  line-height: 1.5;
+  margin-bottom: 2rem; /* Increased margin */
+  color: var(--text-secondary);
+  font-size: 1rem; /* Standardized font size */
+  line-height: 1.6;
+  background-color: var(--card-bg); /* Card style for instructions */
+  padding: 1.5rem;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--card-border);
 }
 
 .map-wrapper {
-  margin-bottom: 20px;
-  border-radius: 10px;
+  margin-bottom: 2rem;
+  border-radius: var(--border-radius-lg); /* Consistent border radius */
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--card-shadow); /* Consistent shadow */
+  border: 1px solid var(--card-border); /* Consistent border */
+  height: 60vh; /* Fixed height for map */
+  min-height: 400px;
 }
 
 .info-panel {
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  padding: 20px;
-  margin-top: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: var(--card-bg); /* Use card background */
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem; /* Consistent padding */
+  margin-top: 2rem;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--card-border);
 }
 
 .info-panel h3 {
   margin-top: 0;
-  margin-bottom: 15px;
-  color: #333;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 10px;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color); /* Use theme border color */
+  padding-bottom: 0.8rem;
+  font-size: 1.5rem; /* Adjusted font size */
+  font-weight: 600;
 }
 
 .info-panel p {
-  margin: 10px 0;
-  font-size: 15px;
-  line-height: 1.5;
+  margin: 0.8rem 0;
+  font-size: 0.95rem; /* Standardized font size */
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.info-panel p strong {
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
 .directions-link {
-  margin-top: 15px;
+  margin-top: 1.5rem;
   display: flex;
-  gap: 10px;
+  gap: 0.8rem; /* Consistent gap */
 }
 
-.btn {
-  display: inline-block;
-  padding: 8px 16px;
-  border-radius: 4px;
+/* Using global .action-btn styles if available, otherwise defining similar ones */
+.btn.btn-directions {
+  /* Assuming .action-btn and .primary-btn, .secondary-btn from variables.css might apply */
+  /* For demonstration, specific styles that mimic the theme are below */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--border-radius-md);
   text-decoration: none;
-  color: white;
   font-weight: 500;
-  transition: background-color 0.3s;
+  transition: background-color var(--transition-speed), border-color var(--transition-speed), color var(--transition-speed);
   text-align: center;
+  font-size: 0.9rem;
+  border: 1px solid transparent;
+  cursor: pointer;
 }
 
 .btn-directions {
-  background-color: #f9a825;
+  background-color: var(--accent-color); /* Theme accent color */
+  color: var(--button-text);
+  border-color: var(--accent-color);
 }
 
 .btn-directions:hover {
-  background-color: #f57f17;
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
 
 .btn-directions.naver {
-  background-color: #03c75a;
+  background-color: var(--background-primary); /* Use a secondary button style */
+  color: var(--text-primary);
+  border-color: var(--border-color);
 }
 
 .btn-directions.naver:hover {
-  background-color: #02a54a;
+  background-color: var(--border-color);
+  color: var(--text-primary);
+  border-color: var(--accent-hover); /* Or slightly darker border */
 }
 
 @media (max-width: 768px) {
   .map-view {
-    padding: 10px;
+    padding: 1rem; /* Adjust padding for mobile */
+  }
+
+  .map-view h1 {
+    font-size: 1.8rem; /* Adjust title size for mobile */
+  }
+
+  .instructions {
+    padding: 1rem;
+  }
+
+  .map-wrapper {
+    height: 50vh; /* Adjust map height for mobile */
+  }
+
+  .info-panel {
+    padding: 1rem;
+  }
+
+  .info-panel h3 {
+    font-size: 1.3rem;
   }
 
   .directions-link {
     flex-direction: column;
+  }
+
+  .btn.btn-directions {
+    width: 100%; /* Full width buttons on mobile */
   }
 }
 </style>

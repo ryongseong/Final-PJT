@@ -1,866 +1,872 @@
 <template>
-  <div class="admin-loans">
+  <div class="admin-products-view">
     <AdminNavbar />
-    <h1>Loan Products Management</h1>
 
-    <div class="search-controls">
-      <div class="search-box">
-        <input
-          type="text"
-          v-model="searchQuery"
-          placeholder="Search loan products..."
-          @keyup.enter="searchProducts"
-        />
-        <select v-model="loanTypeFilter" @change="filterProducts">
-          <option value="">All Loan Types</option>
-          <option v-for="type in availableLoanTypes" :key="type" :value="type">{{ type }}</option>
-        </select>
-        <button class="btn btn-primary" @click="searchProducts" :disabled="loading">Search</button>
-      </div>
-    </div>
+    <div class="view-content">
+      <header class="view-header">
+        <h1>대출 상품 관리</h1>
+        <p class="subtitle">등록된 대출 상품 및 옵션을 확인하고 관리합니다.</p>
+      </header>
 
-    <div v-if="loading" class="loading-spinner">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
-    </div>
-
-    <div
-      v-if="message"
-      :class="['alert', messageType === 'error' ? 'alert-danger' : 'alert-success']"
-    >
-      {{ message }}
-    </div>
-
-    <div class="products-table">
-      <table>
-        <thead>
-          <tr>
-            <th>금융상품 코드</th>
-            <th>금융회사명</th>
-            <th>상품명</th>
-            <th>대출종류</th>
-            <th>대출 부대비용</th>
-            <th>중도상환 수수료</th>
-            <th>연체 이자율</th>
-            <th>대출 한도</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="loan in loans" :key="loan.product">
-            <td>{{ loan.product }}</td>
-            <td>{{ getCompanyName(loan) }}</td>
-            <td>{{ getProductName(loan) }}</td>
-            <td>{{ getLoanType(loan) }}</td>
-            <td>{{ loan.loan_inci_expn || '-' }}</td>
-            <td>{{ loan.erly_rpay_fee || '-' }}</td>
-            <td>{{ loan.dly_rate || '-' }}</td>
-            <td>{{ loan.loan_lmt || '-' }}</td>
-            <td class="actions">
-              <button @click="editProduct(loan)" class="btn btn-sm btn-info">Edit</button>
-              <button @click="confirmDelete(loan)" class="btn btn-sm btn-danger">Delete</button>
-              <button @click="viewOptions(loan)" class="btn btn-sm btn-secondary">Options</button>
-            </td>
-          </tr>
-          <tr v-if="loans.length === 0 && !loading">
-            <td colspan="9" class="no-data">No loan products found</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Edit Modal -->
-    <div v-if="showEditModal" class="modal-backdrop">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>{{ editMode === 'create' ? 'Create New Loan Product' : 'Edit Loan Product' }}</h2>
-          <button class="close-btn" @click="closeModal">×</button>
-        </div>
-        <div class="modal-body">
-          <form @submit.prevent="saveProduct">
-            <div class="form-group" v-if="editMode === 'create'">
-              <label for="product">금융상품 코드</label>
-              <select id="product" v-model="editedProduct.product" required>
-                <option value="">-- Select Financial Product --</option>
-                <option
-                  v-for="product in availableProducts"
-                  :key="product.fin_prdt_cd"
-                  :value="product.fin_prdt_cd"
-                >
-                  {{ product.fin_prdt_nm }} ({{ product.kor_co_nm }})
+      <section class="controls-section card-style">
+        <div class="search-filter-bar">
+          <div class="search-input-group">
+            <i class="icon search-icon">🔍</i>
+            <input
+              type="text"
+              v-model="searchQuery"
+              placeholder="상품명, 금융사명 등으로 검색..."
+              @keyup.enter="applyFiltersAndSearch"
+              class="search-input"
+            />
+          </div>
+          <div class="filter-input-group">
+            <i class="icon filter-icon">🏦</i>
+            <select v-model="loanProductTypeFilter" @change="applyFiltersAndSearch" class="filter-select">
+              <option value="">전체 대출 상품 유형</option>
+              <option value="mortgage">주택담보대출</option>
+              <option value="credit">신용대출</option>
+            </select>
+          </div>
+          <div class="filter-input-group">
+            <i class="icon filter-icon">📄</i>
+            <select v-model="loanOptionTypeFilter" @change="applyFiltersAndSearch" class="filter-select">
+              <option value="">전체 옵션 유형</option>
+              <optgroup label="주택담보대출 유형" v-if="loanProductTypeFilter === '' || loanProductTypeFilter === 'mortgage'">
+                <option v-for="type in availableMortgageTypes" :key="type.value" :value="type.value">
+                  {{ type.text }}
                 </option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="fin_co_no">금융회사 코드</label>
-              <input type="text" id="fin_co_no" v-model="editedProduct.fin_co_no" required />
-            </div>
-            <div class="form-group">
-              <label for="dcls_month">공시 월</label>
-              <input
-                type="text"
-                id="dcls_month"
-                v-model="editedProduct.dcls_month"
-                required
-                placeholder="YYYYMM"
-              />
-            </div>
-            <div class="form-group">
-              <label for="loan_inci_expn">대출 부대비용</label>
-              <textarea
-                id="loan_inci_expn"
-                v-model="editedProduct.loan_inci_expn"
-                rows="2"
-              ></textarea>
-            </div>
-            <div class="form-group">
-              <label for="erly_rpay_fee">중도상환 수수료</label>
-              <textarea
-                id="erly_rpay_fee"
-                v-model="editedProduct.erly_rpay_fee"
-                rows="2"
-              ></textarea>
-            </div>
-            <div class="form-group">
-              <label for="dly_rate">연체 이자율</label>
-              <textarea id="dly_rate" v-model="editedProduct.dly_rate" rows="2"></textarea>
-            </div>
-            <div class="form-group">
-              <label for="loan_lmt">대출 한도</label>
-              <textarea id="loan_lmt" v-model="editedProduct.loan_lmt" rows="2"></textarea>
-            </div>
-
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
-              <button type="submit" class="btn btn-primary" :disabled="savingChanges">
-                {{ savingChanges ? 'Saving...' : 'Save Changes' }}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- Delete Confirmation Modal -->
-    <div v-if="showDeleteModal" class="modal-backdrop">
-      <div class="modal-content delete-modal">
-        <div class="modal-header">
-          <h2>Confirm Delete</h2>
-          <button class="close-btn" @click="cancelDelete">×</button>
-        </div>
-        <div class="modal-body">
-          <p>Are you sure you want to delete this loan product?</p>
-          <p>
-            <strong>{{ getProductName(productToDelete) }}</strong>
-          </p>
-          <p class="warning">This action cannot be undone!</p>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" @click="cancelDelete">Cancel</button>
-          <button class="btn btn-danger" @click="deleteProduct" :disabled="deleting">
-            {{ deleting ? 'Deleting...' : 'Delete' }}
+              </optgroup>
+              <optgroup label="신용대출 유형" v-if="loanProductTypeFilter === '' || loanProductTypeFilter === 'credit'">
+                 <option v-for="type in availableCreditLoanProductTypes" :key="type.value" :value="type.value">
+                  {{ type.text }}
+                </option>
+              </optgroup>
+            </select>
+          </div>
+          <button class="action-btn primary-btn" @click="applyFiltersAndSearch" :disabled="loading">
+            <i class="icon">🔎</i> 적용
           </button>
         </div>
+      </section>
+
+      <div v-if="loading" class="loading-indicator">
+        <div class="spinner"></div>
+        <p>대출 상품 목록을 불러오는 중...</p>
       </div>
-    </div>
 
-    <!-- Options Modal -->
-    <div v-if="showOptionsModal" class="modal-backdrop">
-      <div class="modal-content options-modal">
-        <div class="modal-header">
-          <h2>Loan Options</h2>
-          <button class="close-btn" @click="closeOptionsModal">×</button>
+      <div
+        v-if="message"
+        :class="['alert-message', messageType === 'error' ? 'error' : 'success']"
+      >
+        <i :class="['icon', messageType === 'error' ? '⚠️' : '✅']"></i>
+        {{ message }}
+      </div>
+
+      <section class="table-section card-style">
+        <div class="table-header-actions">
+          <h3>대출 상품 옵션 목록</h3>
+          <button @click="createNewOption" class="action-btn success-btn add-product-btn">
+            <i class="icon">➕</i> 새 대출 옵션 추가
+          </button>
         </div>
-        <div class="modal-body">
-          <div v-if="loadingOptions" class="loading-spinner">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
+        <div class="products-table-responsive">
+          <table class="products-table">
+            <thead>
+              <tr>
+                <th>금융상품 코드</th>
+                <th>금융회사명</th>
+                <th>상품명</th>
+                <th>대출 종류</th>
+                <th>옵션 상세 유형</th>
+                <th>금리 유형</th>
+                <th>최저 금리(%)</th>
+                <th>최고 금리(%)</th>
+                <th>평균 금리(%)</th>
+                <th>작업</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="option in filteredLoanOptions" :key="option.unique_id">
+                <td data-label="금융상품 코드">{{ option.product?.fin_prdt_cd || '-' }}</td>
+                <td data-label="금융회사명">{{ option.product?.kor_co_nm || '-' }}</td>
+                <td data-label="상품명">{{ option.product?.fin_prdt_nm || '-' }}</td>
+                <td data-label="대출 종류">{{ option.loan_product_type === 'mortgage' ? '주택담보' : '신용' }}</td>
+                <td data-label="옵션 상세 유형">{{ getLoanOptionSpecificType(option) }}</td>
+                <td data-label="금리 유형">{{ getLendRateType(option.lend_rate_type) }}</td>
+                <td data-label="최저 금리(%)">{{ option.lend_rate_min?.toFixed(2) || '0.00' }}%</td>
+                <td data-label="최고 금리(%)">{{ option.lend_rate_max?.toFixed(2) || '0.00' }}%</td>
+                <td data-label="평균 금리(%)">{{ option.lend_rate_avg?.toFixed(2) || '-' }}%</td>
+                <td data-label="작업" class="actions-cell">
+                  <button @click="editOption(option)" class="action-btn icon-btn edit-btn" title="수정">
+                    <i class="icon">✏️</i>
+                  </button>
+                  <button @click="confirmDeleteOption(option)" class="action-btn icon-btn delete-btn" title="삭제">
+                    <i class="icon">🗑️</i>
+                  </button>
+                </td>
+              </tr>
+              <tr v-if="filteredLoanOptions.length === 0 && !loading">
+                <td colspan="10" class="no-data">
+                  <p>표시할 대출 상품 옵션이 없습니다.</p>
+                  <p v-if="searchQuery || loanProductTypeFilter || loanOptionTypeFilter">다른 검색어나 필터를 시도해보세요.</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <div v-if="showEditModal" class="modal-overlay" @click.self="closeModal">
+        <div class="modal-container card-style">
+          <div class="modal-header">
+            <h3>{{ editMode === 'create' ? '새 대출 옵션 추가' : '대출 옵션 정보 수정' }}</h3>
+            <button class="close-modal-btn" @click="closeModal"><i class="icon">✕</i></button>
           </div>
+          <div class="modal-body">
+            <form @submit.prevent="saveOption" class="modal-form">
+              <div class="form-grid">
+                <div class="form-group full-width" v-if="editMode === 'create'">
+                  <label for="product_fin_prdt_cd">금융상품 코드 (연결)</label>
+                   <input
+                    type="text"
+                    id="product_fin_prdt_cd"
+                    v-model="editedOption.product_fin_prdt_cd"
+                    required
+                    placeholder="연결할 금융상품의 코드를 입력하세요."
+                  />
+                </div>
+                 <div class="form-group" v-else>
+                  <label>금융상품 코드</label>
+                  <input type="text" :value="editedOption.product_fin_prdt_cd" disabled />
+                </div>
 
-          <div v-else>
-            <h3>{{ getProductName(currentProduct) }}</h3>
+                <div class="form-group">
+                  <label for="loan_product_type_modal">대출 종류</label>
+                  <select id="loan_product_type_modal" v-model="editedOption.loan_product_type" required @change="resetLoanSpecificType">
+                    <option value="mortgage">주택담보대출</option>
+                    <option value="credit">신용대출</option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label for="dcls_month">공시 월</label>
+                  <input type="text" id="dcls_month" v-model="editedOption.dcls_month" placeholder="YYYYMM" />
+                </div>
 
-            <div class="tabs">
-              <button
-                :class="['tab-btn', activeTab === 'mortgage' ? 'active' : '']"
-                @click="activeTab = 'mortgage'"
-              >
-                Mortgage Options
-              </button>
-              <button
-                :class="['tab-btn', activeTab === 'credit' ? 'active' : '']"
-                @click="activeTab = 'credit'"
-              >
-                Credit Options
-              </button>
-            </div>
+                <template v-if="editedOption.loan_product_type === 'mortgage'">
+                  <div class="form-group">
+                    <label for="mrtg_type">주택담보대출 담보 유형</label>
+                    <select id="mrtg_type" v-model="editedOption.mrtg_type" required>
+                       <option v-for="type in availableMortgageTypes" :key="type.value" :value="type.value">{{ type.text }}</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="rpay_type">상환 유형</label>
+                     <select id="rpay_type" v-model="editedOption.rpay_type" required>
+                       <option v-for="type in availableRepayTypes" :key="type.value" :value="type.value">{{ type.text }}</option>
+                    </select>
+                  </div>
+                </template>
 
-            <div v-if="activeTab === 'mortgage'">
-              <h4>Mortgage Loan Options</h4>
-              <div v-if="mortgageOptions.length === 0" class="no-data">
-                No mortgage options available
+                <template v-if="editedOption.loan_product_type === 'credit'">
+                  <div class="form-group">
+                    <label for="crdt_prdt_type">신용대출 상품 유형</label>
+                    <select id="crdt_prdt_type" v-model="editedOption.crdt_prdt_type" required>
+                      <option v-for="type in availableCreditLoanProductTypes" :key="type.value" :value="type.value">{{ type.text }}</option>
+                    </select>
+                  </div>
+                </template>
+                
+                <div class="form-group">
+                  <label for="lend_rate_type">금리 유형</label>
+                   <select id="lend_rate_type" v-model="editedOption.lend_rate_type" required>
+                     <option v-for="type in availableLendRateTypes" :key="type.value" :value="type.value">{{ type.text }}</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="lend_rate_min">최저 금리 (%)</label>
+                  <input type="number" id="lend_rate_min" v-model.number="editedOption.lend_rate_min" step="0.01" min="0" required />
+                </div>
+                <div class="form-group">
+                  <label for="lend_rate_max">최고 금리 (%)</label>
+                  <input type="number" id="lend_rate_max" v-model.number="editedOption.lend_rate_max" step="0.01" min="0" required />
+                </div>
+                <div class="form-group">
+                  <label for="lend_rate_avg">평균 금리 (%) (선택)</label>
+                  <input type="number" id="lend_rate_avg" v-model.number="editedOption.lend_rate_avg" step="0.01" min="0" />
+                </div>
               </div>
-              <table v-else>
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>담보 유형</th>
-                    <th>상환 유형</th>
-                    <th>금리 유형</th>
-                    <th>최저 금리(%)</th>
-                    <th>최고 금리(%)</th>
-                    <th>평균 금리(%)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="option in mortgageOptions" :key="option.id">
-                    <td>{{ option.id }}</td>
-                    <td>{{ option.mrtg_type }}</td>
-                    <td>{{ option.rpay_type }}</td>
-                    <td>{{ option.lend_rate_type }}</td>
-                    <td>{{ option.lend_rate_min.toFixed(2) }}</td>
-                    <td>{{ option.lend_rate_max.toFixed(2) }}</td>
-                    <td>{{ option.lend_rate_avg ? option.lend_rate_avg.toFixed(2) : '-' }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div v-if="activeTab === 'credit'">
-              <h4>Credit Loan Options</h4>
-              <div v-if="creditOptions.length === 0" class="no-data">
-                No credit options available
+              <div class="modal-actions">
+                <button type="button" class="action-btn secondary-btn" @click="closeModal">취소</button>
+                <button type="submit" class="action-btn primary-btn" :disabled="savingChanges">
+                  {{ savingChanges ? '저장 중...' : (editMode === 'create' ? '추가하기' : '변경사항 저장') }}
+                </button>
               </div>
-              <table v-else>
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>신용상품 유형</th>
-                    <th>금리 유형</th>
-                    <th>최저 금리(%)</th>
-                    <th>최고 금리(%)</th>
-                    <th>평균 금리(%)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="option in creditOptions" :key="option.id">
-                    <td>{{ option.id }}</td>
-                    <td>{{ option.crdt_prdt_type }}</td>
-                    <td>{{ option.crdt_lend_rate_type }}</td>
-                    <td>{{ option.crdt_grad_1 }}</td>
-                    <td>{{ option.crdt_grad_4 }}</td>
-                    <td>{{ option.crdt_grad_avg ? option.crdt_grad_avg.toFixed(2) : '-' }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            </form>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Create Product Button -->
-    <div class="create-product">
-      <button @click="createNewProduct" class="btn btn-success">Create New Loan Product</button>
+      <div v-if="showDeleteModal" class="modal-overlay" @click.self="cancelDeleteOption">
+        <div class="modal-container confirmation-modal card-style">
+          <div class="modal-header">
+            <h3>삭제 확인</h3>
+            <button class="close-modal-btn" @click="cancelDeleteOption"><i class="icon">✕</i></button>
+          </div>
+          <div class="modal-body">
+            <p>정말로 이 대출 상품 옵션을 삭제하시겠습니까?</p>
+            <div v-if="optionToDelete" class="product-info-delete">
+              <strong>상품명:</strong> {{ optionToDelete.product?.fin_prdt_nm || '-' }}<br />
+              <strong>옵션 유형:</strong> {{ getLoanOptionSpecificType(optionToDelete) }} <br />
+              <strong>금리:</strong> {{ optionToDelete.lend_rate_min }}% ~ {{ optionToDelete.lend_rate_max }}%
+            </div>
+            <p class="warning-text"><i class="icon">⚠️</i> 이 작업은 되돌릴 수 없습니다!</p>
+          </div>
+          <div class="modal-actions">
+            <button class="action-btn secondary-btn" @click="cancelDeleteOption">취소</button>
+            <button class="action-btn danger-btn" @click="deleteOption" :disabled="deleting">
+              {{ deleting ? '삭제 중...' : '삭제' }}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
-<script>
-import adminService from '@/services/admin'
+<script setup>
+import { ref, onMounted, computed } from 'vue'
 import productsService from '@/services/products'
 import AdminNavbar from '@/components/admin/AdminNavbar.vue'
 
-export default {
-  name: 'AdminLoanProducts',
-  components: { AdminNavbar },
-  data() {
-    return {
-      loans: [],
-      allLoans: [], // For filtering
-      loading: false,
-      message: '',
-      messageType: 'success',
-      searchQuery: '',
-      loanTypeFilter: '',
-      availableLoanTypes: [],
-      availableProducts: [], // For creating new loan products
+const allLoanProducts = ref([])
+const allLoanOptions = ref([])
+const filteredLoanOptions = ref([])
 
-      // Edit modal
-      showEditModal: false,
-      editMode: 'edit', // 'edit' or 'create'
-      editedProduct: {
-        product: '',
-        fin_co_no: '',
-        dcls_month: '',
-        loan_inci_expn: '',
-        erly_rpay_fee: '',
-        dly_rate: '',
-        loan_lmt: '',
-      },
-      savingChanges: false,
+const loading = ref(false)
+const message = ref('')
+const messageType = ref('success')
 
-      // Delete modal
-      showDeleteModal: false,
-      productToDelete: null,
-      deleting: false,
+const searchQuery = ref('')
+const loanProductTypeFilter = ref('')
+const loanOptionTypeFilter = ref('')
 
-      // Options modal
-      showOptionsModal: false,
-      currentProduct: null,
-      loadingOptions: false,
-      mortgageOptions: [],
-      creditOptions: [],
-      activeTab: 'mortgage',
+const availableMortgageTypes = ref([])
+const availableCreditLoanProductTypes = ref([])
+const availableRepayTypes = ref([])
+const availableLendRateTypes = ref([])
 
-      // Product mapping cache for names
-      productNameCache: {},
-      companyNameCache: {},
-      loanTypeCache: {},
-    }
-  },
-  created() {
-    this.fetchLoanProducts()
-    this.fetchAvailableProducts()
-  },
-  methods: {
-    async fetchLoanProducts() {
-      try {
-        this.loading = true
-        this.message = ''
+const showEditModal = ref(false)
+const editMode = ref('edit')
+const editedOption = ref({
+  id: null,
+  product_fin_prdt_cd: '',
+  loan_product_type: 'mortgage',
+  dcls_month: '',
+  mrtg_type: '',
+  rpay_type: '',
+  crdt_prdt_type: '',
+  lend_rate_type: '',
+  lend_rate_min: null,
+  lend_rate_max: null,
+  lend_rate_avg: null,
+})
+const savingChanges = ref(false)
 
-        const loans = await adminService.getLoanProducts()
-        this.loans = loans
-        this.allLoans = [...loans]
+const showDeleteModal = ref(false)
+const optionToDelete = ref(null)
+const deleting = ref(false)
 
-        // Extract available loan types
-        this.extractLoanTypes()
-      } catch (error) {
-        this.showMessage('Failed to load loan products: ' + error.message, 'error')
-        console.error('Error fetching loan products:', error)
-      } finally {
-        this.loading = false
-      }
-    },
-
-    extractLoanTypes() {
-      // Get all financial products to extract loan types
-      const loanTypes = new Set()
-
-      for (const loan of this.loans) {
-        const productId = loan.product
-        const loanType = this.loanTypeCache[productId]
-        if (loanType) {
-          loanTypes.add(loanType)
-        }
-      }
-
-      this.availableLoanTypes = [...loanTypes].sort()
-    },
-
-    async fetchAvailableProducts() {
-      try {
-        // Get all financial products that don't have loan products yet
-        const allProducts = await productsService.getAllFinancialProducts()
-        const loanProducts = await productsService.getLoanProducts()
-
-        // Filter out products that already have loan products
-        const loanProductIds = new Set(loanProducts.map((d) => d.product))
-        this.availableProducts = allProducts.filter((p) => !loanProductIds.has(p.fin_prdt_cd))
-
-        // Also build name cache for display
-        allProducts.forEach((p) => {
-          this.productNameCache[p.fin_prdt_cd] = p.fin_prdt_nm
-          this.companyNameCache[p.fin_prdt_cd] = p.kor_co_nm
-          this.loanTypeCache[p.fin_prdt_cd] = p.loan_type
-        })
-
-        // Update available loan types
-        this.extractLoanTypes()
-      } catch (error) {
-        console.error('Error fetching available products:', error)
-      }
-    },
-
-    searchProducts() {
-      if (!this.searchQuery.trim()) {
-        this.loans = [...this.allLoans]
-        this.applyFilters()
-        return
-      }
-
-      const query = this.searchQuery.toLowerCase()
-      this.loans = this.allLoans.filter((loan) => {
-        const productName = this.getProductName(loan)?.toLowerCase() || ''
-        const companyName = this.getCompanyName(loan)?.toLowerCase() || ''
-        const loanType = this.getLoanType(loan)?.toLowerCase() || ''
-
-        return (
-          productName.includes(query) ||
-          companyName.includes(query) ||
-          loanType.includes(query) ||
-          loan.product.toLowerCase().includes(query)
-        )
-      })
-
-      this.applyFilters()
-    },
-
-    filterProducts() {
-      this.loans = [...this.allLoans]
-      this.applyFilters()
-    },
-
-    applyFilters() {
-      if (this.loanTypeFilter) {
-        this.loans = this.loans.filter((loan) => {
-          const loanType = this.getLoanType(loan)
-          return loanType === this.loanTypeFilter
-        })
-      }
-    },
-
-    getProductName(loan) {
-      if (!loan) return ''
-      return this.productNameCache[loan.product] || loan.product
-    },
-
-    getCompanyName(loan) {
-      if (!loan) return ''
-      return this.companyNameCache[loan.product] || ''
-    },
-
-    getLoanType(loan) {
-      if (!loan) return ''
-      return this.loanTypeCache[loan.product] || ''
-    },
-
-    createNewProduct() {
-      this.editMode = 'create'
-      const currentDate = new Date()
-      const year = currentDate.getFullYear()
-      const month = (currentDate.getMonth() + 1).toString().padStart(2, '0')
-
-      this.editedProduct = {
-        product: '',
-        fin_co_no: '',
-        dcls_month: `${year}${month}`,
-        loan_inci_expn: '',
-        erly_rpay_fee: '',
-        dly_rate: '',
-        loan_lmt: '',
-      }
-      this.showEditModal = true
-    },
-
-    editProduct(loan) {
-      this.editMode = 'edit'
-      this.editedProduct = { ...loan }
-      this.showEditModal = true
-    },
-
-    closeModal() {
-      this.showEditModal = false
-    },
-
-    async saveProduct() {
-      try {
-        this.savingChanges = true
-
-        if (this.editMode === 'create') {
-          await adminService.createLoanProduct(this.editedProduct)
-          this.showMessage('Loan product created successfully!')
-        } else {
-          await adminService.updateLoanProduct(this.editedProduct.product, this.editedProduct)
-          this.showMessage('Loan product updated successfully!')
-        }
-
-        await this.fetchLoanProducts()
-        await this.fetchAvailableProducts()
-        this.closeModal()
-      } catch (error) {
-        this.showMessage('Failed to save loan product: ' + error.message, 'error')
-        console.error('Error saving loan product:', error)
-      } finally {
-        this.savingChanges = false
-      }
-    },
-
-    confirmDelete(loan) {
-      this.productToDelete = loan
-      this.showDeleteModal = true
-    },
-
-    cancelDelete() {
-      this.showDeleteModal = false
-      this.productToDelete = null
-    },
-
-    async deleteProduct() {
-      try {
-        this.deleting = true
-
-        await adminService.deleteLoanProduct(this.productToDelete.product)
-        this.showMessage('Loan product deleted successfully!')
-
-        await this.fetchLoanProducts()
-        await this.fetchAvailableProducts()
-        this.cancelDelete()
-      } catch (error) {
-        this.showMessage('Failed to delete loan product: ' + error.message, 'error')
-        console.error('Error deleting loan product:', error)
-      } finally {
-        this.deleting = false
-      }
-    },
-
-    async viewOptions(loan) {
-      this.currentProduct = loan
-      this.showOptionsModal = true
-      this.loadingOptions = true
-
-      try {
-        // Here we would fetch the mortgage and credit options for this loan
-        // This is a mock implementation since we don't have the actual endpoint
-        // In a real implementation, you would call API endpoints to get these options
-
-        // Mock fetching mortgage options
-        setTimeout(() => {
-          this.mortgageOptions = [
-            {
-              id: 1,
-              mrtg_type: '주택담보',
-              rpay_type: '원금균등분할상환',
-              lend_rate_type: '변동금리',
-              lend_rate_min: 3.5,
-              lend_rate_max: 5.2,
-              lend_rate_avg: 4.3,
-            },
-            {
-              id: 2,
-              mrtg_type: '주택담보',
-              rpay_type: '원리금균등분할상환',
-              lend_rate_type: '고정금리',
-              lend_rate_min: 3.8,
-              lend_rate_max: 5.5,
-              lend_rate_avg: 4.6,
-            },
-          ]
-
-          // Mock fetching credit options
-          this.creditOptions = [
-            {
-              id: 1,
-              crdt_prdt_type: '일반신용대출',
-              crdt_lend_rate_type: '변동금리',
-              crdt_grad_1: 4.5,
-              crdt_grad_4: 8.9,
-              crdt_grad_avg: 6.7,
-            },
-          ]
-
-          this.loadingOptions = false
-        }, 500)
-      } catch (error) {
-        console.error('Error fetching loan options:', error)
-        this.loadingOptions = false
-      }
-    },
-
-    closeOptionsModal() {
-      this.showOptionsModal = false
-      this.currentProduct = null
-      this.mortgageOptions = []
-      this.creditOptions = []
-    },
-
-    showMessage(msg, type = 'success') {
-      this.message = msg
-      this.messageType = type
-
-      // Clear message after 5 seconds
-      setTimeout(() => {
-        this.message = ''
-      }, 5000)
-    },
-  },
+const showMessage = (msg, type = 'success') => {
+  message.value = msg
+  messageType.value = type
+  setTimeout(() => {
+    message.value = ''
+  }, 5000)
 }
+
+const mrtgTypeMap = { 'APT': '아파트', 'ETC': '기타주택' }
+const repayTypeMap = { 'CD': '원리금분할상환', 'CI': '원금분할상환', 'CS': '만기일시상환' }
+const lendRateTypeMap = { 'F': '고정금리', 'C': '변동금리' }
+const crdtPrdtTypeMap = {
+  'G': '일반신용대출', 
+  'M': '마이너스한도대출', 
+  'C': '신용카드연계대출'
+}
+
+const getLoanOptionSpecificType = (option) => {
+  if (option.loan_product_type === 'mortgage') {
+    return mrtgTypeMap[option.mrtg_type] || option.mrtg_type
+  } else if (option.loan_product_type === 'credit') {
+    return crdtPrdtTypeMap[option.crdt_prdt_type] || option.crdt_prdt_type
+  }
+  return '-'
+}
+
+const getLendRateType = (typeCode) => {
+  return lendRateTypeMap[typeCode] || typeCode
+}
+
+const populateFilterOptions = () => {
+  const mortgageTypes = new Set()
+  const creditTypes = new Set()
+  const repayTypes = new Set()
+  const lendRateTypes = new Set()
+
+  allLoanOptions.value.forEach(opt => {
+    if (opt.loan_product_type === 'mortgage') {
+      if(opt.mrtg_type) mortgageTypes.add(opt.mrtg_type)
+      if(opt.rpay_type) repayTypes.add(opt.rpay_type)
+    } else if (opt.loan_product_type === 'credit') {
+      if(opt.crdt_prdt_type) creditTypes.add(opt.crdt_prdt_type)
+    }
+    if(opt.lend_rate_type) lendRateTypes.add(opt.lend_rate_type)
+  })
+
+  availableMortgageTypes.value = Array.from(mortgageTypes).map(val => ({ value: val, text: mrtgTypeMap[val] || val })).sort((a,b) => a.text.localeCompare(b.text))
+  availableCreditLoanProductTypes.value = Array.from(creditTypes).map(val => ({ value: val, text: crdtPrdtTypeMap[val] || val })).sort((a,b) => a.text.localeCompare(b.text))
+  availableRepayTypes.value = Array.from(repayTypes).map(val => ({ value: val, text: repayTypeMap[val] || val })).sort((a,b) => a.text.localeCompare(b.text))
+  availableLendRateTypes.value = Array.from(lendRateTypes).map(val => ({ value: val, text: lendRateTypeMap[val] || val })).sort((a,b) => a.text.localeCompare(b.text))
+}
+
+const fetchAllLoanData = async () => {
+  try {
+    loading.value = true
+    message.value = ''
+    const response = await productsService.getLoanProducts() 
+    allLoanProducts.value = response || []
+
+    const options = []
+    allLoanProducts.value.forEach(product => {
+      if (product.mortgage_loan_options && product.mortgage_loan_options.length > 0) {
+        product.mortgage_loan_options.forEach(opt => {
+          options.push({
+            ...opt,
+            unique_id: `M-${product.fin_prdt_cd}-${opt.id || opt.mrtg_type + opt.rpay_type}`,
+            loan_product_type: 'mortgage',
+            product_fin_prdt_cd: product.fin_prdt_cd,
+            product: {
+              fin_prdt_cd: product.fin_prdt_cd,
+              kor_co_nm: product.kor_co_nm,
+              fin_prdt_nm: product.fin_prdt_nm,
+            }
+          })
+        })
+      }
+      if (product.credit_loan_options && product.credit_loan_options.length > 0) {
+        product.credit_loan_options.forEach(opt => {
+          options.push({
+            ...opt,
+            unique_id: `C-${product.fin_prdt_cd}-${opt.id || opt.crdt_prdt_type}`,
+            loan_product_type: 'credit',
+            product_fin_prdt_cd: product.fin_prdt_cd,
+            product: {
+              fin_prdt_cd: product.fin_prdt_cd,
+              kor_co_nm: product.kor_co_nm,
+              fin_prdt_nm: product.fin_prdt_nm,
+            }
+          })
+        })
+      }
+    })
+    allLoanOptions.value = options
+    populateFilterOptions()
+    applyFiltersAndSearch()
+
+  } catch (error) {
+    showMessage('대출 상품 목록 로딩 실패: ' + error.message, 'error')
+    console.error('Error fetching loan data:', error)
+    allLoanProducts.value = []
+    allLoanOptions.value = []
+    filteredLoanOptions.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
+const applyFiltersAndSearch = () => {
+  let options = [...allLoanOptions.value]
+
+  if (loanProductTypeFilter.value) {
+    options = options.filter(opt => opt.loan_product_type === loanProductTypeFilter.value)
+  }
+
+  if (loanOptionTypeFilter.value) {
+    if (loanProductTypeFilter.value === 'mortgage' || !loanProductTypeFilter.value) {
+        options = options.filter(opt => opt.loan_product_type === 'mortgage' && opt.mrtg_type === loanOptionTypeFilter.value)
+    }
+    if (loanProductTypeFilter.value === 'credit' || !loanProductTypeFilter.value) {
+        options = options.filter(opt => opt.loan_product_type === 'credit' && opt.crdt_prdt_type === loanOptionTypeFilter.value)
+    }
+    if (loanProductTypeFilter.value) {
+         options = options.filter(opt => {
+            if (opt.loan_product_type === 'mortgage') return opt.mrtg_type === loanOptionTypeFilter.value;
+            if (opt.loan_product_type === 'credit') return opt.crdt_prdt_type === loanOptionTypeFilter.value;
+            return false;
+        });
+    } else {
+        options = options.filter(opt => {
+            return (opt.loan_product_type === 'mortgage' && opt.mrtg_type === loanOptionTypeFilter.value) ||
+                   (opt.loan_product_type === 'credit' && opt.crdt_prdt_type === loanOptionTypeFilter.value);
+        });
+    }
+  }
+  
+
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase()
+    options = options.filter(opt => {
+      const productName = opt.product?.fin_prdt_nm?.toLowerCase() || ''
+      const companyName = opt.product?.kor_co_nm?.toLowerCase() || ''
+      const productCode = opt.product_fin_prdt_cd?.toLowerCase() || ''
+      return productName.includes(query) || companyName.includes(query) || productCode.includes(query)
+    })
+  }
+  filteredLoanOptions.value = options
+}
+
+const createNewOption = () => {
+  editMode.value = 'create'
+  const currentDate = new Date()
+  const year = currentDate.getFullYear()
+  const month = (currentDate.getMonth() + 1).toString().padStart(2, '0')
+
+  editedOption.value = {
+    id: null,
+    product_fin_prdt_cd: '',
+    loan_product_type: 'mortgage',
+    dcls_month: `${year}${month}`,
+    mrtg_type: availableMortgageTypes.value.length > 0 ? availableMortgageTypes.value[0].value : '',
+    rpay_type: availableRepayTypes.value.length > 0 ? availableRepayTypes.value[0].value : '',
+    crdt_prdt_type: '',
+    lend_rate_type: availableLendRateTypes.value.length > 0 ? availableLendRateTypes.value[0].value : '',
+    lend_rate_min: null,
+    lend_rate_max: null,
+    lend_rate_avg: null,
+  }
+  showEditModal.value = true
+}
+
+const editOption = (option) => {
+  editMode.value = 'edit'
+  editedOption.value = { ...option }
+  editedOption.value.lend_rate_min = Number(option.lend_rate_min) || null;
+  editedOption.value.lend_rate_max = Number(option.lend_rate_max) || null;
+  editedOption.value.lend_rate_avg = Number(option.lend_rate_avg) || null;
+  showEditModal.value = true
+}
+
+const closeModal = () => {
+  showEditModal.value = false
+}
+
+const resetLoanSpecificType = () => {
+  if (editedOption.value.loan_product_type === 'mortgage') {
+    editedOption.value.crdt_prdt_type = '';
+    editedOption.value.mrtg_type = availableMortgageTypes.value.length > 0 ? availableMortgageTypes.value[0].value : '';
+    editedOption.value.rpay_type = availableRepayTypes.value.length > 0 ? availableRepayTypes.value[0].value : '';
+  } else if (editedOption.value.loan_product_type === 'credit') {
+    editedOption.value.mrtg_type = '';
+    editedOption.value.rpay_type = '';
+    editedOption.value.crdt_prdt_type = availableCreditLoanProductTypes.value.length > 0 ? availableCreditLoanProductTypes.value[0].value : '';
+  }
+}
+
+const saveOption = async () => {
+  savingChanges.value = true
+  message.value = ''
+  try {
+    const payload = { ...editedOption.value }
+    payload.lend_rate_min = Number(payload.lend_rate_min)
+    payload.lend_rate_max = Number(payload.lend_rate_max)
+    payload.lend_rate_avg = payload.lend_rate_avg ? Number(payload.lend_rate_avg) : null
+
+    console.log('Saving loan option (pjt0 - UI only):', payload)
+    showMessage('대출 옵션 정보가 (UI상에서) 저장되었습니다. 백엔드 연동 필요', 'success')
+    closeModal()
+    await fetchAllLoanData()
+  } catch (error) {
+    showMessage('옵션 저장 실패: ' + error.message, 'error')
+    console.error('Error saving loan option:', error)
+  } finally {
+    savingChanges.value = false
+  }
+}
+
+const confirmDeleteOption = (option) => {
+  optionToDelete.value = option
+  showDeleteModal.value = true
+}
+
+const cancelDeleteOption = () => {
+  optionToDelete.value = null
+  showDeleteModal.value = false
+}
+
+const deleteOption = async () => {
+  if (!optionToDelete.value) return
+  deleting.value = true
+  message.value = ''
+  try {
+    console.log('Deleting loan option (pjt0 - UI only):', optionToDelete.value)
+    showMessage('대출 옵션이 (UI상에서) 삭제되었습니다. 백엔드 연동 필요', 'success')
+    optionToDelete.value = null
+    showDeleteModal.value = false
+    await fetchAllLoanData()
+  } catch (error) {
+    showMessage('옵션 삭제 실패: ' + error.message, 'error')
+    console.error('Error deleting loan option:', error)
+  } finally {
+    deleting.value = false
+  }
+}
+
+onMounted(() => {
+  fetchAllLoanData()
+})
 </script>
 
 <style scoped>
-.admin-loans {
-  max-width: 1200px;
-  margin: 0 auto;
+.admin-products-view {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--background-primary);
+}
+
+.view-content {
+  flex-grow: 1;
   padding: 2rem;
-}
-
-h1 {
-  font-size: 2.5rem;
-  margin-bottom: 1.5rem;
-  color: #333;
-}
-
-.search-controls {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-}
-
-.search-box {
-  display: flex;
-  gap: 0.5rem;
+  max-width: var(--max-width-content, 1400px);
+  margin: 0 auto;
   width: 100%;
 }
 
-.search-box input {
-  flex: 1;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+.view-header {
+  margin-bottom: 2rem;
 }
 
-.search-box select {
-  width: 150px;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+.view-header h1 {
+  font-size: 2.2rem;
+  color: var(--text-primary);
+  margin-bottom: 0.4rem;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
 }
 
-.products-table {
-  margin-top: 1.5rem;
-  overflow-x: auto;
+.view-header .subtitle {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
+.card-style {
+  background-color: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--card-shadow);
+  margin-bottom: 2rem;
+  border: 1px solid var(--card-border);
 }
 
-th,
-td {
-  padding: 0.75rem 1rem;
-  text-align: left;
-  border-bottom: 1px solid #eaeaea;
+.controls-section .search-filter-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  align-items: center;
 }
 
-th {
-  background-color: #f5f5f5;
-  font-weight: 600;
-}
-
-td.actions {
+.search-input-group, .filter-input-group {
   display: flex;
-  gap: 0.5rem;
+  align-items: center;
+  background-color: var(--background-primary);
+  border-radius: var(--border-radius-md);
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--border-color);
 }
 
-.btn {
-  padding: 0.5rem 1rem;
+.search-input-group .icon, .filter-input-group .icon {
+  color: var(--text-secondary);
+  margin-right: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.search-input, .filter-select {
   border: none;
-  border-radius: 4px;
+  outline: none;
+  background-color: transparent;
+  flex-grow: 1;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  padding: 0.3rem;
+}
+
+.filter-select {
   cursor: pointer;
+}
+.filter-select optgroup {
+  font-weight: bold;
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--border-radius-md);
   font-weight: 500;
-  transition: background-color 0.3s;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  text-align: center;
+  font-size: 0.9rem;
+  border: 1px solid transparent;
 }
 
-.btn-sm {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.875rem;
+.action-btn .icon {
+  margin-right: 0.5rem;
+}
+.action-btn .icon:last-child:first-child {
+    margin-right: 0;
 }
 
-.btn-primary {
-  background-color: #007bff;
+.action-btn.primary-btn {
+  background-color: var(--accent-color);
+  color: var(--button-text);
+  border-color: var(--accent-color);
+  grid-column: span 1; 
+}
+.action-btn.primary-btn:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.action-btn.secondary-btn {
+  background-color: var(--background-primary);
+  color: var(--text-secondary);
+  border-color: var(--border-color);
+}
+.action-btn.secondary-btn:hover:not(:disabled) {
+  background-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.action-btn.success-btn {
+  background-color: var(--accent-color);
+  color: var(--button-text);
+  border-color: var(--accent-color);
+}
+.action-btn.success-btn:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.action-btn.danger-btn {
+  background-color: #EF4444;
   color: white;
+  border-color: #EF4444;
+}
+.action-btn.danger-btn:hover:not(:disabled) {
+  background-color: #DC2626;
+  border-color: #DC2626;
 }
 
-.btn-info {
-  background-color: #17a2b8;
-  color: white;
-}
-
-.btn-danger {
-  background-color: #dc3545;
-  color: white;
-}
-
-.btn-success {
-  background-color: #28a745;
-  color: white;
-}
-
-.btn-secondary {
-  background-color: #6c757d;
-  color: white;
-}
-
-.btn:hover {
-  opacity: 0.9;
-}
-
-.btn:disabled {
+.action-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.loading-spinner {
+.action-btn.icon-btn {
+  padding: 0.5rem;
+  background-color: transparent;
+  border: none;
+  color: var(--text-secondary);
+}
+.action-btn.icon-btn .icon {
+  margin-right: 0;
+  font-size: 1.2rem;
+}
+.action-btn.icon-btn.edit-btn:hover {
+  color: var(--accent-color);
+}
+.action-btn.icon-btn.delete-btn:hover {
+  color: #EF4444;
+}
+
+.loading-indicator {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
   margin: 2rem 0;
+  color: var(--text-secondary);
 }
 
-.alert {
-  padding: 0.75rem 1rem;
-  margin: 1rem 0;
-  border-radius: 4px;
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--accent-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-.alert-success {
-  background-color: #d4edda;
-  color: #155724;
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
-.alert-danger {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-
-.no-data {
-  text-align: center;
-  padding: 2rem 0;
-  color: #666;
-}
-
-.create-product {
-  margin-top: 2rem;
-  display: flex;
-  justify-content: flex-end;
-}
-
-/* Modal styles */
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+.alert-message {
+  padding: 1rem 1.5rem;
+  border-radius: var(--border-radius-md);
+  margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
-  justify-content: center;
-  z-index: 1000;
+  font-weight: 500;
+}
+.alert-message .icon { margin-right: 0.75rem; font-size: 1.2rem; }
+.alert-message.success {
+  background-color: rgba(var(--accent-color-rgb, 163, 184, 153), 0.15);
+  color: var(--accent-color);
+  border: 1px solid rgba(var(--accent-color-rgb, 163, 184, 153), 0.3);
+}
+.alert-message.error {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
-.modal-content {
-  background-color: white;
-  border-radius: 8px;
-  width: 500px;
-  max-width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-}
-
-.delete-modal {
-  width: 400px;
-}
-
-.options-modal {
-  width: 800px;
-}
-
-.modal-header {
+.table-section .table-header-actions {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #eaeaea;
-}
-
-.modal-header h2 {
-  margin: 0;
-  font-size: 1.5rem;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #666;
-}
-
-.modal-body {
-  padding: 1.5rem;
-}
-
-.modal-footer {
-  padding: 1rem 1.5rem;
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  border-top: 1px solid #eaeaea;
-}
-
-.form-group {
   margin-bottom: 1rem;
 }
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
+.table-section .table-header-actions h3 {
+  font-size: 1.3rem;
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
-.form-group input,
-.form-group textarea,
-.form-group select {
+.products-table-responsive { overflow-x: auto; }
+.products-table {
   width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.products-table th, .products-table td {
+  padding: 0.8rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+.products-table th {
+  background-color: var(--background-primary);
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.products-table tbody tr:hover {
+  background-color: rgba(var(--accent-color-rgb, 163, 184, 153), 0.05);
+}
+.actions-cell { display: flex; gap: 0.5rem; align-items: center; white-space: nowrap; }
+.no-data td { text-align: center; padding: 2rem; color: var(--text-secondary); }
+.no-data p { margin-bottom: 0.5rem; }
+
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1050; padding: 1rem;
+}
+.modal-container {
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-bottom: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color);
+}
+.modal-header h3 { font-size: 1.4rem; color: var(--text-primary); font-weight: 600; margin: 0; }
+.close-modal-btn {
+  background: none; border: none; font-size: 1.5rem; line-height: 1;
+  cursor: pointer; color: var(--text-secondary); padding: 0.3rem;
+}
+.close-modal-btn:hover { color: var(--text-primary); }
+
+.modal-form .form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.2rem;
+}
+.modal-form .form-group { margin-bottom: 0; }
+.modal-form .form-group.full-width { grid-column: 1 / -1; }
+.modal-form label {
+  display: block; margin-bottom: 0.5rem; font-weight: 500;
+  color: var(--text-secondary); font-size: 0.85rem;
+}
+.modal-form input[type="text"],
+.modal-form input[type="number"],
+.modal-form textarea,
+.modal-form select {
+  width: 100%; padding: 0.7rem 0.9rem; border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  font-size: 0.95rem; background-color: var(--background-primary);
+  color: var(--text-primary);
+  transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+}
+.modal-form input[type="text"]:focus,
+.modal-form input[type="number"]:focus,
+.modal-form textarea:focus,
+.modal-form select:focus {
+  outline: none; border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb, 163, 184, 153), 0.2);
+}
+.modal-form textarea { resize: vertical; min-height: 80px; }
+
+.modal-actions {
+  display: flex; justify-content: flex-end; gap: 0.8rem; margin-top: 2rem;
+  padding-top: 1.5rem; border-top: 1px solid var(--border-color);
 }
 
-.warning {
-  color: #dc3545;
-  font-weight: 500;
+.confirmation-modal .modal-body p { margin-bottom: 0.8rem; font-size: 1.05rem; color: var(--text-primary); }
+.confirmation-modal .product-info-delete {
+  background-color: var(--background-primary); padding: 0.8rem; border-radius: var(--border-radius-sm);
+  margin-bottom: 1rem; border: 1px solid var(--border-color); font-size: 0.9rem;
 }
-
-/* Tabs */
-.tabs {
-  display: flex;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid #ddd;
+.confirmation-modal .warning-text {
+  color: #D97706;
+  font-weight: 500; display: flex; align-items: center;
 }
+.confirmation-modal .warning-text .icon { margin-right: 0.4rem; font-size: 1.1rem; }
 
-.tab-btn {
-  padding: 0.75rem 1.5rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.2s;
-  border-bottom: 3px solid transparent;
-}
-
-.tab-btn.active {
-  border-bottom-color: #007bff;
-  color: #007bff;
-}
-
-h3,
-h4 {
-  margin-top: 0;
-  margin-bottom: 1rem;
+@media (max-width: 992px) {
+  .products-table thead { display: none; }
+  .products-table tr { display: block; margin-bottom: 1rem; border: 1px solid var(--border-color); border-radius: var(--border-radius-md); box-shadow: var(--card-shadow-sm); }
+  .products-table td { display: block; text-align: right; padding-left: 50%; position: relative; border-bottom: 1px solid var(--border-color); }
+  .products-table td:last-child { border-bottom: none; }
+  .products-table td::before {
+    content: attr(data-label);
+    position: absolute; left: 1rem; font-weight: 600;
+    color: var(--text-secondary); text-align: left; white-space: nowrap;
+  }
+  .actions-cell { justify-content: flex-end; } 
 }
 
 @media (max-width: 768px) {
-  .search-box {
-    flex-direction: column;
+  .view-header h1 { font-size: 1.8rem; }
+  .controls-section .search-filter-bar {
+    grid-template-columns: 1fr;
   }
+  .modal-form .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
 
-  td.actions {
-    flex-direction: column;
-  }
+.controls-section .action-btn .icon:only-child {
+  margin-right: 0;
 }
 </style>

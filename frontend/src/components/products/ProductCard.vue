@@ -225,22 +225,29 @@ export default {
 
 <style scoped>
 .product-card {
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 1.25rem;
-  background: white;
-  transition: all 0.2s;
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  transition: all var(--transition-speed);
   cursor: pointer;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Ensure cards in a row have same height if in a grid */
+  box-shadow: var(--card-shadow-sm); /* Softer shadow for cards */
 }
 
 .product-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  box-shadow: var(--card-shadow);
+  border-color: var(--accent-color-rgb, 0.5); /* Highlight border on hover */
 }
 
 .product-header {
   margin-bottom: 0.75rem;
+  display: flex; /* For badge alignment */
+  justify-content: space-between; /* Align badges */
+  align-items: center;
 }
 
 .product-badges {
@@ -249,68 +256,81 @@ export default {
   flex-wrap: wrap;
 }
 
+.product-type-badge,
+.new-badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .product-type-badge {
-  font-size: 0.8rem;
-  padding: 0.25rem 0.75rem;
-  background: #e0f2fe;
-  color: #0369a1;
-  border-radius: 20px;
+  background-color: rgba(var(--accent-color-rgb, 163, 184, 153), 0.2);
+  color: var(--accent-color);
 }
 
 .new-badge {
-  font-size: 0.8rem;
-  padding: 0.25rem 0.75rem;
-  background: #ecfdf5;
-  color: #047857;
-  border-radius: 20px;
+  background-color: rgba(var(--info-color-rgb, 59, 130, 246), 0.15); /* Using info color for new */
+  color: var(--info-color, #3B82F6);
 }
 
 .product-name {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #111827;
-  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem; /* Slightly larger */
+  font-weight: 700; /* Bolder */
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
   line-height: 1.4;
+  /* Clamp to 2 lines */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .product-bank {
   font-size: 0.9rem;
-  color: #6b7280;
+  color: var(--text-secondary);
   margin-bottom: 1rem;
 }
 
 .product-rate {
-  background: #f9fafb;
-  border-radius: 6px;
-  padding: 1rem;
   margin-bottom: 1rem;
+  background-color: var(--background-primary); /* Subtle background for rate section */
+  padding: 0.8rem;
+  border-radius: var(--border-radius-md);
+  text-align: center; /* Center align rate info */
 }
 
 .rate-info {
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* Stack rate elements */
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.1rem;
 }
 
 .rate-label {
-  font-size: 0.85rem;
-  color: #6b7280;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin-bottom: 0.1rem;
 }
 
 .rate-value {
-  font-size: 1.5rem;
+  font-size: 1.6rem; /* Prominent rate */
   font-weight: 700;
-  color: #4caf50;
+  color: var(--accent-color);
 }
 
 .rate-value.loan {
-  color: #2196f3;
+  color: var(--info-color, #3B82F6); /* Different color for loan rates if needed */
 }
 
 .rate-subtitle {
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: var(--text-secondary);
 }
 
 .product-join-way {
@@ -319,102 +339,68 @@ export default {
 
 .join-label {
   display: block;
-  font-size: 0.85rem;
-  color: #6b7280;
-  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.4rem;
+  font-weight: 500;
 }
 
 .join-badges {
   display: flex;
+  gap: 0.4rem;
   flex-wrap: wrap;
-  gap: 0.5rem;
 }
 
 .join-badge {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.8rem;
-  padding: 0.35rem 0.75rem;
-  background: #f3f4f6;
-  color: #4b5563;
-  border-radius: 4px;
-}
-
-.join-badge i {
-  font-size: 0.9rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--border-radius-xs);
+  font-size: 0.75rem;
+  background-color: var(--background-primary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
 }
 
 .favorite-date {
-  font-size: 0.85rem;
-  color: #6b7280;
-  font-style: italic;
-  margin-bottom: 1rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: auto; /* Push to bottom if card is flex column */
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--border-color); /* Separator for date */
 }
 
 .product-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-
-.favorite-btn {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 50%;
-  color: #9ca3af;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.favorite-btn.is-favorite {
-  background: #fffbeb;
-  border-color: #fbbf24;
-  color: #d97706;
-}
-
-.favorite-btn:hover {
-  background: #f9fafb;
-}
-
-.favorite-btn.is-favorite:hover {
-  background: #fef3c7;
-}
-
-.remove-btn {
-  padding: 0.5rem 1rem;
-  background: #ef4444;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.remove-btn:hover {
-  background: #dc2626;
+  margin-top: auto; /* Push actions to the bottom */
+  padding-top: 1rem; /* Space above buttons */
+  border-top: 1px solid var(--border-color);
 }
 
 .details-btn {
-  flex: 1;
-  padding: 0.5rem 1rem;
-  background: #3b82f6;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.9rem;
+  /* Apply global action-btn styles */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%; /* Full width button */
+  padding: 0.7rem 1.5rem;
+  border-radius: var(--border-radius-md);
+  font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all var(--transition-speed);
+  font-size: 0.95rem;
+  border: 1px solid var(--accent-color);
+  background-color: var(--accent-color);
+  color: var(--button-text);
 }
 
 .details-btn:hover {
-  background: #2563eb;
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
+
+/* Add icons to buttons if desired, e.g., using ::before or an <i> tag in template */
+/* .details-btn::before {
+  content: "\f05a"; // Example: Font Awesome info icon
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  margin-right: 0.5rem;
+} */
 </style>

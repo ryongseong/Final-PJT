@@ -1,21 +1,19 @@
 <!-- src/views/HomeView.vue -->
 <template>
   <div class="home-container">
-    <div class="hero-section">
-      <div class="particles-container">
-        <ParticleNetwork />
+    <!-- 주식 관련 영상 검색 섹션 (신규 추가) -->
+    <section class="video-search-section">
+      <h2>{{ $t('home.videoSearchTitle') }}</h2>
+      <div class="search-bar-container">
+        <input type="text" :placeholder="$t('home.videoSearchPlaceholder')" class="search-input" v-model="videoSearchQuery" @keyup.enter="searchVideos" />
+        <button @click="searchVideos" class="search-button">{{ $t('common.search') }}</button>
       </div>
-      <div class="hero-content-wrapper">
-        <div class="hero-content">
-          <h1>{{ $t('hero.tagline') }}</h1>
-          <p>{{ $t('hero.subtitle') }}</p>
-          <div class="hero-buttons">
-            <button class="hero-btn primary">{{ $t('hero.ctaButton') }}</button>
-            <button class="hero-btn secondary">{{ $t('hero.learnMore') }}</button>
-          </div>
-        </div>
+      <!-- 검색 결과 표시 영역 (추후 구현) -->
+      <div v-if="videoSearchResults.length > 0" class="video-results">
+        <!-- 검색된 영상 목록 -->
       </div>
-    </div>
+      <p v-else-if="searchedVideos && videoSearchResults.length === 0" class="no-results">{{ $t('home.noVideoResults') }}</p>
+    </section>
 
     <section class="top-products-section">
       <h2>{{ $t('products.recommended') }}</h2>
@@ -38,7 +36,7 @@
 
       <div v-else-if="topProductsError" class="error-message">
         <p>{{ $t('common.error.loadFailed') }}</p>
-        <button class="retry-button" @click="loadTopProducts">
+        <button class="retry-button action-btn secondary-btn" @click="loadTopProducts">
           {{ $t('common.retry') }}
         </button>
       </div>
@@ -47,80 +45,38 @@
         <div class="product-cards">
           <div
             v-for="product in topProducts"
-            :key="product.product"
-            class="product-card"
+            :key="product.product?.fin_prdt_cd || product.id" 
+            class="product-card-home"
             @click="viewProductDetails(product)"
           >
             <div class="product-header">
-              <h3>{{ product.fin_prdt_nm }}</h3>
-              <span class="bank-name" v-if="activeTab === 'deposit' || activeTab === 'saving'">{{
-                product.financial_product.fin_prdt_nm
-              }}</span>
-              <span class="bank-name" v-if="activeTab === 'loan'">{{
-                product.product_info.fin_prdt_nm
-              }}</span>
+              <span class="product-type-badge-home">{{ getProductTypeName(product) }}</span>
+              <h3 class="product-name-home">{{ getProductName(product) }}</h3>
+            </div>
+            <p class="bank-name-home">{{ getBankName(product) }}</p>
+            
+            <div class="rate-info-home" v-if="product.product_type === 'deposit' || product.product_type === 'saving'">
+                <span class="rate-label-home">최고</span>
+                <span class="rate-value-home">{{ formatRate(getMaxRate(product)) }}%</span>
+            </div>
+            <div class="rate-info-home" v-if="product.product_type === 'loan'">
+                <span class="rate-label-home">최저</span>
+                <span class="rate-value-home loan">{{ formatRate(getMinLoanRate(product)) }}%</span>
             </div>
 
-            <div class="product-rate" v-if="activeTab === 'deposit' || activeTab === 'saving'">
-              <div class="rate-value">{{ formatRate(product.intr_rate2) }}%</div>
-              <div class="rate-label">최고 금리</div>
+            <div class="join-methods-home">
+              <span v-if="hasJoinWay(product, '인터넷')" class="join-badge-home">인터넷</span>
+              <span v-if="hasJoinWay(product, '영업점')" class="join-badge-home">영업점</span>
+              <span v-if="hasJoinWay(product, '스마트폰')" class="join-badge-home">스마트폰</span>
             </div>
-
-            <div class="product-rate" v-if="activeTab === 'loan'">
-              <div class="rate-value">
-                {{ formatRate(product.lending_options[0].lend_rate_min) }}%
-              </div>
-              <div class="rate-label">최저 대출금리</div>
-            </div>
-
-            <div class="product-meta">
-              <div class="join-methods">
-                <span v-if="hasJoinWay(product, '인터넷')" class="join-badge">인터넷</span>
-                <span v-if="hasJoinWay(product, '영업점')" class="join-badge">영업점</span>
-                <span v-if="hasJoinWay(product, '스마트폰')" class="join-badge">스마트폰</span>
-                <span v-if="hasJoinWay(product, '전화(텔레뱅킹)')" class="join-badge"
-                  >전화(텔레뱅킹)</span
-                >
-                <span v-if="hasJoinWay(product, '모집인')" class="join-badge">모집인</span>
-              </div>
-            </div>
-
-            <button class="view-details-btn">상세 정보 보기</button>
+            <button class="view-details-btn action-btn primary-btn">{{ $t('products.viewDetails') }}</button>
           </div>
         </div>
 
         <div class="view-all">
           <router-link :to="{ name: 'Products', query: { tab: activeTab } }" class="view-all-link">
-            모든 {{ getTabName(activeTab) }} 상품 보기
+            모든 {{ getTabName(activeTab) }} 상품 보기 <i class="bi bi-arrow-right-short"></i>
           </router-link>
-        </div>
-      </div>
-    </section>
-
-    <section id="market-section" class="financial-data-section">
-      <div class="container">
-        <h2>{{ $t('market.title') }}</h2>
-        <div class="financial-charts">
-          <div class="chart-card">
-            <h3>{{ $t('market.interestRates') }}</h3>
-            <div class="chart-container interest-chart">
-              <canvas ref="interestRateChart"></canvas>
-            </div>
-          </div>
-
-          <div class="chart-card">
-            <h3>{{ $t('market.preciousMetals') }}</h3>
-            <div class="chart-container precious-metals-chart">
-              <canvas ref="preciousMetalsChart"></canvas>
-            </div>
-          </div>
-
-          <div class="chart-card">
-            <h3>{{ $t('market.exchangeRates') }}</h3>
-            <div class="chart-container exchange-rate-chart">
-              <canvas ref="exchangeRateChart"></canvas>
-            </div>
-          </div>
         </div>
       </div>
     </section>
@@ -128,13 +84,13 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, onBeforeUnmount } from 'vue'
+import { computed, onMounted, ref, onBeforeUnmount, watch } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import Chart from 'chart.js/auto'
 import productsService from '@/services/products'
-import ParticleNetwork from '@/components/effects/ParticleNetwork.vue'
+import { formatRate } from '@/utils/rateUtils'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -149,12 +105,31 @@ const topProducts = ref([])
 const topProductsLoading = ref(false)
 const topProductsError = ref(null)
 
+// pjt0의 차트 관련 ref 유지
 const interestRateChart = ref(null)
 const preciousMetalsChart = ref(null)
 const exchangeRateChart = ref(null)
 let interestRateChartInstance = null
 let preciousMetalsChartInstance = null
 let exchangeRateChartInstance = null
+
+// 주식 관련 영상 검색 (신규 추가)
+const videoSearchQuery = ref('')
+const videoSearchResults = ref([])
+const searchedVideos = ref(false)
+
+const searchVideos = async () => {
+  if (!videoSearchQuery.value.trim()) return;
+  searchedVideos.value = true;
+  // 실제 영상 검색 API 호출 로직 (예시, 실제 구현 필요)
+  console.log('Searching videos for:', videoSearchQuery.value)
+  // videoSearchResults.value = await videoApiService.search(videoSearchQuery.value);
+  // 임시로 빈 배열 또는 메시지
+  videoSearchResults.value = [];
+  if (videoSearchResults.value.length === 0) {
+    console.log('No videos found or API not implemented yet.');
+  }
+}
 
 // Load top products based on active tab
 const loadTopProducts = async () => {
@@ -165,17 +140,97 @@ const loadTopProducts = async () => {
     const response = await productsService.getTopRateProducts(activeTab.value, 5)
     if (!response || response.length === 0) {
       topProductsError.value = i18n.t('products.noProducts')
+      topProducts.value = []
       return
     }
-    topProducts.value = response
+    topProducts.value = response.map(p => ({ ...p, product_type: activeTab.value }));
+
   } catch (err) {
     console.error('Error loading top products:', err)
     topProductsError.value = err.response?.data?.message || i18n.t('common.error.networkError')
+    topProducts.value = []
   } finally {
     topProductsLoading.value = false
   }
 }
 
+const getProductTypeName = (product) => {
+  const type = product.product_type;
+  if (type === 'deposit') return i18n.t('products.types.deposit');
+  if (type === 'saving') return i18n.t('products.types.saving');
+  if (type === 'loan') return i18n.t('products.types.loan');
+  return '상품';
+};
+
+const getProductName = (product) => {
+  if (product.product_type === 'loan') {
+    return product.product_info?.fin_prdt_nm || product.fin_prdt_nm || i18n.t('products.noName');
+  }
+  return product.financial_product?.fin_prdt_nm || product.fin_prdt_nm || i18n.t('products.noName');
+};
+
+const getBankName = (product) => {
+  if (product.product_type === 'loan') {
+    return product.product_info?.kor_co_nm || product.kor_co_nm || i18n.t('products.noBankName');
+  }
+  return product.financial_product?.kor_co_nm || product.kor_co_nm || i18n.t('products.noBankName');
+};
+
+const getMaxRate = (product) => {
+  if (product.options && product.options.length > 0) {
+    const rates = product.options.map(opt => parseFloat(opt.intr_rate2)).filter(r => !isNaN(r));
+    if (rates.length > 0) return Math.max(...rates);
+  }
+  return parseFloat(product.intr_rate2) || 0;
+};
+
+const getMinLoanRate = (product) => {
+  if (product.lending_options && product.lending_options.length > 0) {
+    const rates = product.lending_options.map(opt => parseFloat(opt.lend_rate_min)).filter(r => !isNaN(r));
+    if (rates.length > 0) return Math.min(...rates);
+  }
+  return 0;
+};
+
+const hasJoinWay = (product, way) => {
+  const joinWayString = product.financial_product?.join_way || product.product_info?.join_way || product.join_way || '';
+  return joinWayString.includes(way);
+};
+
+const viewProductDetails = (product) => {
+  let id = product.product?.fin_prdt_cd || product.fin_prdt_cd || product.id;
+  let type = product.product_type;
+
+  if (!id || !type) {
+    console.error('Product ID or type is missing for navigation', product);
+    if (product.financial_product) {
+        id = id || product.financial_product.fin_prdt_cd;
+        type = type || 'deposit';
+    } else if (product.product_info) {
+        id = id || product.product_info.fin_prdt_cd; 
+        type = type || 'loan';
+    }
+    type = type || activeTab.value;
+  }
+
+  if (id && type && type !== 'all') {
+    router.push({ name: 'ProductDetail', params: { type: type, id: id } });
+  } else {
+    console.error('Cannot navigate to product details due to missing ID or type:', product);
+    router.push({ name: 'Products' });
+  }
+};
+
+const getTabName = (tabKey) => {
+  const names = {
+    deposit: i18n.t('products.types.deposit'),
+    saving: i18n.t('products.types.saving'),
+    loan: i18n.t('products.types.loan'),
+  };
+  return names[tabKey] || '';
+};
+
+// pjt0의 차트 생성 함수들 유지
 const createInterestRateChart = () => {
   if (!interestRateChart.value) return
 
@@ -242,22 +297,20 @@ const createPreciousMetalsChart = () => {
     labels: ['7월', '8월', '9월', '10월', '11월', '12월'],
     datasets: [
       {
-        label: '금 시세 (USD/온스)',
-        data: [1950, 1925, 2000, 2050, 2100, 2075],
-        borderColor: '#D4AF37',
-        backgroundColor: 'rgba(212, 175, 55, 0.1)',
+        label: '금 (XAU/USD)',
+        data: [1960, 1945, 1920, 1980, 2040, 2070],
+        borderColor: '#FFD700',
+        backgroundColor: 'rgba(255, 215, 0, 0.1)',
         tension: 0.4,
         fill: true,
-        yAxisID: 'y',
       },
       {
-        label: '은 시세 (USD/온스)',
-        data: [24.5, 24.0, 25.2, 26.1, 27.5, 26.8],
+        label: '은 (XAG/USD)',
+        data: [24.5, 24.2, 23.0, 22.8, 24.5, 25.5],
         borderColor: '#C0C0C0',
         backgroundColor: 'rgba(192, 192, 192, 0.1)',
         tension: 0.4,
         fill: true,
-        yAxisID: 'y1',
       },
     ],
   }
@@ -279,29 +332,7 @@ const createPreciousMetalsChart = () => {
       },
       scales: {
         y: {
-          type: 'linear',
-          display: true,
-          position: 'left',
-          title: {
-            display: true,
-            text: '금 (USD)',
-          },
-          min: 1800,
-          max: 2200,
-        },
-        y1: {
-          type: 'linear',
-          display: true,
-          position: 'right',
-          title: {
-            display: true,
-            text: '은 (USD)',
-          },
-          min: 20,
-          max: 30,
-          grid: {
-            drawOnChartArea: false,
-          },
+          beginAtZero: false,
         },
       },
     },
@@ -313,48 +344,19 @@ const createExchangeRateChart = () => {
 
   const ctx = exchangeRateChart.value.getContext('2d')
 
-  // 환율 데이터 (최근 12개월)
-  const labels = [
-    '1월',
-    '2월',
-    '3월',
-    '4월',
-    '5월',
-    '6월',
-    '7월',
-    '8월',
-    '9월',
-    '10월',
-    '11월',
-    '12월',
-  ]
+  // 원/달러 환율 데이터 (최근 30일)
   const data = {
-    labels: labels,
+    labels: Array.from({ length: 30 }, (_, i) => `Day ${i + 1}`),
     datasets: [
       {
-        type: 'line',
-        label: '달러/원',
-        data: [1270, 1290, 1310, 1320, 1330, 1320, 1300, 1290, 1280, 1275, 1270, 1260],
-        borderColor: '#3772FF',
-        backgroundColor: 'rgba(55, 114, 255, 0.1)',
-        tension: 0.4,
-        fill: true,
-      },
-      {
-        type: 'line',
-        label: '유로/원',
-        data: [1380, 1390, 1400, 1410, 1420, 1410, 1400, 1390, 1380, 1375, 1370, 1365],
-        borderColor: '#F2B705',
-        backgroundColor: 'rgba(242, 183, 5, 0.1)',
-        tension: 0.4,
-        fill: true,
-      },
-      {
-        type: 'line',
-        label: '엔/원(100엔)',
-        data: [920, 925, 930, 940, 950, 945, 940, 935, 930, 925, 920, 915],
-        borderColor: '#D95D39',
-        backgroundColor: 'rgba(217, 93, 57, 0.1)',
+        label: '원/달러 환율',
+        data: [
+          1320, 1325, 1315, 1330, 1328, 1335, 1340, 1338, 1345, 1350, 1348, 1355, 1360, 1358, 1365,
+          1362, 1370, 1368, 1375, 1380, 1378, 1385, 1390, 1388, 1395, 1400, 1398, 1395, 1392,
+          1390,
+        ],
+        borderColor: '#008000',
+        backgroundColor: 'rgba(0, 128, 0, 0.1)',
         tension: 0.4,
         fill: true,
       },
@@ -369,311 +371,135 @@ const createExchangeRateChart = () => {
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          position: 'top',
+          display: false,
         },
         tooltip: {
           mode: 'index',
           intersect: false,
         },
       },
+      scales: {
+        y: {
+          beginAtZero: false,
+        },
+      },
     },
   })
 }
 
-// 차트 초기화 함수
-const initCharts = () => {
-  // 기존 차트 인스턴스 정리
-  if (interestRateChartInstance) interestRateChartInstance.destroy()
-  if (preciousMetalsChartInstance) preciousMetalsChartInstance.destroy()
-  if (exchangeRateChartInstance) exchangeRateChartInstance.destroy()
+watch(activeTab, () => {
+  loadTopProducts();
+});
 
-  // 새 차트 생성
+onMounted(() => {
+  loadTopProducts();
+  // pjt0의 차트 생성 호출 유지
   createInterestRateChart()
   createPreciousMetalsChart()
   createExchangeRateChart()
-}
-
-// Format interest rate for display
-const formatRate = (rate) => {
-  return parseFloat(rate).toFixed(2)
-}
-
-// Check if product has specific join way
-const hasJoinWay = (product, code) => {
-  if (!product) return false
-
-  if (activeTab.value === 'loan') {
-    if (product.join_way && Array.isArray(product.join_way)) {
-      return product.join_way.includes(code)
-    }
-
-    if (product.product_info && product.product_info.join_way) {
-      return product.product_info.join_way.includes(code)
-    }
-
-    if (product.join_ways && Array.isArray(product.join_ways)) {
-      return product.join_ways.some((item) => item.join_way === code)
-    }
-
-    return false
-  }
-
-  if (!product.financial_product || !product.financial_product.join_way) return false
-  return product.financial_product.join_way.includes(code)
-}
-
-// Get tab name for display
-const getTabName = (tab) => {
-  const names = {
-    deposit: '예금',
-    saving: '적금',
-    loan: '대출',
-  }
-  return names[tab] || ''
-}
-
-// Navigate to product details
-const viewProductDetails = (product) => {
-  console.log('Navigating to product details:', product)
-  router.push({
-    name: 'ProductDetail',
-    params: {
-      type: activeTab.value,
-      id: product.product || product.product_info.fin_prdt_cd,
-    },
-  })
-}
-
-// Watch for tab changes and reload products
-const watchTabChange = () => {
-  loadTopProducts()
-}
-
-onMounted(async () => {
-  // Check auth status when the component mounts
-  await userStore.checkAuth()
-
-  // Load top products for initial tab
-  loadTopProducts()
-
-  setTimeout(() => {
-    initCharts()
-  }, 100)
-})
+});
 
 onBeforeUnmount(() => {
-  if (interestRateChartInstance) interestRateChartInstance.destroy()
-  if (preciousMetalsChartInstance) preciousMetalsChartInstance.destroy()
-  if (exchangeRateChartInstance) exchangeRateChartInstance.destroy()
-})
-
-// Watch for tab changes
-import { watch } from 'vue'
-watch(activeTab, watchTabChange)
+  // pjt0의 차트 인스턴스 파괴 로직 유지
+  if (interestRateChartInstance) {
+    interestRateChartInstance.destroy()
+  }
+  if (preciousMetalsChartInstance) {
+    preciousMetalsChartInstance.destroy()
+  }
+  if (exchangeRateChartInstance) {
+    exchangeRateChartInstance.destroy()
+  }
+});
 </script>
 
 <style scoped>
 .home-container {
   min-height: 100vh;
+  padding-top: 20px; /* 헤더 공간 확보 */
 }
 
-.welcome-section {
-  position: relative;
-  color: var(--text-primary);
-  padding: 80px 20px 120px;
-  overflow: hidden;
-  min-height: 600px;
-  display: flex;
-  align-items: center;
-}
-
-.hero-container {
-  position: relative;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  z-index: 2; /* 파티클 배경 위에 콘텐츠 표시 */
-  padding: 0 20px;
-}
-
-.hero-content {
-  flex: 1;
-  text-align: left;
-  max-width: 550px;
-  padding-right: 40px;
-}
-
-h1 {
-  font-family: 'Playfair Display', serif;
-  font-size: 3.5rem;
-  margin-bottom: 20px;
-  color: #f7f7f7;
-  text-shadow: var(--hero-text-shadow);
-  line-height: 1.2;
-}
-
-.subtitle {
-  font-family: 'Inter', sans-serif;
-  font-size: 1.5rem;
-  margin-bottom: 40px;
-  opacity: 0.95;
-  color: #f7f7f7;
-  line-height: 1.4;
-}
-
-.user-greeting {
-  margin: 40px 0;
-  font-size: 1.2rem;
-  color: #f7f7f7;
-}
-
-.hero-links {
-  margin-top: 30px;
-}
-
-.learn-more-link {
-  display: inline-block;
-  color: #f7f7f7;
-  text-decoration: none;
-  font-size: 1.1rem;
-  opacity: 0.9;
-  transition: all 0.3s ease;
-  margin-top: 15px;
-}
-
-.learn-more-link:hover {
-  opacity: 1;
-  transform: translateY(2px);
-}
-
-.auth-buttons,
-.user-greeting {
-  display: flex;
-  gap: 20px;
-  margin-top: 30px;
-}
-
-.hero-card {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  width: 350px;
-  overflow: hidden;
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
-}
-
-.hero-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-}
-
-.card-header {
-  background: var(--accent-color);
-  padding: 20px;
-  color: white;
-}
-
-.card-header h3 {
-  margin: 0;
-  font-size: 1.4rem;
-  font-family: 'Playfair Display', serif;
-}
-
-.card-content {
-  padding: 20px;
-}
-
-.feature-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.feature-item:last-child {
-  margin-bottom: 0;
-  padding-bottom: 0;
-  border-bottom: none;
-}
-
-.feature-icon {
-  font-size: 1.8rem;
-  margin-right: 15px;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.feature-text {
-  flex: 1;
-  font-size: 1.05rem;
-  color: var(--text-primary);
-  line-height: 1.4;
-}
-
-.cta-button {
-  display: inline-block;
-  padding: 15px 30px;
-  border-radius: 16px;
-  font-size: 16px;
-  font-weight: 600;
-  text-decoration: none;
+/* 주식 관련 영상 검색 섹션 스타일 (신규 추가) */
+.video-search-section {
+  padding: 40px 20px;
   text-align: center;
-  transition: all 0.3s ease;
-  background-color: white;
-  color: var(--accent-color);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  font-family: 'Inter', sans-serif;
-  position: relative;
-  overflow: hidden;
+  background-color: var(--background-secondary); /* Final-PJT 테마에 맞는 배경색 */
+  margin-bottom: 40px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
 }
 
-.cta-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.3));
-  z-index: 1;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+.video-search-section h2 {
+  font-size: 2rem;
+  color: var(--text-primary);
+  margin-bottom: 30px;
+  font-family: var(--font-heading);
 }
 
-.cta-button.primary {
-  background-color: white;
-  color: var(--accent-color);
+.search-bar-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-.cta-button.secondary {
-  background-color: transparent;
+.search-input {
+  flex-grow: 1;
+  padding: 12px 18px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: var(--input-bg);
+  color: var(--text-input);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(var(--accent-color-rgb), 0.2);
+}
+
+.search-button {
+  padding: 12px 24px;
+  background-color: var(--accent-color);
   color: white;
-  border: 2px solid rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(5px);
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-.cta-button:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+.search-button:hover {
+  background-color: var(--accent-color-dark);
 }
 
-.cta-button:hover::before {
-  opacity: 1;
+.video-results {
+  margin-top: 30px;
+  /* 영상 결과 카드 스타일링 추가 예정 */
+}
+
+.no-results {
+  margin-top: 20px;
+  color: var(--text-secondary);
 }
 
 /* Top Products Section */
 .top-products-section {
-  padding: 80px 20px;
+  padding: 60px 20px; /* 상단 영상 검색 섹션과의 간격 조절 */
   text-align: center;
   background-color: var(--background-primary);
+}
+
+.top-products-section h2 {
+  font-size: 2.2rem;
+  color: var(--text-primary);
+  margin-bottom: 40px;
+  font-family: var(--font-heading);
 }
 
 .tabs {
@@ -686,18 +512,26 @@ h1 {
 .tabs button {
   padding: 12px 24px;
   border: 1px solid var(--border-color);
-  background: var(--card-bg);
+  background: var(--button-bg); /* variables.css 에 정의된 변수 사용 */
+  color: var(--button-text);    /* variables.css 에 정의된 변수 사용 */
   border-radius: 12px;
   font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 5px var(--shadow-color);
+  box-shadow: var(--shadow-xs);
 }
 
 .tabs button.active {
   background: var(--accent-color);
   color: white;
   border-color: var(--accent-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.tabs button:hover:not(.active) {
+  border-color: var(--accent-color-light);
+  background: var(--button-hover-bg);
 }
 
 .products-slider {
@@ -707,235 +541,166 @@ h1 {
 
 .product-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); /* 카드 최소 너비 살짝 늘림 */
+  gap: 35px; /* 카드 간 간격 늘림 */
   margin-bottom: 30px;
 }
 
-.product-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  padding: 24px;
+/* product-card-home 스타일 (감성적이고 정돈된 디자인으로 개선) */
+.product-card-home {
+  background: var(--card-bg-accent, var(--card-bg)); /* 좀 더 부드러운 카드 배경색, 없으면 기본 사용 */
+  border: 1px solid var(--border-color-light, var(--border-color)); /* 더 연한 테두리 색 */
+  border-radius: 20px; /* 더욱 둥글게 */
+  padding: 28px; /* 내부 패딩 살짝 늘림 */
   text-align: left;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px var(--shadow-color);
+  transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1); /* 부드러운 전환 효과 */
+  box-shadow: var(--shadow-lg); /* 기본 그림자 강화 */
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.product-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 20px var(--shadow-color);
+.product-card-home:hover {
+  transform: translateY(-10px); /* 호버 시 좀 더 뚜렷한 이동 */
+  box-shadow: var(--shadow-xl); /* 호버 시 그림자 더욱 강조 */
+  border-color: var(--accent-color-translucent, var(--accent-color)); /* 호버 시 테두리 강조 */
 }
 
 .product-header {
-  margin-bottom: 16px;
+  margin-bottom: 20px; /* 헤더와 다음 요소 간 간격 늘림 */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.product-header h3 {
-  margin: 0 0 5px 0;
-  font-size: 1.2rem;
-  color: var(--text-primary);
-  white-space: nowrap;
+.product-type-badge-home {
+  align-self: flex-start;
+  background-color: var(--accent-color-opacity-10, rgba(var(--accent-color-rgb), 0.1)); /* 투명도 있는 배경 */
+  color: var(--accent-color); /* 강조색 텍스트 */
+  padding: 8px 16px; /* 뱃지 패딩 늘림 */
+  border-radius: 25px; /* 타원형 뱃지 더욱 둥글게 */
+  font-size: 0.85rem; /* 폰트 크기 살짝 조정 */
+  font-weight: 700; /* 폰트 굵기 강조 */
+  text-transform: uppercase;
+  letter-spacing: 0.5px; /* 자간 살짝 추가 */
+}
+
+.product-name-home {
+  font-size: 1.45rem; /* 상품명 크기 강조 */
+  font-weight: 700; /* 상품명 굵게 */
+  color: var(--text-heading, var(--text-primary)); /* 제목용 텍스트 색상 */
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-height: calc(1.45rem * 1.35 * 2); /* 2줄 높이 정확히 확보 */
+  margin-top: 5px; /* 뱃지와의 간격 */
 }
 
-.bank-name {
-  font-size: 0.9rem;
+.bank-name-home {
+  font-size: 1rem; /* 은행명 크기 키움 */
+  color: var(--text-subtle, var(--text-secondary)); /* 더 부드러운 텍스트 색 */
+  margin-bottom: 18px;
+  font-weight: 500; /* 은행명 폰트 두께 */
+}
+
+.rate-info-home {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--background-emphasis, rgba(var(--accent-color-rgb), 0.05)); /* 강조 배경 */
+  border-radius: 12px; /* 내부 정보 박스도 둥글게 */
+  padding: 16px 20px; /* 패딩 조정 */
+  margin-bottom: 20px;
+  border: 1px solid var(--accent-color-opacity-20, rgba(var(--accent-color-rgb), 0.2));
+}
+
+.rate-label-home {
+  font-size: 0.95rem; /* 라벨 폰트 크기 */
   color: var(--text-secondary);
+  font-weight: 500;
 }
 
-.product-rate {
-  background: rgba(79, 70, 229, 0.05);
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 16px;
-  text-align: center;
-}
-
-.rate-value {
-  font-size: 2rem;
-  font-weight: bold;
-  color: var(--accent-color);
+.rate-value-home {
+  font-size: 1.8rem; /* 금리 값 더욱 강조 */
+  font-weight: 700; /* 금리 값 굵게 */
+  color: var(--accent-color-dark, var(--accent-color)); /* 더 진한 강조색 */
   line-height: 1;
-  margin-bottom: 6px;
+}
+.rate-value-home.loan {
+  color: var(--color-loan-rate-dark, var(--color-loan-rate, var(--accent-color)));
 }
 
-.rate-label {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-}
-
-.product-meta {
-  margin-bottom: 16px;
-}
-
-.join-methods {
+.join-methods-home {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 10px;
+  margin-bottom: 24px;
 }
 
-.join-badge {
-  font-size: 0.75rem;
-  background: rgba(79, 70, 229, 0.08);
-  color: var(--text-secondary);
-  padding: 4px 10px;
-  border-radius: 6px;
+.join-badge-home {
+  font-size: 0.85rem;
+  background: var(--tag-bg-alt, var(--tag-bg)); /* 대체 태그 배경색 */
+  color: var(--tag-text-alt, var(--tag-text));   /* 대체 태그 텍스트색 */
+  padding: 6px 12px; /* 뱃지 패딩 조정 */
+  border-radius: 8px; /* 뱃지 모서리 살짝 둥글게 */
+  font-weight: 500;
 }
 
 .view-details-btn {
   width: 100%;
-  padding: 12px;
-  background: var(--accent-color);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.view-details-btn:hover {
-  opacity: 0.9;
-}
-
-.view-all-link {
-  display: inline-block;
-  margin-top: 20px;
-  color: var(--accent-color);
-  font-weight: 500;
-  text-decoration: underline;
-}
-
-/* Financial Data Section */
-.financial-data-section {
-  padding: 80px 20px;
-  background-color: var(--background-primary);
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.financial-charts {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 24px;
-  margin-top: 40px;
-}
-
-.chart-card {
-  background: var(--card-bg);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 12px var(--shadow-color);
-  transition: all 0.3s ease;
-}
-
-.chart-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 24px var(--shadow-color);
-}
-
-.chart-card h3 {
-  font-size: 1.3rem;
-  margin-bottom: 20px;
-  color: var(--text-primary);
-  text-align: center;
-}
-
-.chart-container {
-  height: 300px;
-  position: relative;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .financial-charts {
-    grid-template-columns: 1fr;
-  }
-
-  .product-cards {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  }
-
-  h1 {
-    font-size: 2.5rem;
-  }
-
-  .subtitle {
-    font-size: 1.4rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .product-cards {
-    grid-template-columns: 1fr;
-  }
-
-  .tabs {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .tabs button {
-    width: 100%;
-    max-width: 300px;
-  }
-}
-
-.view-details-btn {
-  width: 100%;
-  padding: 8px 0;
-  background: #4f46e5;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.view-details-btn:hover {
-  background: #4338ca;
+  margin-top: auto;
+  padding: 14px 24px; /* 버튼 패딩 늘림 */
+  font-size: 1rem; /* 버튼 폰트 크기 */
+  font-weight: 600; /* 버튼 폰트 굵기 */
+  border-radius: 12px; /* 버튼 모서리 둥글게 */
+  /* App.vue 또는 variables.css의 .action-btn.primary-btn 스타일을 따름 */
+  /* 필요시 여기서 추가 스타일 오버라이드 */
 }
 
 .view-all {
-  margin-top: 20px;
+  margin-top: 40px; /* 카드 목록과의 간격 */
 }
 
 .view-all-link {
-  display: inline-block;
-  padding: 10px 20px;
-  color: #4f46e5;
-  font-weight: 500;
+  display: inline-flex; /* 아이콘과 텍스트 정렬 */
+  align-items: center;
+  padding: 12px 24px;
+  color: var(--accent-color);
+  font-weight: 600;
   text-decoration: none;
-  border: 1px solid #4f46e5;
-  border-radius: 6px;
+  border: 2px solid var(--accent-color);
+  border-radius: 8px;
   transition: all 0.3s ease;
 }
 
 .view-all-link:hover {
-  background: #4f46e5;
+  background: var(--accent-color);
   color: white;
+}
+
+.view-all-link i {
+  margin-left: 8px; /* 아이콘과 텍스트 간격 */
+  font-size: 1.2em;
 }
 
 .loading-indicator,
 .error-message {
   padding: 40px 0;
-  color: #6b7280;
+  color: var(--text-secondary); /* 좀 더 부드러운 색상 */
+  text-align: center;
 }
 
 .error-message {
-  text-align: center;
-  padding: 2rem;
   background: var(--card-bg);
   border-radius: 12px;
-  border: 1px solid var(--border-color);
-  margin: 2rem 0;
+  border: 1px solid var(--border-color-error, var(--border-color)); /* 에러 시 테두리 색상 */
+  margin: 2rem auto;
+  padding: 2rem;
+  max-width: 500px;
 }
 
 .error-message p {
@@ -944,29 +709,21 @@ h1 {
 }
 
 .retry-button {
-  padding: 8px 16px;
-  background: var(--accent-color);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  /* .action-btn .secondary-btn 스타일을 따르거나 여기서 재정의 */
 }
 
-.retry-button:hover {
-  opacity: 0.9;
-}
-
+/* Financial Data Section (pjt0 원본 차트) 스타일 개선 */
 .financial-data-section {
-  padding: 80px 20px;
-  background-color: var(--color-white);
-  border-top: 1px solid var(--color-secondary);
+  padding: 60px 20px;
+  background-color: var(--background-primary); /* 일관된 배경색 */
+  border-top: 1px solid var(--border-color);
 }
 
 .financial-data-section h2 {
   font-family: var(--font-heading);
-  color: var(--color-accent);
-  margin-bottom: 50px;
+  color: var(--text-primary); /* 제목 색상 통일 */
+  font-size: 2.2rem; /* 다른 섹션 제목과 크기 통일 */
+  margin-bottom: 40px;
   text-align: center;
 }
 
@@ -975,12 +732,13 @@ h1 {
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 30px;
   margin: 0 auto;
+  max-width: 1200px; /* 최대 너비 설정 */
 }
 
 .chart-card {
-  background-color: var(--color-white);
-  border-radius: 12px;
-  padding: 20px;
+  background-color: var(--card-bg);
+  border-radius: 16px; /* 카드 곡률 통일 */
+  padding: 24px;
   box-shadow: var(--shadow-md);
   transition: all var(--transition-normal);
 }
@@ -993,8 +751,9 @@ h1 {
 .chart-card h3 {
   text-align: center;
   margin-bottom: 20px;
-  color: var(--color-accent);
+  color: var(--text-secondary); /* 부제목 색상 */
   font-family: var(--font-heading);
+  font-size: 1.3rem; /* 부제목 크기 */
 }
 
 .chart-container {
@@ -1002,38 +761,77 @@ h1 {
   position: relative;
 }
 
+/* 반응형 스타일은 기존 것을 유지하되, 필요시 Final-PJT 기준으로 추가 조정 */
 @media (max-width: 768px) {
-  h1 {
-    font-size: 2.5rem;
+  .video-search-section h2 {
+    font-size: 1.8rem;
   }
-
-  .subtitle {
-    font-size: 1.2rem;
-  }
-
-  .auth-buttons {
+  .search-bar-container {
     flex-direction: column;
-    align-items: center;
+    gap: 15px;
+  }
+  .search-input, .search-button {
+    width: 100%;
   }
 
-  .cta-button {
-    width: 100%;
-    max-width: 300px;
+  .top-products-section h2,
+  .financial-data-section h2 {
+    font-size: 1.8rem; /* 모바일에서 제목 크기 조정 */
   }
+
+  .product-cards {
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); /* 모바일 카드 최소 너비 조정 */
+    gap: 25px; /* 모바일 카드 간격 조정 */
+  }
+  .financial-charts {
+    grid-template-columns: 1fr;
+  }
+
   .chart-container {
     height: 250px;
   }
 
-  .features-section h2,
-  .top-products-section h2,
-  .testimonials-section h2 {
-    font-size: var(--font-size-2xl);
-    margin-bottom: 40px;
+  .product-name-home {
+    font-size: 1.3rem;
   }
-
-  .features-grid,
-  .product-cards {
-    gap: 20px;
+  .rate-value-home {
+    font-size: 1.6rem;
   }
 }
+
+@media (max-width: 480px) {
+  .product-cards {
+    grid-template-columns: 1fr; /* 매우 작은 화면에서는 한 줄로 */
+  }
+  .product-card-home {
+    padding: 20px; /* 매우 작은 화면에서 카드 패딩 조정 */
+    border-radius: 16px; /* 모서리 곡률 살짝 줄임 */
+  }
+  .product-name-home {
+    font-size: 1.2rem;
+  }
+  .rate-value-home {
+    font-size: 1.45rem;
+  }
+
+  .tabs {
+    flex-direction: column;
+    align-items: stretch; /* 버튼 너비 100% */
+  }
+
+  .tabs button {
+    width: 100%;
+    max-width: none;
+  }
+
+  .top-products-section {
+    padding: 40px 15px;
+  }
+  .financial-data-section {
+    padding: 40px 15px;
+  }
+}
+
+/* 기존 스타일 중복 제거 및 Final-PJT 스타일 우선 적용 */
+/* .view-details-btn, .view-all-link 등은 위에서 상세히 재정의되었으므로 하단의 중복 스타일은 제거해도 무방 */
 </style>

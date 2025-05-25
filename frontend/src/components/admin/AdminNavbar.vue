@@ -32,57 +32,85 @@ export default {
 
 <style scoped>
 .admin-navbar {
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #e9ecef;
+  background-color: var(--card-bg);
+  border-bottom: 1px solid var(--card-border);
   padding: 1rem 0;
   margin-bottom: 2rem;
+  box-shadow: var(--card-shadow);
 }
 
 .admin-navbar-container {
-  max-width: 1200px;
+  max-width: var(--max-width-content, 1200px);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  padding: 0 1rem;
+  align-items: flex-start;
+  padding: 0 2rem;
 }
 
 .admin-title {
   margin: 0 0 1rem 0;
-  color: #343a40;
-  font-size: 1.5rem;
+  color: var(--text-primary);
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 700;
 }
 
 .admin-nav {
   display: flex;
-  gap: 1rem;
+  gap: 0.8rem;
   flex-wrap: wrap;
 }
 
 .admin-nav-link {
   text-decoration: none;
-  color: #495057;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  transition: all 0.2s ease;
+  color: var(--text-secondary);
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--border-radius-md);
+  transition: all var(--transition-speed);
+  font-weight: 500;
+  font-size: 0.95rem;
+  border: 1px solid transparent;
 }
 
 .admin-nav-link:hover {
-  background-color: #e9ecef;
+  background-color: var(--background-primary);
+  color: var(--accent-color);
+  border-color: var(--border-color);
 }
 
 .admin-nav-link.active {
-  background-color: #007bff;
-  color: white;
+  background-color: var(--accent-color);
+  color: var(--button-text);
+  border-color: var(--accent-color);
+}
+
+@media (max-width: 992px) {
+  .admin-navbar-container {
+    padding: 0 1.5rem;
+  }
+  .admin-title {
+    font-size: 1.6rem;
+  }
 }
 
 @media (max-width: 768px) {
+  .admin-navbar-container {
+    align-items: center;
+  }
+  .admin-title {
+    text-align: center;
+  }
   .admin-nav {
     flex-direction: column;
     gap: 0.5rem;
+    width: 100%;
   }
 
   .admin-nav-link {
     padding: 0.75rem 1rem;
+    text-align: center;
+    width: 100%;
   }
 }
 </style>

@@ -352,89 +352,109 @@ const handleImageError = (e) => {
 .profile-container {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: flex-start; /* Align card to the top */
   min-height: 100vh;
-  background-color: #f5f5f5;
-  padding: 40px 20px;
+  background-color: var(--background-primary); /* Themed background */
+  padding: 2rem; /* Consistent padding */
+  font-family: var(--font-family-base);
 }
 
 .profile-card {
   width: 100%;
-  max-width: 600px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding: 30px;
+  max-width: 650px; /* Wider for more content */
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--card-border);
+  padding: 2.5rem; /* Increased padding */
 }
 
-h2 {
+.profile-card h2 {
   text-align: center;
-  margin-bottom: 24px;
-  color: #333;
+  margin-bottom: 2rem;
+  color: var(--text-primary);
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 700;
 }
 
 .profile-header {
   display: flex;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 2.5rem; /* Increased margin */
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .profile-avatar {
   position: relative;
-  margin-right: 20px;
+  margin-right: 1.5rem;
 }
 
-.profile-avatar img {
+.profile-image, .avatar-placeholder {
   width: 100px;
   height: 100px;
   border-radius: 50%;
   object-fit: cover;
   cursor: pointer;
-  border: 3px solid #4f46e5;
+  border: 3px solid var(--accent-color); /* Accent border */
+  transition: opacity 0.3s ease;
+}
+
+.profile-image:hover, .avatar-placeholder:hover {
+  opacity: 0.8;
 }
 
 .avatar-placeholder {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background-color: #4f46e5;
-  color: white;
+  background-color: var(--accent-color);
+  color: var(--button-text);
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 36px;
-  cursor: pointer;
-  border: 3px solid #4f46e5;
+  font-size: 2.5rem; /* Larger initials */
+  font-weight: 600;
 }
 
 .avatar-edit-hint {
   position: absolute;
-  bottom: -20px;
-  left: 0;
-  right: 0;
-  text-align: center;
-  font-size: 12px;
-  color: #666;
+  bottom: -20px; /* Adjusted position */
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  background-color: rgba(var(--card-bg-rgb), 0.8);
+  padding: 2px 6px;
+  border-radius: var(--border-radius-sm);
+  white-space: nowrap;
 }
 
 .reset-image-btn {
   position: absolute;
-  top: -10px;
-  right: -10px;
-  background-color: #ef4444;
+  top: -5px;
+  right: -5px;
+  background-color: var(--error-color, #ef4444);
   color: white;
   border: none;
-  border-radius: 4px;
-  padding: 4px 8px;
-  font-size: 12px;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 0.8rem;
   cursor: pointer;
-  opacity: 0.8;
+  opacity: 0.9;
   transition: opacity 0.2s, transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 .reset-image-btn:hover {
   opacity: 1;
-  transform: scale(1.05);
+  transform: scale(1.1);
+}
+
+.reset-image-btn span {
+  font-size: 0.7rem; /* Adjust if text is too large */
 }
 
 .profile-info {
@@ -442,118 +462,179 @@ h2 {
 }
 
 .profile-info h3 {
-  margin: 0 0 5px;
-  color: #333;
+  margin: 0 0 0.5rem;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  font-family: 'Playfair Display', serif;
 }
 
 .profile-info p {
   margin: 0;
-  color: #666;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 1.5rem;
 }
 
 .form-row {
   display: flex;
-  gap: 15px;
+  gap: 1rem;
 }
 
-.half {
+.form-group.half {
   flex: 1;
 }
 
-label {
+.form-group label {
   display: block;
-  margin-bottom: 6px;
-  font-size: 14px;
-  color: #555;
+  margin-bottom: 0.6rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
 }
 
-input, select {
+.form-group input, .form-group select {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 16px;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: 1rem;
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+  transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+.form-group input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.form-group input:focus, .form-group select:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb, 163, 184, 153), 0.2); /* Adjusted shadow */
+}
+
+.error-message, .success-message {
+  padding: 0.8rem 1rem;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.error-message {
+  color: var(--error-text, #ef4444);
+  background-color: var(--error-bg, rgba(239, 68, 68, 0.1));
+  border: 1px solid var(--error-border, rgba(239, 68, 68, 0.2));
+}
+
+.success-message {
+  color: var(--success-text, #38a169);
+  background-color: var(--success-bg, rgba(56, 161, 105, 0.1));
+  border: 1px solid var(--success-border, rgba(56, 161, 105, 0.2));
+}
+
+.update-btn, .logout-btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 1.5rem;
+  border-radius: var(--border-radius-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  font-size: 1rem;
+  border: 1px solid transparent;
 }
 
 .update-btn {
-  width: 100%;
-  padding: 12px;
-  background-color: #4f46e5;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  margin-bottom: 30px;
+  background-color: var(--accent-color);
+  color: var(--button-text);
+  border-color: var(--accent-color);
+  margin-bottom: 1.5rem; /* Spacing before account info */
 }
 
-.update-btn:hover {
-  background-color: #4338ca;
+.update-btn:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
 
 .update-btn:disabled {
-  background-color: #a5a5a5;
+  background-color: var(--accent-color);
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
 .account-info {
-  border-top: 1px solid #ddd;
-  padding-top: 20px;
-  margin-bottom: 30px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .account-info h3 {
   margin-top: 0;
-  margin-bottom: 15px;
-  color: #333;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-family: 'Playfair Display', serif;
 }
 
 .info-item {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
-  font-size: 14px;
+  margin-bottom: 0.8rem;
+  font-size: 0.95rem;
 }
 
 .info-item span:first-child {
-  color: #666;
+  color: var(--text-secondary);
+  font-weight: 500;
 }
 
 .info-item span:last-child {
-  font-weight: 500;
-  color: #333;
-}
-
-.error-message {
-  color: #e53e3e;
-  font-size: 14px;
-  margin-bottom: 16px;
-}
-
-.success-message {
-  color: #38a169;
-  font-size: 14px;
-  margin-bottom: 16px;
+  color: var(--text-primary);
 }
 
 .logout-btn {
-  width: 100%;
-  padding: 12px;
-  background-color: #f3f4f6;
-  color: #4b5563;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.2s;
+  background-color: var(--card-bg);
+  color: var(--error-text, #ef4444);
+  border-color: var(--error-border, rgba(239, 68, 68, 0.3));
 }
 
 .logout-btn:hover {
-  background-color: #e5e7eb;
+  background-color: var(--error-bg, rgba(239, 68, 68, 0.1));
+  border-color: var(--error-text, #ef4444);
+}
+
+@media (max-width: 768px) {
+  .profile-card {
+    padding: 2rem 1.5rem;
+  }
+  .profile-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .profile-avatar {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+  .avatar-edit-hint {
+    bottom: -15px;
+  }
+  .form-row {
+    flex-direction: column;
+    gap: 0; /* Remove gap for stacked elements */
+  }
+  .form-group.half {
+    margin-bottom: 1.5rem; /* Ensure spacing when stacked */
+  }
+  .form-group.half:last-child {
+    margin-bottom: 0; /* Remove bottom margin for the last stacked item */
+  }
 }
 </style>
