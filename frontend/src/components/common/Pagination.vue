@@ -1,6 +1,9 @@
 <template>
   <div class="pagination-container" v-if="totalPages > 1">
     <div class="pagination">
+      <button class="pagination-button" @click="onPageChange(1)" :disabled="currentPage === 1">
+        처음
+      </button>
       <button
         class="pagination-button"
         @click="onPageChange(currentPage - 1)"
@@ -27,6 +30,13 @@
         :disabled="currentPage === totalPages"
       >
         다음
+      </button>
+      <button
+        class="pagination-button"
+        @click="onPageChange(totalPages)"
+        :disabled="currentPage === totalPages"
+      >
+        마지막
       </button>
     </div>
 
