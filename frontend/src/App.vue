@@ -6,6 +6,9 @@
 
         <nav class="main-nav">
           <router-link to="/products" class="nav-link">{{ $t('header.financial') }}</router-link>
+          <router-link to="/products/ai-recommendations" class="nav-link">
+            <i class="bi bi-robot"></i> {{ $t('header.aiRecommendations') }}
+          </router-link>
           <router-link to="/articles" class="nav-link">{{ $t('header.community') }}</router-link>
           <router-link to="/map" class="nav-link">{{ $t('header.map') }}</router-link>
           <router-link to="/youtube/search" class="nav-link">{{ $t('header.videos') }}</router-link>
@@ -135,11 +138,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useSettingsStore } from '@/stores/settings'
 import { useI18n } from 'vue-i18n'
-import { useRoute } from 'vue-router'
 // Components
 import PhishingModal from '@/components/modals/PhishingModal.vue'
 import MarketSection from '@/components/market/MarketSection.vue'
@@ -148,7 +150,6 @@ import ParticleNetwork from '@/components/effects/ParticleNetwork.vue'
 const userStore = useUserStore()
 const settingsStore = useSettingsStore()
 const { locale } = useI18n()
-const route = useRoute()
 
 const isLoggedIn = computed(() => userStore.isLoggedIn)
 const isAdmin = computed(() => userStore.isAdmin)

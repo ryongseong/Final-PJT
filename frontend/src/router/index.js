@@ -118,6 +118,12 @@ const routes = [
     props: true,
   },
   {
+    path: '/products/ai-recommendations',
+    name: 'AIRecommendations',
+    component: () => import('@/views/products/AIRecommendationsView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/favorites',
     name: 'Favorites',
     component: () => import('@/views/products/FavoritesView.vue'),

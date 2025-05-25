@@ -2,6 +2,21 @@
   <div class="products-container">
     <h1 class="products-title">금융 상품 목록</h1>
 
+    <div class="ai-recommendation-banner">
+      <div class="banner-content">
+        <div class="banner-icon">
+          <i class="bi bi-robot"></i>
+        </div>
+        <div class="banner-text">
+          <h3>AI 맞춤 금융상품 추천</h3>
+          <p>AI가 당신의 재정 상황에 맞는 최적의 금융상품을 추천해 드립니다.</p>
+        </div>
+        <router-link to="/products/ai-recommendations" class="banner-button">
+          맞춤 추천 받기
+        </router-link>
+      </div>
+    </div>
+
     <ProductFilterBar
       :initialProductType="activeTab"
       :initialSortOption="sortBy"
@@ -389,6 +404,74 @@ export default {
   color: #6b7280;
 }
 
+.ai-recommendation-banner {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.banner-content {
+  display: flex;
+  align-items: center;
+  color: white;
+  padding: 1rem;
+}
+
+.banner-icon {
+  font-size: 2.5rem;
+  margin-right: 1.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.banner-text {
+  flex-grow: 1;
+}
+
+.banner-text h3 {
+  font-size: 1.5rem;
+  margin: 0 0 0.5rem 0;
+  font-weight: 700;
+}
+
+.banner-text p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 1rem;
+}
+
+.banner-button {
+  background-color: white;
+  color: #764ba2;
+  font-weight: bold;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: all 0.2s;
+  white-space: nowrap;
+  margin-left: 1.5rem;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.banner-button:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
 @media (max-width: 768px) {
   .products-grid {
     grid-template-columns: 1fr;
@@ -397,6 +480,21 @@ export default {
   .pagination {
     flex-direction: column;
     gap: 0.5rem;
+  }
+
+  .banner-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .banner-icon {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+
+  .banner-button {
+    margin-left: 0;
+    margin-top: 1.5rem;
   }
 }
 </style>

@@ -29,7 +29,12 @@ from .serializers import (
     LoanProductDetailSerializer,
     UserProductSerializer,
 )
-from django.db.models import OuterRef, Subquery, FloatField
+from django.db.models import OuterRef, Subquery, FloatField, F, Q, Avg, Count, Max, Min
+from django.db.models.functions import Round
+from .ai_services import get_ai_product_recommendations
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # Financial Products ViewSets
@@ -921,3 +926,181 @@ def get_product_statistics(request):
             ),
         }
     )
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_ai_recommendations_page(request):
+    """
+    Get dedicated AI-powered financial product recommendations based on user profile and preferences
+    """
+    # Get query parameters
+    period = request.GET.get("period", "12")  # Default to 12 months
+    try:
+        period = int(period)
+    except ValueError:
+        period = 12
+
+    product_type = request.GET.get("type", "all")  # deposit, saving, loan, all
+
+    # Get user information
+    user = request.user
+    user_salary = user.salary if hasattr(user, "salary") and user.salary else 0
+    user_money = user.money if hasattr(user, "money") and user.money else 0
+
+    # Prepare product data for AI recommendation
+    product_data_list = []
+
+    # Filter products by type and period
+    if product_type in ["deposit", "all"]:
+        # Get deposit products matching period range (±3 months flexibility)
+        deposit_products = DepositProduct.objects.filter(
+            save_trm__lte=period + 3, save_trm__gte=period - 3
+        ).order_by("-intr_rate2")[:15]
+
+        # Format deposit products for AI
+        for dp in deposit_products:
+            product_data_list.append(
+                {
+                    "name": dp.product.fin_prdt_nm,
+                    "bank": dp.product.kor_co_nm,
+                    "type": "예금",
+                    "interest_rate": dp.intr_rate2,
+                    "period_months": dp.save_trm,
+                    "join_way": dp.product.join_way,
+                    "join_member": dp.product.join_member,
+                    "interest_rate_type": dp.intr_rate_type,
+                }
+            )
+
+    if product_type in ["saving", "all"]:
+        # Get saving products matching period range
+        saving_products = SavingProduct.objects.filter(
+            save_trm__lte=period + 3, save_trm__gte=period - 3
+        ).order_by("-intr_rate2")[:15]
+
+        # Format saving products for AI
+        for sp in saving_products:
+            product_data_list.append(
+                {
+                    "name": sp.product.fin_prdt_nm,
+                    "bank": sp.product.kor_co_nm,
+                    "type": "적금",
+                    "interest_rate": sp.intr_rate2,
+                    "period_months": sp.save_trm,
+                    "savings_type": sp.rsrv_type,
+                    "join_way": sp.product.join_way,
+                    "join_member": sp.product.join_member,
+                    "interest_rate_type": sp.intr_rate_type,
+                }
+            )
+
+    if product_type in ["loan", "all"]:
+        # Load loan products
+        loan_products = (
+            LoanProduct.objects.all()
+            .select_related("product")
+            .prefetch_related("product__mortgage_options", "product__credit_options")[
+                :10
+            ]
+        )
+
+        # Format loan products with their options for AI
+        for lp in loan_products:
+            base_loan_data = {
+                "name": lp.product.fin_prdt_nm,
+                "bank": lp.product.kor_co_nm,
+                "type": "대출",
+                "loan_type": lp.product.loan_type,
+                "join_way": lp.product.join_way,
+                "join_member": lp.product.join_member,
+            }
+
+            # Add mortgage options if available
+            if (
+                hasattr(lp.product, "mortgage_options")
+                and lp.product.mortgage_options.exists()
+            ):
+                option = lp.product.mortgage_options.all()[
+                    0
+                ]  # Just use first option for simplicity
+                base_loan_data.update(
+                    {
+                        "interest_rate_min": option.lend_rate_min,
+                        "interest_rate_max": option.lend_rate_max,
+                        "mortgage_type": option.mrtg_type,
+                        "repayment_type": option.rpay_type,
+                    }
+                )
+                product_data_list.append(base_loan_data)
+
+            # Add credit options if available
+            elif (
+                hasattr(lp.product, "credit_options")
+                and lp.product.credit_options.exists()
+            ):
+                option = lp.product.credit_options.all()[0]
+                base_loan_data.update(
+                    {
+                        "interest_rate_min": option.crdt_grad_1,
+                        "interest_rate_max": option.crdt_grad_10,
+                        "credit_product_type": option.crdt_prdt_type,
+                    }
+                )
+                product_data_list.append(base_loan_data)
+
+    # If no products found for AI recommendations
+    if not product_data_list:
+        return Response(
+            {
+                "status": "error",
+                "message": f"No suitable products found for the specified type ({product_type}) and period ({period} months).",
+            },
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    # Call OpenAI API for recommendations
+    try:
+        ai_result = get_ai_product_recommendations(
+            user_salary, user_money, period, product_data_list
+        )
+
+        if ai_result["status"] == "success":
+            # Return successful AI recommendations along with some standard data
+            return Response(
+                {
+                    "status": "success",
+                    "user_info": {
+                        "salary": user_salary,
+                        "money": user_money,
+                        "period": period,
+                    },
+                    "recommendations": ai_result["recommendations"],
+                    "product_count": len(product_data_list),
+                    "product_types_analyzed": product_type,
+                }
+            )
+        else:
+            # Return error from AI service
+            logger.error(
+                f"AI recommendation error: {ai_result.get('message', 'Unknown error')}"
+            )
+            return Response(
+                {
+                    "status": "error",
+                    "message": ai_result.get(
+                        "message", "Error generating AI recommendations"
+                    ),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+    except Exception as e:
+        logger.error(f"Exception in AI recommendations page: {str(e)}")
+        return Response(
+            {
+                "status": "error",
+                "message": f"Failed to generate recommendations: {str(e)}",
+            },
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )

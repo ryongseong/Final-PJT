@@ -44,6 +44,11 @@ urlpatterns = [
         views.get_product_recommendations,
         name="product-recommendations",
     ),
+    path(
+        "ai-recommendations/",
+        views.get_ai_recommendations_page,
+        name="ai-recommendations-page",
+    ),
     # Admin endpoints for updating financial product data
     path("admin/update-all/", views.update_all_products, name="update-all-products"),
     path(

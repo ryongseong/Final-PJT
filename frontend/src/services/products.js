@@ -252,4 +252,9 @@ export default {
       return response.data
     })
   },
+
+  // Get AI recommendations
+  async getAIRecommendations(params = {}) {
+    return apiClient.get('ai-recommendations/', { params })
+  },
 }
