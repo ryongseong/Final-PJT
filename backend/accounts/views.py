@@ -220,10 +220,10 @@ def update_profile(request):
                 {"error": f"Failed to update profile image: {str(e)}"}, status=500
             )
 
-    if age is not None:
+    if age != "":
         user.age = age
 
-    if gender is not None:
+    if gender != "":
         user.gender = gender
 
     if salary != "":
