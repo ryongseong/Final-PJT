@@ -12,9 +12,6 @@
           <router-link to="/articles" class="nav-link">{{ $t('header.community') }}</router-link>
           <router-link to="/map" class="nav-link">{{ $t('header.map') }}</router-link>
           <router-link to="/youtube/search" class="nav-link">{{ $t('header.videos') }}</router-link>
-          <router-link v-if="isAdmin" to="/admin" class="nav-link">{{
-            $t('header.admin')
-          }}</router-link>
         </nav>
 
         <div class="user-menu">
@@ -29,6 +26,9 @@
 
               <div class="dropdown-menu" v-show="dropdownOpen">
                 <div class="dropdown-username">{{ user?.nickname || user?.username }}</div>
+                <router-link v-if="isAdmin" to="/admin" class="dropdown-item"
+                  ><i class="icon">💻</i>{{ $t('header.admin') }}</router-link
+                >
                 <router-link to="/profile" class="dropdown-item">
                   <i class="icon">👤</i> {{ $t('common.profile') }}
                 </router-link>
