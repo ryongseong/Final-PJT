@@ -6,47 +6,53 @@
       <form @submit.prevent="handleLogin">
         <div class="form-group">
           <label for="username">아이디 또는 이메일</label>
-          <input 
-            type="text" 
-            id="username" 
-            v-model="loginForm.username" 
+          <input
+            type="text"
+            id="username"
+            v-model="loginForm.username"
             placeholder="아이디 또는 이메일 주소"
             required
           />
         </div>
-        
+
         <div class="form-group">
           <label for="password">비밀번호</label>
-          <input 
-            type="password" 
-            id="password" 
-            v-model="loginForm.password" 
+          <input
+            type="password"
+            id="password"
+            v-model="loginForm.password"
             placeholder="비밀번호"
             required
           />
         </div>
 
         <p v-if="error" class="error-message">{{ error }}</p>
-        
+
         <button type="submit" class="login-btn" :disabled="loading">
           {{ loading ? '로그인 중...' : '로그인' }}
         </button>
       </form>
-      
+
       <div class="social-login">
         <p>소셜 계정으로 로그인</p>
         <div class="social-buttons">
           <button @click="googleLogin" class="google-btn">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google">
+            <img
+              src="https://developers.google.com/static/identity/images/branding_guideline_sample_nt_rd_sl.svg"
+              alt="Google"
+            />
             Google로 로그인
           </button>
           <button @click="kakaoLogin" class="kakao-btn">
-            <img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" alt="Kakao">
+            <img
+              src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png"
+              alt="Kakao"
+            />
             Kakao로 로그인
           </button>
         </div>
       </div>
-      
+
       <div class="register-link">
         계정이 없으신가요? <router-link to="/register">회원가입</router-link>
       </div>
@@ -65,7 +71,7 @@ const router = useRouter()
 
 const loginForm = reactive({
   username: '',
-  password: ''
+  password: '',
 })
 
 const loading = ref(false)
@@ -74,10 +80,10 @@ const error = ref(null)
 const handleLogin = async () => {
   error.value = null
   loading.value = true
-  
+
   try {
     await userStore.login(loginForm.username, loginForm.password)
-    
+
     // Redirect to the page the user was trying to access, or to home
     const redirectPath = route.query.redirect || '/'
     router.push(redirectPath)
@@ -93,9 +99,9 @@ const googleLogin = () => {
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
   const redirectUri = `${window.location.origin}/login/google/callback`
   const scope = 'email profile'
-  
+
   const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${googleClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}`
-  
+
   window.location.href = googleAuthUrl
 }
 
@@ -103,9 +109,9 @@ const kakaoLogin = () => {
   // Kakao OAuth URL
   const kakaoClientId = import.meta.env.VITE_KAKAO_CLIENT_ID
   const redirectUri = `${window.location.origin}/login/kakao/callback`
-  
+
   const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${kakaoClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code`
-  
+
   window.location.href = kakaoAuthUrl
 }
 </script>
@@ -198,7 +204,8 @@ input {
   justify-content: center;
 }
 
-.google-btn, .kakao-btn {
+.google-btn,
+.kakao-btn {
   flex: 1;
   display: flex;
   align-items: center;
@@ -218,16 +225,17 @@ input {
 }
 
 .kakao-btn {
-  background-color: #FEE500;
+  background-color: #fee500;
   color: #000000;
-  border-color: #FEE500;
+  border-color: #fee500;
 }
 
 .kakao-btn:hover {
-  background-color: #FDD800;
+  background-color: #fdd800;
 }
 
-.google-btn img, .kakao-btn img {
+.google-btn img,
+.kakao-btn img {
   height: 20px;
   width: 20px;
 }
