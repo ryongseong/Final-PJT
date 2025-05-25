@@ -1,0 +1,28 @@
+css/playfair-display.css" from "src/main.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/user/Desktop/WebsiteLocalizer/frontend/src/main.js:13:9
+  11 |  
+  12 |  // Font imports
+  13 |  import 'playfair-display/css/playfair-display.css'
+     |          ^
+  14 |  import 'inter-ui/inter.css'
+  15 |  
+오후 11:37:08 [vite] Internal server error: Failed to resolve import "playfair-display/css/playfair-display.css" from "src/main.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/user/Desktop/WebsiteLocalizer/frontend/src/main.js:13:9
+  11 |  
+  12 |  // Font imports
+  13 |  import 'playfair-display/css/playfair-display.css'
+     |          ^
+  14 |  import 'inter-ui/inter.css'
+  15 |  
+      at TransformPluginContext._formatLog (file:///C:/Users/user/Desktop/WebsiteLocalizer/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42499:41)
+      at TransformPluginContext.error (file:///C:/Users/user/Desktop/WebsiteLocalizer/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42496:16)
+      at normalizeUrl (file:///C:/Users/user/Desktop/WebsiteLocalizer/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:40475:23)
+      at async file:///C:/Users/user/Desktop/WebsiteLocalizer/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:40594:37
+      at async Promise.all (index 7)
+      at async TransformPluginContext.transform (file:///C:/Users/user/Desktop/WebsiteLocalizer/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:40521:7)      
+      at async file:///C:/Users/user/Desktop/WebsiteLocalizer/frontend/node_modules/vite-plugin-inspect/dist/index.mjs:1128:17
+      at async EnvironmentPluginContainer.transform (file:///C:/Users/user/Desktop/WebsiteLocalizer/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42294:18) 
+      at async loadAndTransform (file:///C:/Users/user/Desktop/WebsiteLocalizer/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:35735:27)
+      at async viteTransformMiddleware (file:///C:/Users/user/Desktop/WebsiteLocalizer/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:37250:24)

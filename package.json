@@ -1,0 +1,21 @@
+{
+  "name": "workspace",
+  "version": "1.0.0",
+  "description": "SSAFY 1학기 최종 관통 PJT 금융",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.9.0",
+    "chart.js": "^4.4.9",
+    "inter-ui": "^4.1.0",
+    "particles.js": "^2.0.0",
+    "playfair-display": "^0.0.1-security",
+    "vue": "^3.5.14",
+    "vue-i18n": "^11.1.4"
+  }
+}

@@ -1,44 +1,46 @@
 <!-- src/views/HomeView.vue -->
 <template>
   <div class="home-container">
-    <section class="welcome-section">
-      <div class="welcome-content">
-        <h1>환영합니다!</h1>
-        <p class="subtitle">당신의 금융 인생을 관리하는 가장 스마트한 방법</p>
-
-        <div v-if="isLoggedIn" class="user-greeting">
-          <p>{{ user.nickname || user.username }}님, 오늘도 좋은 하루 되세요!</p>
-          <router-link to="/profile" class="cta-button secondary"> 프로필 관리 </router-link>
-        </div>
-
-        <div v-else class="auth-buttons">
-          <router-link to="/login" class="cta-button"> 로그인 </router-link>
-          <router-link to="/register" class="cta-button secondary"> 회원가입 </router-link>
+    <div class="hero-section">
+      <div class="particles-container">
+        <ParticleNetwork />
+      </div>
+      <div class="hero-content-wrapper">
+        <div class="hero-content">
+          <h1>{{ $t('hero.tagline') }}</h1>
+          <p>{{ $t('hero.subtitle') }}</p>
+          <div class="hero-buttons">
+            <button class="hero-btn primary">{{ $t('hero.ctaButton') }}</button>
+            <button class="hero-btn secondary">{{ $t('hero.learnMore') }}</button>
+          </div>
         </div>
       </div>
-    </section>
+    </div>
 
     <section class="top-products-section">
-      <h2>추천 금융 상품</h2>
+      <h2>{{ $t('products.recommended') }}</h2>
 
       <div class="tabs">
         <button :class="{ active: activeTab === 'deposit' }" @click="activeTab = 'deposit'">
-          예금 상품
+          {{ $t('products.types.deposit') }}
         </button>
         <button :class="{ active: activeTab === 'saving' }" @click="activeTab = 'saving'">
-          적금 상품
+          {{ $t('products.types.saving') }}
         </button>
         <button :class="{ active: activeTab === 'loan' }" @click="activeTab = 'loan'">
-          대출 상품
+          {{ $t('products.types.loan') }}
         </button>
       </div>
 
       <div v-if="topProductsLoading" class="loading-indicator">
-        <p>상품 정보를 불러오는 중...</p>
+        <p>{{ $t('products.loading') }}</p>
       </div>
 
       <div v-else-if="topProductsError" class="error-message">
-        <p>{{ topProductsError }}</p>
+        <p>{{ $t('common.error.loadFailed') }}</p>
+        <button class="retry-button" @click="loadTopProducts">
+          {{ $t('common.retry') }}
+        </button>
       </div>
 
       <div v-else class="products-slider">
@@ -95,26 +97,26 @@
       </div>
     </section>
 
-    <section class="financial-data-section">
+    <section id="market-section" class="financial-data-section">
       <div class="container">
-        <h2>금융 시장 데이터</h2>
+        <h2>{{ $t('market.title') }}</h2>
         <div class="financial-charts">
           <div class="chart-card">
-            <h3>기준 금리 추이</h3>
+            <h3>{{ $t('market.interestRates') }}</h3>
             <div class="chart-container interest-chart">
               <canvas ref="interestRateChart"></canvas>
             </div>
           </div>
 
           <div class="chart-card">
-            <h3>금/은 시세</h3>
+            <h3>{{ $t('market.preciousMetals') }}</h3>
             <div class="chart-container precious-metals-chart">
               <canvas ref="preciousMetalsChart"></canvas>
             </div>
           </div>
 
           <div class="chart-card">
-            <h3>주요 환율</h3>
+            <h3>{{ $t('market.exchangeRates') }}</h3>
             <div class="chart-container exchange-rate-chart">
               <canvas ref="exchangeRateChart"></canvas>
             </div>
@@ -129,11 +131,14 @@
 import { computed, onMounted, ref, onBeforeUnmount } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import Chart from 'chart.js/auto'
 import productsService from '@/services/products'
+import ParticleNetwork from '@/components/effects/ParticleNetwork.vue'
 
 const userStore = useUserStore()
 const router = useRouter()
+const i18n = useI18n()
 
 const isLoggedIn = computed(() => userStore.isLoggedIn)
 const user = computed(() => userStore.user)
@@ -158,11 +163,14 @@ const loadTopProducts = async () => {
 
   try {
     const response = await productsService.getTopRateProducts(activeTab.value, 5)
-    console.log('Top products loaded:', response)
+    if (!response || response.length === 0) {
+      topProductsError.value = i18n.t('products.noProducts')
+      return
+    }
     topProducts.value = response
   } catch (err) {
     console.error('Error loading top products:', err)
-    topProductsError.value = '상품 정보를 불러오는데 실패했습니다.'
+    topProductsError.value = err.response?.data?.message || i18n.t('common.error.networkError')
   } finally {
     topProductsLoading.value = false
   }
@@ -470,141 +478,226 @@ watch(activeTab, watchTabChange)
 }
 
 .welcome-section {
-  background: linear-gradient(135deg, #4f46e5 0%, #7e3af2 100%);
-  color: white;
-  padding: 80px 20px;
-  text-align: center;
+  position: relative;
+  color: var(--text-primary);
+  padding: 80px 20px 120px;
+  overflow: hidden;
+  min-height: 600px;
+  display: flex;
+  align-items: center;
 }
 
-.welcome-content {
-  max-width: 800px;
+.hero-container {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 2; /* 파티클 배경 위에 콘텐츠 표시 */
+  padding: 0 20px;
+}
+
+.hero-content {
+  flex: 1;
+  text-align: left;
+  max-width: 550px;
+  padding-right: 40px;
 }
 
 h1 {
-  font-size: 3rem;
+  font-family: 'Playfair Display', serif;
+  font-size: 3.5rem;
   margin-bottom: 20px;
+  color: #f7f7f7;
+  text-shadow: var(--hero-text-shadow);
+  line-height: 1.2;
 }
 
 .subtitle {
+  font-family: 'Inter', sans-serif;
   font-size: 1.5rem;
   margin-bottom: 40px;
-  opacity: 0.9;
+  opacity: 0.95;
+  color: #f7f7f7;
+  line-height: 1.4;
 }
 
 .user-greeting {
   margin: 40px 0;
   font-size: 1.2rem;
+  color: #f7f7f7;
+}
+
+.hero-links {
+  margin-top: 30px;
+}
+
+.learn-more-link {
+  display: inline-block;
+  color: #f7f7f7;
+  text-decoration: none;
+  font-size: 1.1rem;
+  opacity: 0.9;
+  transition: all 0.3s ease;
+  margin-top: 15px;
+}
+
+.learn-more-link:hover {
+  opacity: 1;
+  transform: translateY(2px);
 }
 
 .auth-buttons,
 .user-greeting {
   display: flex;
   gap: 20px;
-  justify-content: center;
   margin-top: 30px;
+}
+
+.hero-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  width: 350px;
+  overflow: hidden;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.hero-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.card-header {
+  background: var(--accent-color);
+  padding: 20px;
+  color: white;
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-family: 'Playfair Display', serif;
+}
+
+.card-content {
+  padding: 20px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.feature-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.feature-icon {
+  font-size: 1.8rem;
+  margin-right: 15px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feature-text {
+  flex: 1;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+  line-height: 1.4;
 }
 
 .cta-button {
   display: inline-block;
   padding: 15px 30px;
-  border-radius: 6px;
+  border-radius: 16px;
   font-size: 16px;
   font-weight: 600;
   text-decoration: none;
   text-align: center;
   transition: all 0.3s ease;
   background-color: white;
-  color: #4f46e5;
+  color: var(--accent-color);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  font-family: 'Inter', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.3));
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.cta-button.primary {
+  background-color: white;
+  color: var(--accent-color);
 }
 
 .cta-button.secondary {
   background-color: transparent;
   color: white;
-  border: 2px solid white;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(5px);
 }
 
 .cta-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
 }
 
-.features-section {
-  padding: 80px 20px;
-  text-align: center;
-  background-color: #f9fafb;
-}
-
-h2 {
-  font-size: 2.5rem;
-  color: #333;
-  margin-bottom: 50px;
-}
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 30px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.feature-card {
-  background: white;
-  border-radius: 8px;
-  padding: 30px 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease;
-}
-
-.feature-card:hover {
-  transform: translateY(-10px);
-}
-
-.feature-icon {
-  font-size: 3rem;
-  margin-bottom: 20px;
-}
-
-.feature-card h3 {
-  margin: 0 0 15px;
-  color: #333;
-  font-size: 1.5rem;
-}
-
-.feature-card p {
-  color: #666;
-  margin: 0;
+.cta-button:hover::before {
+  opacity: 1;
 }
 
 /* Top Products Section */
 .top-products-section {
   padding: 80px 20px;
   text-align: center;
-  background-color: white;
+  background-color: var(--background-primary);
 }
 
 .tabs {
   display: flex;
   justify-content: center;
-  gap: 10px;
-  margin-bottom: 30px;
+  gap: 15px;
+  margin-bottom: 40px;
 }
 
 .tabs button {
-  padding: 10px 20px;
-  border: 1px solid #e5e7eb;
-  background: #f3f4f6;
-  border-radius: 6px;
+  padding: 12px 24px;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  border-radius: 12px;
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 5px var(--shadow-color);
 }
 
 .tabs button.active {
-  background: #4f46e5;
+  background: var(--accent-color);
   color: white;
-  border-color: #4f46e5;
+  border-color: var(--accent-color);
 }
 
 .products-slider {
@@ -614,35 +707,35 @@ h2 {
 
 .product-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
   margin-bottom: 30px;
 }
 
 .product-card {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 24px;
   text-align: left;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px var(--shadow-color);
   cursor: pointer;
 }
 
 .product-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 20px var(--shadow-color);
 }
 
 .product-header {
-  margin-bottom: 15px;
+  margin-bottom: 16px;
 }
 
 .product-header h3 {
   margin: 0 0 5px 0;
-  font-size: 1.1rem;
-  color: #333;
+  font-size: 1.2rem;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -650,46 +743,148 @@ h2 {
 
 .bank-name {
   font-size: 0.9rem;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .product-rate {
-  background: #f3f4f6;
-  border-radius: 6px;
-  padding: 15px;
-  margin-bottom: 15px;
+  background: rgba(79, 70, 229, 0.05);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
   text-align: center;
 }
 
 .rate-value {
-  font-size: 1.8rem;
+  font-size: 2rem;
   font-weight: bold;
-  color: #4f46e5;
+  color: var(--accent-color);
   line-height: 1;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 
 .rate-label {
   font-size: 0.9rem;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .product-meta {
-  margin-bottom: 15px;
+  margin-bottom: 16px;
 }
 
 .join-methods {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
+  gap: 6px;
 }
 
 .join-badge {
-  font-size: 0.7rem;
-  background: #f3f4f6;
-  color: #6b7280;
-  padding: 3px 8px;
-  border-radius: 4px;
+  font-size: 0.75rem;
+  background: rgba(79, 70, 229, 0.08);
+  color: var(--text-secondary);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.view-details-btn {
+  width: 100%;
+  padding: 12px;
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.view-details-btn:hover {
+  opacity: 0.9;
+}
+
+.view-all-link {
+  display: inline-block;
+  margin-top: 20px;
+  color: var(--accent-color);
+  font-weight: 500;
+  text-decoration: underline;
+}
+
+/* Financial Data Section */
+.financial-data-section {
+  padding: 80px 20px;
+  background-color: var(--background-primary);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.financial-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-top: 40px;
+}
+
+.chart-card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  transition: all 0.3s ease;
+}
+
+.chart-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px var(--shadow-color);
+}
+
+.chart-card h3 {
+  font-size: 1.3rem;
+  margin-bottom: 20px;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.chart-container {
+  height: 300px;
+  position: relative;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .financial-charts {
+    grid-template-columns: 1fr;
+  }
+
+  .product-cards {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+
+  h1 {
+    font-size: 2.5rem;
+  }
+
+  .subtitle {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .tabs {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .tabs button {
+    width: 100%;
+    max-width: 300px;
+  }
 }
 
 .view-details-btn {
@@ -735,7 +930,31 @@ h2 {
 }
 
 .error-message {
-  color: #ef4444;
+  text-align: center;
+  padding: 2rem;
+  background: var(--card-bg);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  margin: 2rem 0;
+}
+
+.error-message p {
+  color: var(--text-error);
+  margin-bottom: 1rem;
+}
+
+.retry-button {
+  padding: 8px 16px;
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.retry-button:hover {
+  opacity: 0.9;
 }
 
 .financial-data-section {

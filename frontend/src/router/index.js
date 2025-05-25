@@ -130,6 +130,12 @@ const routes = [
     meta: { requiresAuth: false },
   },
   {
+    path: '/settings',
+    name: 'Settings',
+    component: () => import('@/views/SettingsView.vue'),
+    meta: { requiresAuth: false },
+  },
+  {
     path: '/admin',
     name: 'Admin',
     component: () => import('@/views/admin/AdminDashboardView.vue'),

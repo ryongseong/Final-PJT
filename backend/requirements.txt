@@ -81,10 +81,11 @@ traitlets==5.14.3
 trio==0.30.0
 trio-websocket==0.12.2
 typing-inspection==0.4.0
-typing_extensions==4.7.1
+typing_extensions==4.12.2
 tzdata==2023.3
 uritemplate==4.1.1
 urllib3==2.0.4
 wcwidth==0.2.13
 websocket-client==1.8.0
 wsproto==1.2.0
+colorama==0.4.6

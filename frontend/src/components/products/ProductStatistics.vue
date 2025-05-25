@@ -1,69 +1,73 @@
 <template>
   <div class="product-statistics">
-    <h2>Product Statistics</h2>
-    <div v-if="isLoading" class="loading">Loading statistics...</div>
+    <h2>{{ $t('products.statistics.title') }}</h2>
+    <div v-if="isLoading" class="loading">{{ $t('products.statistics.loading') }}</div>
     <div v-if="error" class="error-message">{{ error }}</div>
     <div v-if="!isLoading && !error && statistics" class="statistics-content">
       <div class="stat-item">
-        <span class="stat-label">Total Products:</span>
+        <span class="stat-label">{{ $t('products.statistics.totalProducts') }}:</span>
         <span class="stat-value">{{ statistics.total_products }}</span>
       </div>
       <div class="stat-item">
-        <span class="stat-label">Deposit Products:</span>
+        <span class="stat-label">{{ $t('products.statistics.depositProducts') }}:</span>
         <span class="stat-value">{{ statistics.deposit_count }}</span>
       </div>
       <div class="stat-item">
-        <span class="stat-label">Saving Products:</span>
+        <span class="stat-label">{{ $t('products.statistics.savingProducts') }}:</span>
         <span class="stat-value">{{ statistics.saving_count }}</span>
       </div>
       <div class="stat-item">
-        <span class="stat-label">Mortgage Loans:</span>
+        <span class="stat-label">{{ $t('products.statistics.mortgageLoans') }}:</span>
         <span class="stat-value">{{ statistics.mortgage_loan_count }}</span>
       </div>
       <div class="stat-item">
-        <span class="stat-label">Credit Loans:</span>
+        <span class="stat-label">{{ $t('products.statistics.creditLoans') }}:</span>
         <span class="stat-value">{{ statistics.credit_loan_count }}</span>
       </div>
       <!-- Add more stats as available and needed -->
       <div v-if="statistics.average_deposit_rate" class="stat-item">
-        <span class="stat-label">Avg. Deposit Rate (6m):</span>
-        <span class="stat-value">{{ parseFloat(statistics.average_deposit_rate).toFixed(2) }}%</span>
+        <span class="stat-label">{{ $t('products.statistics.avgDepositRate') }}:</span>
+        <span class="stat-value"
+          >{{ parseFloat(statistics.average_deposit_rate).toFixed(2) }}%</span
+        >
       </div>
       <div v-if="statistics.average_saving_rate" class="stat-item">
-        <span class="stat-label">Avg. Saving Rate (6m):</span>
+        <span class="stat-label">{{ $t('products.statistics.avgSavingRate') }}:</span>
         <span class="stat-value">{{ parseFloat(statistics.average_saving_rate).toFixed(2) }}%</span>
       </div>
     </div>
     <div v-if="!isLoading && !error && !statistics" class="no-data">
-      No statistics available at the moment.
+      {{ $t('products.statistics.noData') }}
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import productService from '@/services/products.js';
+import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import productService from '@/services/products.js'
 
-const statistics = ref(null);
-const isLoading = ref(true);
-const error = ref(null);
+const { t } = useI18n()
+const statistics = ref(null)
+const isLoading = ref(true)
+const error = ref(null)
 
 onMounted(async () => {
   try {
-    isLoading.value = true;
-    error.value = null;
-    const response = await productService.getProductStatistics();
-    statistics.value = response.data; // Adjust based on your API response structure
+    isLoading.value = true
+    error.value = null
+    const response = await productService.getProductStatistics()
+    statistics.value = response.data // Adjust based on your API response structure
   } catch (err) {
-    console.error('Error fetching product statistics:', err);
-    error.value = 'Failed to load product statistics. Please try again later.';
+    console.error('Error fetching product statistics:', err)
+    error.value = 'Failed to load product statistics. Please try again later.'
     if (err.response && err.response.data && err.response.data.detail) {
-      error.value = err.response.data.detail;
+      error.value = err.response.data.detail
     }
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-});
+})
 </script>
 
 <style scoped>
@@ -71,7 +75,7 @@ onMounted(async () => {
   padding: 20px;
   background-color: #f0f4f8;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .product-statistics h2 {
@@ -81,7 +85,8 @@ onMounted(async () => {
   margin-bottom: 20px;
 }
 
-.loading, .no-data {
+.loading,
+.no-data {
   text-align: center;
   color: #666;
   padding: 20px;

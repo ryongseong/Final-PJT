@@ -496,12 +496,18 @@ th,
 td {
   padding: 0.75rem 1rem;
   text-align: left;
-  border-bottom: 1px solid #eaeaea;
+  justify-content: center;
+  align-items: center;
 }
 
 th {
   background-color: #f5f5f5;
   font-weight: 600;
+}
+
+td {
+  height: 100px;
+  border-bottom: 1px solid #eaeaea;
 }
 
 td.actions {
