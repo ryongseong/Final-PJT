@@ -49,6 +49,16 @@ urlpatterns = [
         views.get_ai_recommendations_page,
         name="ai-recommendations-page",
     ),
+    path(
+        "gold-and-silver-prices/",
+        views.get_gold_and_silver_prices,
+        name="gold-and-silver-prices",
+    ),
+    path(
+        "exchange-rate/",
+        views.get_exchange_rate,
+        name="exchange-rate",
+    ),
     # Admin endpoints for updating financial product data
     path("admin/update-all/", views.update_all_products, name="update-all-products"),
     path(

@@ -22,6 +22,16 @@ apiClient.interceptors.request.use((config) => {
 })
 
 export default {
+  async getGoldAndSilverPrices(params = {}) {
+    console.log(params)
+    return await apiClient
+      .get('gold-and-silver-prices/', { params })
+      .then((response) => response.data)
+  },
+
+  async getExchangeRate() {
+    return await apiClient.get('exchange-rate/').then((response) => response.data)
+  },
   // Get all financial products
   async getAllFinancialProducts() {
     return apiClient.get('financial-products/').then((response) => response.data)

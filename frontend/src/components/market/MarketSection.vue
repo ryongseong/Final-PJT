@@ -3,26 +3,26 @@
     <div class="container">
       <h2 class="section-title">{{ $t('market.title') }}</h2>
       <p class="section-description">{{ $t('market.description') }}</p>
-      
+
       <div class="cards-container">
-        <!-- 금/은 가격 비교 -->
+        <!-- 금 가격 비교 -->
         <div class="market-card">
-          <h3>{{ $t('market.preciousMetals') }}</h3>
+          <h3>{{ $t('market.preciousGold') }}</h3>
           <div class="chart-container">
-            <MetalsPriceChart />
+            <GoldPriceChart />
           </div>
-          <p class="card-description">{{ $t('market.preciousMetalsDesc') }}</p>
+          <p class="card-description">{{ $t('market.preciousGoldDesc') }}</p>
         </div>
-        
-        <!-- 이자율 트렌드 -->
+
+        <!-- 은 가격 비교 -->
         <div class="market-card">
-          <h3>{{ $t('market.interestRates') }}</h3>
+          <h3>{{ $t('market.preciousSilver') }}</h3>
           <div class="chart-container">
-            <InterestRateChart />
+            <SilverPriceChart />
           </div>
-          <p class="card-description">{{ $t('market.interestRatesDesc') }}</p>
+          <p class="card-description">{{ $t('market.preciousSilverDesc') }}</p>
         </div>
-        
+
         <!-- 환율 차트 -->
         <div class="market-card">
           <h3>{{ $t('market.exchangeRates') }}</h3>
@@ -37,9 +37,9 @@
 </template>
 
 <script setup>
-import MetalsPriceChart from './charts/MetalsPriceChart.vue';
-import InterestRateChart from './charts/InterestRateChart.vue';
-import ExchangeRateChart from './charts/ExchangeRateChart.vue';
+import ExchangeRateChart from './charts/ExchangeRateChart.vue'
+import GoldPriceChart from './charts/GoldPriceChart.vue'
+import SilverPriceChart from './charts/SilverPriceChart.vue'
 </script>
 
 <style scoped>
@@ -94,7 +94,9 @@ import ExchangeRateChart from './charts/ExchangeRateChart.vue';
   transition: var(--transition-speed);
   border: 1px solid var(--card-border);
   transform: translateY(0);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .market-card:hover {
@@ -133,7 +135,7 @@ import ExchangeRateChart from './charts/ExchangeRateChart.vue';
     grid-template-columns: repeat(3, 1fr);
     padding: 0 1.5rem;
   }
-  
+
   .chart-container {
     height: 250px;
   }
@@ -143,7 +145,7 @@ import ExchangeRateChart from './charts/ExchangeRateChart.vue';
   .cards-container {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .section-title {
     font-size: 2.5rem;
   }
@@ -153,15 +155,15 @@ import ExchangeRateChart from './charts/ExchangeRateChart.vue';
   .market-section {
     padding: 4rem 1rem;
   }
-  
+
   .cards-container {
     grid-template-columns: 1fr;
   }
-  
+
   .section-title {
     font-size: 2.2rem;
   }
-  
+
   .section-description {
     font-size: 1.1rem;
     margin-bottom: 3rem;

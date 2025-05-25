@@ -3,6 +3,8 @@ from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
+from django.conf import settings
+
 from .utils import (
     update_all_financial_products,
     fetch_deposit_products,
@@ -716,6 +718,81 @@ def filter_products(request):
             },
         }
     )
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def get_gold_and_silver_prices(request):
+    import requests
+    from datetime import datetime, timedelta
+
+    print(request.GET)  # <QueryDict: {'query': ['AG']}>
+
+    today = datetime.now().strftime("%Y-%m-%d")
+    previous_day = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+    type = request.GET.get("type", "AG")
+    print("Type:", type)
+
+    response = requests.get(
+        "https://prod-api.exgold.co.kr/api/v1/main/chart/period/price/domestic",
+        params={"type": type, "from": previous_day, "to": today},
+    )
+    if response.status_code != 200:
+        return Response(
+            {"detail": "금/은 시세 데이터를 가져오는 데 실패했습니다."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+    data = response.json()
+    if not data or "data" not in data:
+        return Response(
+            {"detail": "유효하지 않은 금/은 시세 데이터입니다."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+    return Response(data, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def get_exchange_rate(request):
+    import requests
+    from datetime import datetime, timedelta, timezone
+
+    now = datetime.now()
+    if now.weekday() >= 5 or now.hour < 11:
+        day = now
+        while True:
+            day -= timedelta(days=1)
+            if day.weekday() < 5:
+                break
+        day = day.strftime("%Y%m%d")
+    else:
+        day = now.strftime("%Y%m%d")
+
+    print(day)
+
+    response = requests.get(
+        "https://www.koreaexim.go.kr/site/program/financial/exchangeJSON",
+        params={
+            "authkey": settings.EXCHANGE_RATE_API,
+            "searchdate": day,
+            "data": "AP01",
+        },
+    )
+
+    print(response.status_code)
+
+    if response.status_code != 200:
+        return Response(
+            {"detail": "환율 데이터를 가져오는 데 실패했습니다."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+    data = response.json()
+    if not data:
+        return Response(
+            {"detail": "유효하지 않은 환율 데이터입니다."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+    return Response(data, status=status.HTTP_200_OK)
 
 
 # Admin API endpoints for updating financial products

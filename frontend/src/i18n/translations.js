@@ -80,9 +80,12 @@ export default {
     market: {
       title: '금융 시장 동향',
       description: '실시간 금융 시장 동향을 확인하고 최신 트렌드를 파악하세요.',
-      preciousMetals: '금/은 가격 동향',
-      preciousMetalsDesc:
-        '최근 6개월간의 금과 은 가격 변동 추이입니다. 글로벌 경제 불확실성에 따라 안전자산인 귀금속 가격이 상승세를 보이고 있습니다.',
+      preciousGold: '금 가격 동향',
+      preciousSilver: '은 가격 동향',
+      preciousGoldDesc:
+        '최근 1개월간의 금 가격 변동 추이입니다. 글로벌 경제 불확실성에 따라 안전자산인 귀금속 가격이 상승세를 보이고 있습니다.',
+      preciousSilverDesc:
+        '최근 1개월간의 은 가격 변동 추이입니다. 글로벌 경제 불확실성에 따라 안전자산인 귀금속 가격이 상승세를 보이고 있습니다.',
       interestRates: '금리 동향',
       interestRatesDesc:
         '한국은행 기준금리와 시중은행 정기예금 평균금리 추이입니다. 최근 인플레이션 대응을 위한 금리 정책 변화를 확인하세요.',
