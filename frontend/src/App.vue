@@ -5,17 +5,14 @@
         <router-link to="/" class="logo"> FinanceApp </router-link>
 
         <nav class="main-nav">
-          <router-link to="/" class="nav-link">{{ $t('common.home') }}</router-link>
-          <router-link to="/products" class="nav-link">{{ $t('common.products') }}</router-link>
-          <router-link to="/articles" class="nav-link">{{ $t('common.community') }}</router-link>
-          <router-link to="/map" class="nav-link">{{ $t('common.map') }}</router-link>
-          <router-link to="/youtube/search" class="nav-link">{{ $t('common.videos') }}</router-link>
-          <router-link v-if="isAdmin" to="/admin" class="nav-link">{{ $t('common.admin') }}</router-link>
+          <router-link to="/products" class="nav-link">{{ $t('header.financial') }}</router-link>
+          <router-link to="/articles" class="nav-link">{{ $t('header.community') }}</router-link>
+          <router-link to="/map" class="nav-link">{{ $t('header.map') }}</router-link>
+          <router-link to="/youtube/search" class="nav-link">{{ $t('header.videos') }}</router-link>
+          <router-link v-if="isAdmin" to="/admin" class="nav-link">{{ $t('header.admin') }}</router-link>
         </nav>
 
         <div class="user-menu">
-          <!-- 헤더에서 테마/언어 버튼 제거 - 이후 화면 측면에 별도 배치 -->
-          
           <template v-if="isLoggedIn">
             <div class="user-dropdown" @click="toggleDropdown" ref="dropdown">
               <div v-if="profileImage" class="user-avatar">
@@ -48,8 +45,10 @@
           </template>
 
           <template v-else>
-            <router-link to="/login" class="auth-btn login">Login</router-link>
-            <router-link to="/register" class="auth-btn register">Sign Up</router-link>
+            <div class="auth-buttons">
+              <router-link to="/login" class="auth-btn login">{{ $t('common.login') }}</router-link>
+              <router-link to="/register" class="auth-btn register">{{ $t('common.register') }}</router-link>
+            </div>
             <router-link to="/settings" class="settings-link">
               <i class="icon">⚙️</i>
             </router-link>
@@ -59,23 +58,19 @@
     </header>
 
     <main>
-      <!-- 플로팅 테마/언어 버튼 -->
       <div class="floating-controls">
-        <!-- 다크 모드 토글 버튼 -->
-        <button @click="toggleDarkMode" class="floating-button theme-toggle" :title="isDarkMode ? $t('common.lightMode') : $t('common.darkMode')">
+        <button @click="toggleDarkMode" class="floating-btn" :title="isDarkMode ? $t('common.lightMode') : $t('common.darkMode')">
           <font-awesome-icon :icon="isDarkMode ? 'sun' : 'moon'" />
         </button>
-        
-        <!-- 언어 전환 버튼 -->
-        <button @click="toggleLanguage" class="floating-button language-toggle" :title="currentLocale === 'ko' ? 'English' : '한국어'">
+        <button @click="toggleLanguage" class="floating-btn" :title="currentLocale === 'ko' ? 'English' : '한국어'">
+          <font-awesome-icon icon="globe" />
           <span>{{ currentLocale === 'ko' ? 'EN' : 'KR' }}</span>
         </button>
       </div>
-      
-      <!-- 센터 모달 위치에 보이스피싱 경고 -->
+
       <PhishingModal />
       
-      <!-- 히어로 섹션은 메인 페이지에서만 표시 -->
+      <!-- 히어로 섹션과 금융 시장 동향은 메인 페이지에서만 표시 -->
       <template v-if="$route.path === '/'">
         <div class="hero-section">
           <div class="particles-container">
@@ -90,41 +85,30 @@
                 <button class="hero-btn secondary">{{ $t('hero.learnMore') }}</button>
               </div>
             </div>
+            <div class="hero-card">
+              <div class="card-header">
+                <h3>{{ $t('hero.cardTitle') }}</h3>
+              </div>
+              <div class="card-body">
+                <div class="feature-item">
+                  <div class="feature-icon">💰</div>
+                  <div class="feature-text">{{ $t('hero.feature1') }}</div>
+                </div>
+                <div class="feature-item">
+                  <div class="feature-icon">📊</div>
+                  <div class="feature-text">{{ $t('hero.feature2') }}</div>
+                </div>
+                <div class="feature-item">
+                  <div class="feature-icon">🔒</div>
+                  <div class="feature-text">{{ $t('hero.feature3') }}</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         
-        <!-- 금/은 가격 트렌드 개별 섹션 -->
-        <section class="individual-market-section">
-          <div class="container">
-            <h2 class="section-title">{{ $t('market.preciousMetals') }}</h2>
-            <p class="section-description">{{ $t('market.preciousMetalsDesc') }}</p>
-            <div class="single-chart-container">
-              <MetalsPriceChart />
-            </div>
-          </div>
-        </section>
-        
-        <!-- 금리 트렌드 개별 섹션 -->
-        <section class="individual-market-section">
-          <div class="container">
-            <h2 class="section-title">{{ $t('market.interestRates') }}</h2>
-            <p class="section-description">{{ $t('market.interestRatesDesc') }}</p>
-            <div class="single-chart-container">
-              <InterestRateChart />
-            </div>
-          </div>
-        </section>
-        
-        <!-- 환율 트렌드 개별 섹션 -->
-        <section class="individual-market-section">
-          <div class="container">
-            <h2 class="section-title">{{ $t('market.exchangeRates') }}</h2>
-            <p class="section-description">{{ $t('market.exchangeRatesDesc') }}</p>
-            <div class="single-chart-container">
-              <ExchangeRateChart />
-            </div>
-          </div>
-        </section>
+        <!-- 금융 시장 동향 섹션 -->
+        <MarketSection />
       </template>
       
       <router-view />
@@ -132,7 +116,7 @@
 
     <footer class="app-footer" v-if="showFooter">
       <div class="footer-container">
-        <p>&copy; 2025 FinanceApp. All rights reserved.</p>
+        <p>{{ $t('common.copyright') }}</p>
       </div>
     </footer>
   </div>
@@ -145,11 +129,9 @@ import { useSettingsStore } from '@/stores/settings'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 // Components
-import PhishingModal from '@/components/main/VoiceModal.vue'
+import PhishingModal from '@/components/modals/PhishingModal.vue'
+import MarketSection from '@/components/market/MarketSection.vue'
 import ParticleNetwork from '@/components/effects/ParticleNetwork.vue'
-import MetalsPriceChart from '@/components/market/charts/MetalsPriceChart.vue'
-import InterestRateChart from '@/components/market/charts/InterestRateChart.vue'
-import ExchangeRateChart from '@/components/market/charts/ExchangeRateChart.vue'
 
 const userStore = useUserStore()
 const settingsStore = useSettingsStore()
@@ -723,88 +705,69 @@ main {
   }
 }
 
-/* 플로팅 컨트롤 스타일 */
+/* Add floating controls styles */
 .floating-controls {
   position: fixed;
-  right: 20px;
+  left: 20px;
   top: 50%;
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
   gap: 10px;
-  z-index: 100;
+  z-index: 99;
 }
 
-.floating-button {
-  width: 44px;
-  height: 44px;
-  border-radius: 22px;
+.floating-btn {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  box-shadow: 0 4px 12px var(--shadow-color);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.floating-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 15px var(--shadow-color);
-}
-
-.floating-button.language-toggle {
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-/* 개별 시장 섹션 스타일 */
-.individual-market-section {
-  padding: 6rem 2rem;
-  margin: 2rem 0;
-  background-color: var(--card-bg);
-  border-radius: 16px;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  box-shadow: 0 10px 30px var(--shadow-color);
-  transition: all 0.3s ease;
-}
-
-.individual-market-section:nth-child(odd) {
-  background: var(--background-gradient);
-}
-
-.section-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 2.5rem;
   color: var(--text-primary);
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-
-.section-description {
-  font-family: 'Inter', sans-serif;
-  font-size: 1.1rem;
-  color: var(--text-secondary);
-  margin-bottom: 3rem;
-  text-align: center;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-  line-height: 1.6;
-}
-
-.single-chart-container {
-  height: 400px;
-  width: 100%;
-  border-radius: 12px;
-  overflow: hidden;
-  background-color: var(--card-bg);
-  box-shadow: 0 8px 20px var(--shadow-color);
-  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+}
+
+.floating-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.floating-btn span {
+  font-size: 0.8rem;
+  margin-left: 2px;
+}
+
+/* Update auth buttons styles */
+.auth-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.auth-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.auth-btn.login {
+  color: var(--accent-color);
+  border: 1px solid var(--accent-color);
+}
+
+.auth-btn.register {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+.auth-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 </style>

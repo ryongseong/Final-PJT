@@ -3,6 +3,9 @@
     <h1 class="page-title">{{ $t('settings.title') }}</h1>
     
     <div class="settings-grid">
+      <!-- API 키 설정 섹션 -->
+      <ApiKeySettings />
+      
       <!-- 테마 설정 섹션 -->
       <div class="settings-card">
         <h3 class="settings-title">{{ $t('settings.themeSettings') }}</h3>
@@ -46,6 +49,7 @@
 import { computed } from 'vue';
 import { useSettingsStore } from '@/stores/settings';
 import { useI18n } from 'vue-i18n';
+import ApiKeySettings from '@/components/settings/ApiKeySettings.vue';
 
 const settingsStore = useSettingsStore();
 const { locale } = useI18n();

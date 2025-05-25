@@ -1,73 +1,46 @@
 <!-- src/views/HomeView.vue -->
 <template>
   <div class="home-container">
-    <section class="welcome-section">
-      <!-- 파티클 네트워크 배경 추가 -->
-      <ParticleNetwork />
-      
-      <div class="hero-container">
+    <div class="hero-section">
+      <div class="particles-container">
+        <ParticleNetwork />
+      </div>
+      <div class="hero-content-wrapper">
         <div class="hero-content">
           <h1>{{ $t('hero.tagline') }}</h1>
-          <p class="subtitle">{{ $t('hero.subtitle') }}</p>
-          
-          <div v-if="isLoggedIn" class="user-greeting">
-            <p>{{ $t('home.greeting', { name: user.nickname || user.username }) }}</p>
-            <router-link to="/profile" class="cta-button secondary"> {{ $t('common.profile') }} </router-link>
-          </div>
-
-          <div v-else class="auth-buttons">
-            <router-link to="/login" class="cta-button primary"> {{ $t('common.login') }} </router-link>
-            <router-link to="/register" class="cta-button secondary"> {{ $t('common.register') }} </router-link>
-          </div>
-          
-          <div class="hero-links">
-            <a href="#market-section" class="learn-more-link">{{ $t('hero.learnMore') }} ↓</a>
-          </div>
-        </div>
-        
-        <div class="hero-card">
-          <div class="card-header">
-            <h3>{{ $t('hero.cardTitle') }}</h3>
-          </div>
-          <div class="card-content">
-            <div class="feature-item">
-              <div class="feature-icon">💰</div>
-              <div class="feature-text">{{ $t('hero.feature1') }}</div>
-            </div>
-            <div class="feature-item">
-              <div class="feature-icon">📊</div>
-              <div class="feature-text">{{ $t('hero.feature2') }}</div>
-            </div>
-            <div class="feature-item">
-              <div class="feature-icon">🔒</div>
-              <div class="feature-text">{{ $t('hero.feature3') }}</div>
-            </div>
+          <p>{{ $t('hero.subtitle') }}</p>
+          <div class="hero-buttons">
+            <button class="hero-btn primary">{{ $t('hero.ctaButton') }}</button>
+            <button class="hero-btn secondary">{{ $t('hero.learnMore') }}</button>
           </div>
         </div>
       </div>
-    </section>
+    </div>
 
     <section class="top-products-section">
-      <h2>{{ $t('home.recommendedProducts') }}</h2>
+      <h2>{{ $t('products.recommended') }}</h2>
 
       <div class="tabs">
         <button :class="{ active: activeTab === 'deposit' }" @click="activeTab = 'deposit'">
-          {{ $t('home.depositProducts') }}
+          {{ $t('products.types.deposit') }}
         </button>
         <button :class="{ active: activeTab === 'saving' }" @click="activeTab = 'saving'">
-          {{ $t('home.savingProducts') }}
+          {{ $t('products.types.saving') }}
         </button>
         <button :class="{ active: activeTab === 'loan' }" @click="activeTab = 'loan'">
-          {{ $t('home.loanProducts') }}
+          {{ $t('products.types.loan') }}
         </button>
       </div>
 
       <div v-if="topProductsLoading" class="loading-indicator">
-        <p>상품 정보를 불러오는 중...</p>
+        <p>{{ $t('products.loading') }}</p>
       </div>
 
       <div v-else-if="topProductsError" class="error-message">
-        <p>{{ topProductsError }}</p>
+        <p>{{ $t('common.error.loadFailed') }}</p>
+        <button class="retry-button" @click="loadTopProducts">
+          {{ $t('common.retry') }}
+        </button>
       </div>
 
       <div v-else class="products-slider">
@@ -129,21 +102,21 @@
         <h2>{{ $t('market.title') }}</h2>
         <div class="financial-charts">
           <div class="chart-card">
-            <h3>{{ $t('home.interestRateTrend') }}</h3>
+            <h3>{{ $t('market.interestRates') }}</h3>
             <div class="chart-container interest-chart">
               <canvas ref="interestRateChart"></canvas>
             </div>
           </div>
 
           <div class="chart-card">
-            <h3>{{ $t('home.preciousMetals') }}</h3>
+            <h3>{{ $t('market.preciousMetals') }}</h3>
             <div class="chart-container precious-metals-chart">
               <canvas ref="preciousMetalsChart"></canvas>
             </div>
           </div>
 
           <div class="chart-card">
-            <h3>{{ $t('home.exchangeRates') }}</h3>
+            <h3>{{ $t('market.exchangeRates') }}</h3>
             <div class="chart-container exchange-rate-chart">
               <canvas ref="exchangeRateChart"></canvas>
             </div>
@@ -165,6 +138,7 @@ import ParticleNetwork from '@/components/effects/ParticleNetwork.vue'
 
 const userStore = useUserStore()
 const router = useRouter()
+const i18n = useI18n()
 
 const isLoggedIn = computed(() => userStore.isLoggedIn)
 const user = computed(() => userStore.user)
@@ -189,11 +163,14 @@ const loadTopProducts = async () => {
 
   try {
     const response = await productsService.getTopRateProducts(activeTab.value, 5)
-    console.log('Top products loaded:', response)
+    if (!response || response.length === 0) {
+      topProductsError.value = i18n.t('products.noProducts')
+      return
+    }
     topProducts.value = response
   } catch (err) {
     console.error('Error loading top products:', err)
-    topProductsError.value = '상품 정보를 불러오는데 실패했습니다.'
+    topProductsError.value = err.response?.data?.message || i18n.t('common.error.networkError')
   } finally {
     topProductsLoading.value = false
   }
@@ -953,7 +930,31 @@ h1 {
 }
 
 .error-message {
-  color: #ef4444;
+  text-align: center;
+  padding: 2rem;
+  background: var(--card-bg);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  margin: 2rem 0;
+}
+
+.error-message p {
+  color: var(--text-error);
+  margin-bottom: 1rem;
+}
+
+.retry-button {
+  padding: 8px 16px;
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.retry-button:hover {
+  opacity: 0.9;
 }
 
 .financial-data-section {

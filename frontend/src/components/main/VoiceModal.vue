@@ -6,8 +6,8 @@
       <span class="text">{{ $t('phishing.title') }}</span>
     </button>
     
-    <!-- 피싱 경고 모달 - 중앙에 표시 -->
-    <div v-if="showPhishingModal" class="phishing-modal phishing-modal-center" @keyup.esc="closePhishingModal">
+    <!-- 피싱 경고 모달 - 하단에 표시 -->
+    <div v-if="showPhishingModal" class="phishing-modal phishing-modal-bottom" @keyup.esc="closePhishingModal">
       <div class="phishing-modal-content" :class="{ 'dark': isDarkMode }">
         <button class="close-button" @click="closePhishingModal">&times;</button>
         <h3>⚠️ {{ $t('phishing.title') }}</h3>
@@ -140,9 +140,9 @@ onBeforeUnmount(() => {
   backdrop-filter: blur(3px);
 }
 
-.phishing-modal-center {
-  align-items: center;
-  justify-content: center;
+.phishing-modal-bottom {
+  align-items: flex-end;
+  padding-bottom: 20px;
 }
 
 .phishing-modal-content {

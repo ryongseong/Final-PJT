@@ -6,8 +6,14 @@
 </template>
 
 <script>
+import { useI18n } from 'vue-i18n'
+
 export default {
   name: 'RateDisplay',
+  setup() {
+    const { t } = useI18n()
+    return { t }
+  },
   props: {
     rate: {
       type: [Number, String],
@@ -38,13 +44,13 @@ export default {
     },
     displayLabel() {
       if (this.type === 'loan') {
-        if (this.rateType === 'min') return '최저 대출금리'
-        if (this.rateType === 'max') return '최고 대출금리'
-        return '기준 대출금리'
+        if (this.rateType === 'min') return this.t('products.rates.minLoanRate')
+        if (this.rateType === 'max') return this.t('products.rates.maxLoanRate')
+        return this.t('products.rates.baseLoanRate')
       } else {
-        if (this.rateType === 'max') return '최고 금리'
-        if (this.rateType === 'min') return '최저 금리'
-        return '기준 금리'
+        if (this.rateType === 'max') return this.t('products.rates.maxRate')
+        if (this.rateType === 'min') return this.t('products.rates.minRate')
+        return this.t('products.rates.baseRate')
       }
     },
   },

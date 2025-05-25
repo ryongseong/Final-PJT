@@ -184,20 +184,20 @@
     <div v-if="showDeleteModal" class="modal-backdrop">
       <div class="modal-content delete-modal">
         <div class="modal-header">
-          <h2>Confirm Delete</h2>
+          <h2>{{ $t('products.admin.confirmDelete') }}</h2>
           <button class="close-btn" @click="cancelDelete">×</button>
         </div>
         <div class="modal-body">
-          <p>Are you sure you want to delete this saving product?</p>
+          <p>{{ $t('products.admin.deleteConfirmMessage') }}</p>
           <p>
             <strong>{{ getProductName(productToDelete) }}</strong>
           </p>
-          <p class="warning">This action cannot be undone!</p>
+          <p class="warning">{{ $t('products.admin.deleteWarning') }}</p>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" @click="cancelDelete">Cancel</button>
+          <button class="btn btn-secondary" @click="cancelDelete">{{ $t('common.cancel') }}</button>
           <button class="btn btn-danger" @click="deleteProduct" :disabled="deleting">
-            {{ deleting ? 'Deleting...' : 'Delete' }}
+            {{ deleting ? $t('common.deleting') : $t('common.delete') }}
           </button>
         </div>
       </div>
@@ -205,7 +205,7 @@
 
     <!-- Create Product Button -->
     <div class="create-product">
-      <button @click="createNewProduct" class="btn btn-success">Create New Saving Product</button>
+      <button @click="createNewProduct" class="btn btn-success">{{ $t('products.admin.createNew') }}</button>
     </div>
   </div>
 </template>

@@ -12,7 +12,21 @@ export default {
       profile: '내 프로필',
       favorites: '즐겨찾기',
       savedVideos: '저장된 동영상',
-      settings: '설정'
+      settings: '설정',
+      loading: '로딩 중...',
+      noData: '데이터가 없습니다.',
+      confirm: '확인',
+      cancel: '취소',
+      delete: '삭제',
+      save: '저장',
+      saving: '저장 중...',
+      deleting: '삭제 중...',
+      copyright: '© 2025 금융서비스. 모든 권리 보유.',
+      error: {
+        loadFailed: '데이터를 불러오는데 실패했습니다.',
+        networkError: '네트워크 오류가 발생했습니다.'
+      },
+      retry: '다시 시도'
     },
     settings: {
       title: '설정',
@@ -39,7 +53,10 @@ export default {
       saving: '적금 상품',
       loan: '대출 상품',
       community: '커뮤니티',
-      profile: '내 정보'
+      profile: '내 정보',
+      map: '지점/ATM',
+      videos: '금융 영상',
+      admin: '관리자'
     },
     hero: {
       tagline: '당신의 금융, 당신의 방식으로',
@@ -52,7 +69,7 @@ export default {
       feature3: '안전한 금융 정보 관리'
     },
     phishing: {
-      title: '⚠️ 보이스피싱 주의 경보',
+      title: '보이스피싱 주의 경보',
       content: '금융기관, 공공기관, 수사기관 등은 절대 전화로 계좌번호, 비밀번호, OTP 등을 요구하지 않습니다. 의심스러운 전화는 즉시 끊고 해당 기관에 직접 문의하세요.',
       reportNumber: '☎ 보이스피싱 신고: 국번없이 112',
       closeButton: '닫기',
@@ -78,6 +95,42 @@ export default {
       privacy: '개인정보처리방침',
       terms: '이용약관',
       copyright: '© 2025 금융서비스. 모든 권리 보유.'
+    },
+    products: {
+      loading: '상품 정보를 불러오는 중...',
+      noProducts: '상품 정보가 없습니다.',
+      statistics: {
+        title: '상품 통계',
+        loading: '통계 정보를 불러오는 중...',
+        noData: '현재 통계 정보가 없습니다.',
+        totalProducts: '전체 상품',
+        depositProducts: '예금 상품',
+        savingProducts: '적금 상품',
+        mortgageLoans: '주택담보대출',
+        creditLoans: '신용대출',
+        avgDepositRate: '평균 예금금리 (6개월)',
+        avgSavingRate: '평균 적금금리 (6개월)'
+      },
+      rates: {
+        minLoanRate: '최저 대출금리',
+        maxLoanRate: '최고 대출금리',
+        baseLoanRate: '기준 대출금리',
+        maxRate: '최고 금리',
+        minRate: '최저 금리',
+        baseRate: '기준 금리'
+      },
+      admin: {
+        confirmDelete: '삭제 확인',
+        deleteConfirmMessage: '이 상품을 삭제하시겠습니까?',
+        deleteWarning: '이 작업은 되돌릴 수 없습니다!',
+        createNew: '새 상품 만들기'
+      },
+      recommended: '추천 금융상품',
+      types: {
+        deposit: '예금 상품',
+        saving: '적금 상품',
+        loan: '대출 상품'
+      }
     }
   },
   en: {
@@ -93,7 +146,21 @@ export default {
       profile: 'My Profile',
       favorites: 'Favorites',
       savedVideos: 'Saved Videos',
-      settings: 'Settings'
+      settings: 'Settings',
+      loading: 'Loading...',
+      noData: 'No data available.',
+      confirm: 'Confirm',
+      cancel: 'Cancel',
+      delete: 'Delete',
+      save: 'Save',
+      saving: 'Saving...',
+      deleting: 'Deleting...',
+      copyright: '© 2025 Financial Services. All rights reserved.',
+      error: {
+        loadFailed: 'Failed to load data.',
+        networkError: 'A network error occurred.'
+      },
+      retry: 'Retry'
     },
     settings: {
       title: 'Settings',
@@ -120,7 +187,10 @@ export default {
       saving: 'Saving Products',
       loan: 'Loan Products',
       community: 'Community',
-      profile: 'My Profile'
+      profile: 'My Profile',
+      map: 'Branches/ATM',
+      videos: 'Financial Videos',
+      admin: 'Admin'
     },
     hero: {
       tagline: 'Your Finance, Your Way',
@@ -133,7 +203,7 @@ export default {
       feature3: 'Secure financial information management'
     },
     phishing: {
-      title: '⚠️ Voice Phishing Alert',
+      title: 'Voice Phishing Alert',
       content: 'Financial institutions, public organizations, and investigation agencies never ask for account numbers, passwords, or OTPs over the phone. If you receive a suspicious call, hang up immediately and contact the institution directly.',
       reportNumber: '☎ Report voice phishing: Call 112',
       closeButton: 'Close',
@@ -142,11 +212,11 @@ export default {
     market: {
       title: 'Financial Market Trends',
       description: 'Check real-time financial market trends and understand the latest developments.',
-      preciousMetals: 'Gold/Silver Price Trends',
+      preciousMetals: 'Gold/Silver Prices',
       preciousMetalsDesc: 'Gold and silver price fluctuations over the last 6 months. Precious metal prices are showing an upward trend due to global economic uncertainties.',
-      interestRates: 'Interest Rate Trends',
+      interestRates: 'Interest Rates',
       interestRatesDesc: 'Bank of Korea base rate and average interest rates for fixed deposits at commercial banks. Check recent interest rate policy changes in response to inflation.',
-      exchangeRates: 'Exchange Rate Trends',
+      exchangeRates: 'Exchange Rates',
       exchangeRatesDesc: 'Korean won exchange rates against major currencies. Monitor exchange rate fluctuations based on international affairs and economic indicators.',
       loadingData: 'Loading data...',
       errorLoadingData: 'Error loading data.',
@@ -159,6 +229,42 @@ export default {
       privacy: 'Privacy Policy',
       terms: 'Terms of Service',
       copyright: '© 2025 Financial Services. All rights reserved.'
+    },
+    products: {
+      loading: 'Loading product information...',
+      noProducts: 'No products available.',
+      statistics: {
+        title: 'Product Statistics',
+        loading: 'Loading statistics...',
+        noData: 'No statistics available at the moment.',
+        totalProducts: 'Total Products',
+        depositProducts: 'Deposit Products',
+        savingProducts: 'Saving Products',
+        mortgageLoans: 'Mortgage Loans',
+        creditLoans: 'Credit Loans',
+        avgDepositRate: 'Avg. Deposit Rate (6m)',
+        avgSavingRate: 'Avg. Saving Rate (6m)'
+      },
+      rates: {
+        minLoanRate: 'Minimum Loan Rate',
+        maxLoanRate: 'Maximum Loan Rate',
+        baseLoanRate: 'Base Loan Rate',
+        maxRate: 'Maximum Rate',
+        minRate: 'Minimum Rate',
+        baseRate: 'Base Rate'
+      },
+      admin: {
+        confirmDelete: 'Confirm Delete',
+        deleteConfirmMessage: 'Are you sure you want to delete this product?',
+        deleteWarning: 'This action cannot be undone!',
+        createNew: 'Create New Product'
+      },
+      recommended: 'Recommended Products',
+      types: {
+        deposit: 'Deposit Products',
+        saving: 'Saving Products',
+        loan: 'Loan Products'
+      }
     }
   }
 }

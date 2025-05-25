@@ -1,0 +1,43 @@
+🚨 CRITICAL RULE — EXISTING FUNCTIONALITY MUST BE PRESERVED
+
+All existing features must remain fully functional and unbroken. You are NOT allowed to delete, disable, restructure, or alter any current logic. You may only make minimal modifications when absolutely required to extend new features — never for refactoring. Any addition must be modular, safely integrated, and leave the current system behavior intact.
+
+—
+
+🛠 TASK OVERVIEW — BASED ON MY CLONED REPO ONLY
+
+Start work only after cloning the Git repository I provide. Do not use any other base or reinitialize the project.
+
+1. Style & Tone:  
+Apply a warm, premium beige gradient background (#FAF9F6 → #F2EBE2). Use generous spacing, rounded corners, soft shadows. Fonts: Playfair Display for headlines, Inter for body. Follow the spirit of mercury.com, but softer and more emotional.
+
+2. Add a new section with 3 cards:  
+Gold/Silver price comparison, interest rate trend chart, and exchange rate chart. On desktop, use a 3-column layout; on mobile, stack 1~2 columns. Each card should use #F9F6EF background, 16px border-radius, 24px padding, and soft shadow.
+
+3. Voice Phishing Modal:  
+Add a floating/fixed button to trigger a modal with voice phishing warning info (sample content allowed). Modal must include a close (X) button, ESC key support, and a light design matching the site.
+
+4. Global Dark Mode:  
+Add a dark mode toggle (e.g., top-right). When active, apply background: #2C2C2C, cards: #3A3A3A, text: #F0ECE6/#DADADA. Smooth 0.3s transitions. All components must visually adapt properly.
+
+5. Language Toggle (KR/EN):  
+Add a top-right toggle to switch between Korean and English instantly, without reloading the page. Use JSON or i18n-based structure.
+
+6. Pre-checkpoint Confirmation:  
+Do NOT save a checkpoint until you've manually confirmed all of the following:
+- No existing features were broken, disabled, or changed
+- New features match the requirements and work as described
+- Visual style is consistent across all sections
+- Dark mode and language toggle apply globally and smoothly
+- Layouts are fully responsive on all devices
+- Modal works correctly and matches overall style
+
+—
+
+📌 Final Reminders:  
+- Work ONLY in the repo I provide (via git clone)  
+- Existing functionality must not be changed, removed, or broken  
+- All changes must be additive and modular  
+- This prompt includes all final requirements  
+
+⛔ DO NOT START YET. WAIT FOR MY SIGNAL BEFORE BEGINNING WORK.
