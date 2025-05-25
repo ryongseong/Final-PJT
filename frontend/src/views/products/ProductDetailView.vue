@@ -923,6 +923,8 @@ export default {
         '씨티뱅크',
         '우리은행',
         '하나은행',
+        '아이엠',
+        '전북은행',
       ]
       // bankName이 배열에 포함되는 은행명을 포함하면 해당 은행명으로 bankName을 변경
       const matched = banks.find((b) => bankName.includes(b))
@@ -948,6 +950,14 @@ export default {
         수협은행: 'https://www.suhyup-bank.com',
         토스뱅크: 'https://www.tossbank.com',
         케이뱅크: 'https://www.kbanknow.com',
+        카카오뱅크: 'https://www.kakaobank.com',
+        SC제일은행: 'https://www.sc.co.kr',
+        광주은행: 'https://www.kjbank.com',
+        대구은행: 'https://www.dgb.co.kr',
+        부산은행: 'https://www.busanbank.co.kr',
+        신협: 'https://www.shinhyup.com',
+        씨티뱅크: 'https://www.citibank.co.kr',
+        아이엠뱅크: 'https://www.imbank.co.kr',
       }
 
       // Find exact or partial match
