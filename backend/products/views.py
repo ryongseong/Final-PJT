@@ -260,7 +260,20 @@ def get_user_favorites(request):
     """
     Get a user's favorite financial products
     """
-    favorites = UserProduct.objects.filter(user=request.user).select_related("product")
+    favorites = (
+        UserProduct.objects.filter(user=request.user)
+        .select_related(
+            "product",
+            "product__deposit_product",
+            "product__saving_product",
+            "product__loan_product",
+        )
+        .prefetch_related(
+            "product__mortgage_options",
+            "product__credit_options",
+            "product__requirement_options",
+        )
+    )
     serializer = UserProductSerializer(favorites, many=True)
     return Response(serializer.data)
 
@@ -772,7 +785,7 @@ def get_exchange_rate(request):
             "searchdate": day,
             "data": "AP01",
         },
-        verify=False
+        verify=False,
     )
 
     if response.status_code != 200:

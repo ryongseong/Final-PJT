@@ -20,7 +20,7 @@
         v-for="favorite in favorites"
         :key="favorite.financial_product.fin_prdt_cd"
         :product="{
-          ...favorite.financial_product,
+          ...favorite,
           id: favorite.id,
           type: favorite.product_type || getTypeFromCategory(favorite),
           product_type: favorite.product_type || getTypeFromCategory(favorite),
@@ -61,9 +61,8 @@ export default {
 
       try {
         const response = await productsService.getUserFavorites()
-        console.log('Favorites loaded:', response)
         favorites.value = response
-        console.log('Favorites:', favorites.value)
+        console.log('Loaded favorites:', favorites.value)
       } catch (err) {
         console.error('Error loading favorites:', err)
         error.value = '즐겨찾기 목록을 불러오는데 실패했습니다. 다시 시도해주세요.'

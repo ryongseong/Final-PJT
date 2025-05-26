@@ -163,6 +163,8 @@ export default {
             rate = Math.max(...this.product.deposit_options.map((opt) => opt.intr_rate2 || 0))
           } else if (this.product.saving_options && this.product.saving_options.length) {
             rate = Math.max(...this.product.saving_options.map((opt) => opt.intr_rate2 || 0))
+          } else if (this.product.deposit_info) {
+            rate = this.product.deposit_info.intr_rate2 || 0
           }
         } else if (type === 'min') {
           // For loan products

@@ -89,10 +89,37 @@ class LendingRateOptionSerializer(serializers.ModelSerializer):
 
 class UserProductSerializer(serializers.ModelSerializer):
     financial_product = FinancialProductSerializer(source="product", read_only=True)
+    deposit_info = serializers.SerializerMethodField()
+    saving_info = serializers.SerializerMethodField()
+    loan_info = serializers.SerializerMethodField()
 
     class Meta:
         model = UserProduct
         fields = "__all__"
+
+    def get_deposit_info(self, obj):
+        try:
+            if hasattr(obj.product, "deposit_product"):
+                return DepositProductSerializer(obj.product.deposit_product).data
+            return None
+        except Exception:
+            return None
+
+    def get_saving_info(self, obj):
+        try:
+            if hasattr(obj.product, "saving_product"):
+                return SavingProductSerializer(obj.product.saving_product).data
+            return None
+        except Exception:
+            return None
+
+    def get_loan_info(self, obj):
+        try:
+            if hasattr(obj.product, "loan_product"):
+                return LoanProductDetailSerializer(obj.product.loan_product).data
+            return None
+        except Exception:
+            return None
 
 
 # Detailed serializers for nested responses
