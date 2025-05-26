@@ -38,7 +38,7 @@
         <div class="social-buttons">
           <button @click="googleLogin" class="google-btn">
             <img
-              src="https://developers.google.com/static/identity/images/branding_guideline_sample_nt_rd_sl.svg"
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1024px-Google_%22G%22_logo.svg.png"
               alt="Google"
             />
             Google로 로그인
@@ -166,7 +166,9 @@ const kakaoLogin = () => {
   font-size: 1rem;
   background-color: var(--background-primary);
   color: var(--text-primary);
-  transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+  transition:
+    border-color var(--transition-speed),
+    box-shadow var(--transition-speed);
 }
 
 .form-group input::placeholder {
@@ -237,8 +239,8 @@ const kakaoLogin = () => {
 
 .social-buttons {
   display: flex;
-  flex-direction: column; /* Stack social buttons */
-  gap: 0.8rem;
+  gap: 10px;
+  justify-content: center;
 }
 
 .social-btn {
@@ -258,14 +260,40 @@ const kakaoLogin = () => {
   width: 20px;
 }
 
-/* Specific Kakao button styling if needed, otherwise it uses .social-btn */
+.google-btn,
 .kakao-btn {
-  /* background-color: #fee500; */ /* Can be overridden if a specific brand color is essential */
-  /* color: #000000; */
-  /* border-color: #fee500; */
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
+
+.google-btn:hover {
+  background-color: #f5f5f5;
+}
+
+.kakao-btn {
+  background-color: #fee500;
+  color: #000000;
+  border-color: #fee500;
+}
+
 .kakao-btn:hover {
-  /* background-color: #fdd800; */
+  background-color: #fdd800;
+}
+
+.google-btn img,
+.kakao-btn img {
+  height: 20px;
+  width: 20px;
 }
 
 .register-link {
