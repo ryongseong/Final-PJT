@@ -59,21 +59,6 @@
             <p>가입 방법: {{ product.join_way.join(', ') }}</p>
           </div>
         </div>
-
-        <!-- Rate highlight section based on product type -->
-        <div class="product-rate-highlight">
-          <template v-if="product.product_type === 'deposit' || product.product_type === 'saving'">
-            <div class="rate-value">{{ formatRate(product.max_rate || product.intr_rate2) }}%</div>
-            <div class="rate-label">최고 우대금리</div>
-            <div class="rate-info">* 최고 우대금리 기준</div>
-          </template>
-
-          <template v-else-if="product.product_type === 'loan'">
-            <div class="rate-value loan-rate">{{ formatRate(product.min_rate) }}%</div>
-            <div class="rate-label">최저 금리</div>
-            <div class="rate-info">* 최저 금리 기준</div>
-          </template>
-        </div>
       </div>
 
       <!-- Product details tabs -->
