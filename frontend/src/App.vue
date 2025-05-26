@@ -86,26 +86,7 @@
       <PhishingModal />
 
       <!-- 히어로 섹션과 금융 시장 동향은 메인 페이지에서만 표시 -->
-      <template v-if="$route.path === '/'">
-        <div class="hero-section">
-          <div class="particles-container">
-            <ParticleNetwork />
-          </div>
-          <div class="hero-content-wrapper">
-            <div class="hero-content">
-              <h1>{{ $t('hero.tagline') }}</h1>
-              <p>{{ $t('hero.subtitle') }}</p>
-              <div class="hero-buttons">
-                <router-link to="/products/ai-recommendations" class="hero-btn primary">{{ $t('hero.ctaButton') }}</router-link>
-                <router-link to="/products" class="hero-btn secondary">{{ $t('hero.learnMore') }}</router-link>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 금융 시장 동향 섹션 -->
-        <MarketSection />
-      </template>
+      <template v-if="$route.path === '/'"> </template>
 
       <router-view />
     </main>
@@ -125,7 +106,6 @@ import { useSettingsStore } from '@/stores/settings'
 import { useI18n } from 'vue-i18n'
 // Components
 import PhishingModal from '@/components/modals/PhishingModal.vue'
-import MarketSection from '@/components/market/MarketSection.vue'
 import ParticleNetwork from '@/components/effects/ParticleNetwork.vue'
 
 const userStore = useUserStore()
@@ -255,165 +235,6 @@ a {
 main {
   flex: 1;
   position: relative;
-}
-
-/* 히어로 섹션 스타일 - 머큐리 스타일 적용 */
-.hero-section {
-  position: relative;
-  height: 85vh;
-  min-height: 650px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  overflow: hidden;
-  background: var(--background-gradient);
-}
-
-.particles-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-}
-
-.hero-content-wrapper {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
-  gap: 4rem;
-}
-
-.hero-content {
-  flex: 1;
-  text-align: left;
-  padding: 2rem;
-}
-
-.hero-content h1 {
-  font-size: 4rem;
-  margin-bottom: 1.5rem;
-  color: var(--text-primary);
-  text-shadow: var(--hero-text-shadow);
-  font-weight: 700;
-  line-height: 1.2;
-  font-family: 'Playfair Display', serif;
-}
-
-.hero-content p {
-  font-size: 1.5rem;
-  margin-bottom: 2.5rem;
-  color: var(--text-secondary);
-  max-width: 95%;
-  line-height: 1.6;
-  font-family: 'Inter', sans-serif;
-}
-
-.hero-buttons {
-  display: flex;
-  gap: 1rem;
-}
-
-.hero-btn {
-  padding: 1rem 2rem;
-  font-size: 1.1rem;
-  font-weight: 500;
-  border-radius: 16px;
-  cursor: pointer;
-  transition: all var(--transition-speed);
-  font-family: 'Inter', sans-serif;
-  border: none;
-}
-
-.hero-btn.primary {
-  background-color: var(--button-bg);
-  color: var(--button-text);
-  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
-}
-
-.hero-btn.primary:hover {
-  background-color: var(--button-hover);
-  transform: translateY(-4px);
-  box-shadow: 0 8px 15px rgba(79, 70, 229, 0.3);
-}
-
-.hero-btn.secondary {
-  background-color: transparent;
-  color: var(--text-primary);
-  border: 2px solid var(--border-color);
-}
-
-.hero-btn.secondary:hover {
-  background-color: rgba(0, 0, 0, 0.03);
-  transform: translateY(-4px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-}
-
-/* 반응형 히어로 섹션 */
-@media (max-width: 1200px) {
-  .hero-content-wrapper {
-    padding: 0 2rem;
-  }
-}
-
-@media (max-width: 992px) {
-  .hero-content-wrapper {
-    flex-direction: column;
-    gap: 3rem;
-  }
-
-  .hero-content {
-    text-align: center;
-    padding: 0;
-  }
-
-  .hero-content h1 {
-    font-size: 3.5rem;
-  }
-
-  .hero-content p {
-    font-size: 1.25rem;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .hero-buttons {
-    justify-content: center;
-  }
-}
-
-@media (max-width: 768px) {
-  .hero-section {
-    height: auto;
-    padding: 6rem 1rem;
-  }
-
-  .hero-content h1 {
-    font-size: 2.8rem;
-  }
-
-  .hero-content p {
-    font-size: 1.1rem;
-  }
-
-  .hero-buttons {
-    flex-direction: column;
-    gap: 0.8rem;
-    max-width: 300px;
-    margin: 0 auto;
-  }
-
-  .hero-btn {
-    width: 100%;
-    padding: 0.9rem 1.5rem;
-  }
 }
 
 /* Header styles */

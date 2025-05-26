@@ -1,18 +1,49 @@
 <!-- src/views/HomeView.vue -->
 <template>
   <div class="home-container">
+    <div class="hero-section">
+      <div class="particles-container">
+        <ParticleNetwork />
+      </div>
+      <div class="hero-content-wrapper">
+        <div class="hero-content">
+          <h1>{{ $t('hero.tagline') }}</h1>
+          <p>{{ $t('hero.subtitle') }}</p>
+          <div class="hero-buttons">
+            <router-link to="/products/ai-recommendations" class="hero-btn primary">{{
+              $t('hero.ctaButton')
+            }}</router-link>
+            <router-link to="/products" class="hero-btn secondary">{{
+              $t('hero.learnMore')
+            }}</router-link>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 금융 시장 동향 섹션 -->
+    <MarketSection />
+
     <!-- 주식 관련 영상 검색 섹션 (신규 추가) -->
     <section class="video-search-section">
       <h2>{{ $t('home.videoSearchTitle') }}</h2>
       <div class="search-bar-container">
-        <input type="text" :placeholder="$t('home.videoSearchPlaceholder')" class="search-input" v-model="videoSearchQuery" @keyup.enter="searchVideos" />
+        <input
+          type="text"
+          :placeholder="$t('home.videoSearchPlaceholder')"
+          class="search-input"
+          v-model="videoSearchQuery"
+          @keyup.enter="searchVideos"
+        />
         <button @click="searchVideos" class="search-button">{{ $t('common.search') }}</button>
       </div>
       <!-- 검색 결과 표시 영역 (추후 구현) -->
       <div v-if="videoSearchResults.length > 0" class="video-results">
         <!-- 검색된 영상 목록 -->
       </div>
-      <p v-else-if="searchedVideos && videoSearchResults.length === 0" class="no-results">{{ $t('home.noVideoResults') }}</p>
+      <p v-else-if="searchedVideos && videoSearchResults.length === 0" class="no-results">
+        {{ $t('home.noVideoResults') }}
+      </p>
     </section>
 
     <section class="top-products-section">
@@ -45,7 +76,7 @@
         <div class="product-cards">
           <div
             v-for="product in topProducts"
-            :key="product.product?.fin_prdt_cd || product.id" 
+            :key="product.product?.fin_prdt_cd || product.id"
             class="product-card-home"
             @click="viewProductDetails(product)"
           >
@@ -54,14 +85,17 @@
               <h3 class="product-name-home">{{ getProductName(product) }}</h3>
             </div>
             <p class="bank-name-home">{{ getBankName(product) }}</p>
-            
-            <div class="rate-info-home" v-if="product.product_type === 'deposit' || product.product_type === 'saving'">
-                <span class="rate-label-home">최고</span>
-                <span class="rate-value-home">{{ formatRate(getMaxRate(product)) }}%</span>
+
+            <div
+              class="rate-info-home"
+              v-if="product.product_type === 'deposit' || product.product_type === 'saving'"
+            >
+              <span class="rate-label-home">최고</span>
+              <span class="rate-value-home">{{ formatRate(getMaxRate(product)) }}%</span>
             </div>
             <div class="rate-info-home" v-if="product.product_type === 'loan'">
-                <span class="rate-label-home">최저</span>
-                <span class="rate-value-home loan">{{ formatRate(getMinLoanRate(product)) }}%</span>
+              <span class="rate-label-home">최저</span>
+              <span class="rate-value-home loan">{{ formatRate(getMinLoanRate(product)) }}%</span>
             </div>
 
             <div class="join-methods-home">
@@ -69,7 +103,9 @@
               <span v-if="hasJoinWay(product, '영업점')" class="join-badge-home">영업점</span>
               <span v-if="hasJoinWay(product, '스마트폰')" class="join-badge-home">스마트폰</span>
             </div>
-            <button class="view-details-btn action-btn primary-btn">{{ $t('products.viewDetails') }}</button>
+            <button class="view-details-btn action-btn primary-btn">
+              {{ $t('products.viewDetails') }}
+            </button>
           </div>
         </div>
 
@@ -91,6 +127,7 @@ import { useI18n } from 'vue-i18n'
 import Chart from 'chart.js/auto'
 import productsService from '@/services/products'
 import { formatRate } from '@/utils/rateUtils'
+import MarketSection from '@/components/market/MarketSection.vue'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -119,15 +156,15 @@ const videoSearchResults = ref([])
 const searchedVideos = ref(false)
 
 const searchVideos = async () => {
-  if (!videoSearchQuery.value.trim()) return;
-  searchedVideos.value = true;
+  if (!videoSearchQuery.value.trim()) return
+  searchedVideos.value = true
   // 실제 영상 검색 API 호출 로직 (예시, 실제 구현 필요)
   console.log('Searching videos for:', videoSearchQuery.value)
   // videoSearchResults.value = await videoApiService.search(videoSearchQuery.value);
   // 임시로 빈 배열 또는 메시지
-  videoSearchResults.value = [];
+  videoSearchResults.value = []
   if (videoSearchResults.value.length === 0) {
-    console.log('No videos found or API not implemented yet.');
+    console.log('No videos found or API not implemented yet.')
   }
 }
 
@@ -143,8 +180,7 @@ const loadTopProducts = async () => {
       topProducts.value = []
       return
     }
-    topProducts.value = response.map(p => ({ ...p, product_type: activeTab.value }));
-
+    topProducts.value = response.map((p) => ({ ...p, product_type: activeTab.value }))
   } catch (err) {
     console.error('Error loading top products:', err)
     topProductsError.value = err.response?.data?.message || i18n.t('common.error.networkError')
@@ -155,80 +191,83 @@ const loadTopProducts = async () => {
 }
 
 const getProductTypeName = (product) => {
-  const type = product.product_type;
-  if (type === 'deposit') return i18n.t('products.types.deposit');
-  if (type === 'saving') return i18n.t('products.types.saving');
-  if (type === 'loan') return i18n.t('products.types.loan');
-  return '상품';
-};
+  const type = product.product_type
+  if (type === 'deposit') return i18n.t('products.types.deposit')
+  if (type === 'saving') return i18n.t('products.types.saving')
+  if (type === 'loan') return i18n.t('products.types.loan')
+  return '상품'
+}
 
 const getProductName = (product) => {
   if (product.product_type === 'loan') {
-    return product.product_info?.fin_prdt_nm || product.fin_prdt_nm || i18n.t('products.noName');
+    return product.product_info?.fin_prdt_nm || product.fin_prdt_nm || i18n.t('products.noName')
   }
-  return product.financial_product?.fin_prdt_nm || product.fin_prdt_nm || i18n.t('products.noName');
-};
+  return product.financial_product?.fin_prdt_nm || product.fin_prdt_nm || i18n.t('products.noName')
+}
 
 const getBankName = (product) => {
   if (product.product_type === 'loan') {
-    return product.product_info?.kor_co_nm || product.kor_co_nm || i18n.t('products.noBankName');
+    return product.product_info?.kor_co_nm || product.kor_co_nm || i18n.t('products.noBankName')
   }
-  return product.financial_product?.kor_co_nm || product.kor_co_nm || i18n.t('products.noBankName');
-};
+  return product.financial_product?.kor_co_nm || product.kor_co_nm || i18n.t('products.noBankName')
+}
 
 const getMaxRate = (product) => {
   if (product.options && product.options.length > 0) {
-    const rates = product.options.map(opt => parseFloat(opt.intr_rate2)).filter(r => !isNaN(r));
-    if (rates.length > 0) return Math.max(...rates);
+    const rates = product.options.map((opt) => parseFloat(opt.intr_rate2)).filter((r) => !isNaN(r))
+    if (rates.length > 0) return Math.max(...rates)
   }
-  return parseFloat(product.intr_rate2) || 0;
-};
+  return parseFloat(product.intr_rate2) || 0
+}
 
 const getMinLoanRate = (product) => {
   if (product.lending_options && product.lending_options.length > 0) {
-    const rates = product.lending_options.map(opt => parseFloat(opt.lend_rate_min)).filter(r => !isNaN(r));
-    if (rates.length > 0) return Math.min(...rates);
+    const rates = product.lending_options
+      .map((opt) => parseFloat(opt.lend_rate_min))
+      .filter((r) => !isNaN(r))
+    if (rates.length > 0) return Math.min(...rates)
   }
-  return 0;
-};
+  return 0
+}
 
 const hasJoinWay = (product, way) => {
-  const joinWayString = product.financial_product?.join_way || product.product_info?.join_way || product.join_way || '';
-  return joinWayString.includes(way);
-};
+  const joinWayString =
+    product.financial_product?.join_way || product.product_info?.join_way || product.join_way || ''
+  return joinWayString.includes(way)
+}
 
 const viewProductDetails = (product) => {
-  let id = product.product?.fin_prdt_cd || product.fin_prdt_cd || product.id;
-  let type = product.product_type;
+  let id = product.product?.fin_prdt_cd || product.fin_prdt_cd || product.id
+  let type = product.product_type
 
   if (!id || !type) {
-    console.error('Product ID or type is missing for navigation', product);
+    console.error('Product ID or type is missing for navigation', product)
     if (product.financial_product) {
-        id = id || product.financial_product.fin_prdt_cd;
-        type = type || 'deposit';
+      id = id || product.financial_product.fin_prdt_cd
+      type = type || 'deposit'
     } else if (product.product_info) {
-        id = id || product.product_info.fin_prdt_cd; 
-        type = type || 'loan';
+      id = id || product.product_info.fin_prdt_cd
+      type = type || 'loan'
     }
-    type = type || activeTab.value;
+    type = type || activeTab.value
   }
 
   if (id && type && type !== 'all') {
-    router.push({ name: 'ProductDetail', params: { type: type, id: id } });
+    router.push({ name: 'ProductDetail', params: { type: type, id: id } })
   } else {
-    console.error('Cannot navigate to product details due to missing ID or type:', product);
-    router.push({ name: 'Products' });
+    console.error('Cannot navigate to product details due to missing ID or type:', product)
+    router.push({ name: 'Products' })
   }
-};
+}
 
 const getTabName = (tabKey) => {
   const names = {
     deposit: i18n.t('products.types.deposit'),
     saving: i18n.t('products.types.saving'),
     loan: i18n.t('products.types.loan'),
-  };
-  return names[tabKey] || '';
-};
+  }
+  return names[tabKey] || ''
+}
 
 // pjt0의 차트 생성 함수들 유지
 const createInterestRateChart = () => {
@@ -352,8 +391,7 @@ const createExchangeRateChart = () => {
         label: '원/달러 환율',
         data: [
           1320, 1325, 1315, 1330, 1328, 1335, 1340, 1338, 1345, 1350, 1348, 1355, 1360, 1358, 1365,
-          1362, 1370, 1368, 1375, 1380, 1378, 1385, 1390, 1388, 1395, 1400, 1398, 1395, 1392,
-          1390,
+          1362, 1370, 1368, 1375, 1380, 1378, 1385, 1390, 1388, 1395, 1400, 1398, 1395, 1392, 1390,
         ],
         borderColor: '#008000',
         backgroundColor: 'rgba(0, 128, 0, 0.1)',
@@ -388,16 +426,16 @@ const createExchangeRateChart = () => {
 }
 
 watch(activeTab, () => {
-  loadTopProducts();
-});
+  loadTopProducts()
+})
 
 onMounted(() => {
-  loadTopProducts();
+  loadTopProducts()
   // pjt0의 차트 생성 호출 유지
   createInterestRateChart()
   createPreciousMetalsChart()
   createExchangeRateChart()
-});
+})
 
 onBeforeUnmount(() => {
   // pjt0의 차트 인스턴스 파괴 로직 유지
@@ -410,7 +448,7 @@ onBeforeUnmount(() => {
   if (exchangeRateChartInstance) {
     exchangeRateChartInstance.destroy()
   }
-});
+})
 </script>
 
 <style scoped>
@@ -419,6 +457,164 @@ onBeforeUnmount(() => {
   padding-top: 20px; /* 헤더 공간 확보 */
 }
 
+/* 히어로 섹션 스타일 - 머큐리 스타일 적용 */
+.hero-section {
+  position: relative;
+  height: 85vh;
+  min-height: 650px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  overflow: hidden;
+  background: var(--background-gradient);
+}
+
+.particles-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.hero-content-wrapper {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  gap: 4rem;
+}
+
+.hero-content {
+  flex: 1;
+  text-align: left;
+  padding: 2rem;
+}
+
+.hero-content h1 {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+  text-shadow: var(--hero-text-shadow);
+  font-weight: 700;
+  line-height: 1.2;
+  font-family: 'Playfair Display', serif;
+}
+
+.hero-content p {
+  font-size: 1.5rem;
+  margin-bottom: 2.5rem;
+  color: var(--text-secondary);
+  max-width: 95%;
+  line-height: 1.6;
+  font-family: 'Inter', sans-serif;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.hero-btn {
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  font-family: 'Inter', sans-serif;
+  border: none;
+}
+
+.hero-btn.primary {
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+}
+
+.hero-btn.primary:hover {
+  background-color: var(--button-hover);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 15px rgba(79, 70, 229, 0.3);
+}
+
+.hero-btn.secondary {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+}
+
+.hero-btn.secondary:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+  transform: translateY(-4px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* 반응형 히어로 섹션 */
+@media (max-width: 1200px) {
+  .hero-content-wrapper {
+    padding: 0 2rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .hero-content-wrapper {
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  .hero-content {
+    text-align: center;
+    padding: 0;
+  }
+
+  .hero-content h1 {
+    font-size: 3.5rem;
+  }
+
+  .hero-content p {
+    font-size: 1.25rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-buttons {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    height: auto;
+    padding: 6rem 1rem;
+  }
+
+  .hero-content h1 {
+    font-size: 2.8rem;
+  }
+
+  .hero-content p {
+    font-size: 1.1rem;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    gap: 0.8rem;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+
+  .hero-btn {
+    width: 100%;
+    padding: 0.9rem 1.5rem;
+  }
+}
 /* 주식 관련 영상 검색 섹션 스타일 (신규 추가) */
 .video-search-section {
   padding: 40px 20px;
@@ -453,7 +649,9 @@ onBeforeUnmount(() => {
   font-size: 1rem;
   background-color: var(--input-bg);
   color: var(--text-input);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .search-input:focus {
@@ -513,7 +711,7 @@ onBeforeUnmount(() => {
   padding: 12px 24px;
   border: 1px solid var(--border-color);
   background: var(--button-bg); /* variables.css 에 정의된 변수 사용 */
-  color: var(--button-text);    /* variables.css 에 정의된 변수 사용 */
+  color: var(--button-text); /* variables.css 에 정의된 변수 사용 */
   border-radius: 12px;
   font-size: 1rem;
   font-weight: 500;
@@ -548,7 +746,10 @@ onBeforeUnmount(() => {
 
 /* product-card-home 스타일 (감성적이고 정돈된 디자인으로 개선) */
 .product-card-home {
-  background: var(--card-bg-accent, var(--card-bg)); /* 좀 더 부드러운 카드 배경색, 없으면 기본 사용 */
+  background: var(
+    --card-bg-accent,
+    var(--card-bg)
+  ); /* 좀 더 부드러운 카드 배경색, 없으면 기본 사용 */
   border: 1px solid var(--border-color-light, var(--border-color)); /* 더 연한 테두리 색 */
   border-radius: 20px; /* 더욱 둥글게 */
   padding: 28px; /* 내부 패딩 살짝 늘림 */
@@ -576,7 +777,10 @@ onBeforeUnmount(() => {
 
 .product-type-badge-home {
   align-self: flex-start;
-  background-color: var(--accent-color-opacity-10, rgba(var(--accent-color-rgb), 0.1)); /* 투명도 있는 배경 */
+  background-color: var(
+    --accent-color-opacity-10,
+    rgba(var(--accent-color-rgb), 0.1)
+  ); /* 투명도 있는 배경 */
   color: var(--accent-color); /* 강조색 텍스트 */
   padding: 8px 16px; /* 뱃지 패딩 늘림 */
   border-radius: 25px; /* 타원형 뱃지 더욱 둥글게 */
@@ -644,7 +848,7 @@ onBeforeUnmount(() => {
 .join-badge-home {
   font-size: 0.85rem;
   background: var(--tag-bg-alt, var(--tag-bg)); /* 대체 태그 배경색 */
-  color: var(--tag-text-alt, var(--tag-text));   /* 대체 태그 텍스트색 */
+  color: var(--tag-text-alt, var(--tag-text)); /* 대체 태그 텍스트색 */
   padding: 6px 12px; /* 뱃지 패딩 조정 */
   border-radius: 8px; /* 뱃지 모서리 살짝 둥글게 */
   font-weight: 500;
@@ -770,7 +974,8 @@ onBeforeUnmount(() => {
     flex-direction: column;
     gap: 15px;
   }
-  .search-input, .search-button {
+  .search-input,
+  .search-button {
     width: 100%;
   }
 
