@@ -85,9 +85,6 @@
 
       <PhishingModal />
 
-      <!-- 히어로 섹션과 금융 시장 동향은 메인 페이지에서만 표시 -->
-      <template v-if="$route.path === '/'"> </template>
-
       <router-view />
     </main>
 

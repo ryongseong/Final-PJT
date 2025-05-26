@@ -128,6 +128,7 @@ import Chart from 'chart.js/auto'
 import productsService from '@/services/products'
 import { formatRate } from '@/utils/rateUtils'
 import MarketSection from '@/components/market/MarketSection.vue'
+import ParticleNetwork from '@/components/effects/ParticleNetwork.vue'
 
 const userStore = useUserStore()
 const router = useRouter()
