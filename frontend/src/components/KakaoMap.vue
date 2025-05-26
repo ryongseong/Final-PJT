@@ -409,11 +409,11 @@ export default {
 
         // Create content for info window
         const content = `
-          <div style="padding:5px;min-width:200px;">
-            <h3 style="margin:5px 0;">${place.place_name}</h3>
-            <p style="margin:5px 0;">${place.address_name}</p>
-            ${place.phone ? `<p style="margin:5px 0;">전화: ${place.phone}</p>` : ''}
-            ${place.distance ? `<p style="margin:5px 0;">거리: ${this.formatDistance(place.distance)}</p>` : ''}
+          <div style="padding:5px; min-width:300px;">
+            <h3 style="margin:5px 0; color: black;">${place.place_name}</h3>
+            <p style="margin:5px 0; color: black;">${place.address_name}</p>
+            ${place.phone ? `<p style="margin:5px 0; color: black;">전화: ${place.phone}</p>` : ''}
+            ${place.distance ? `<p style="margin:5px 0; color: black;">거리: ${this.formatDistance(place.distance)}</p>` : ''}
           </div>
         `
 
