@@ -48,10 +48,7 @@
         <p>예금 상품 옵션 목록을 불러오는 중...</p>
       </div>
 
-      <div
-        v-if="message"
-        :class="['alert-message', messageType === 'error' ? 'error' : 'success']"
-      >
+      <div v-if="message" :class="['alert-message', messageType === 'error' ? 'error' : 'success']">
         <i :class="['icon', messageType === 'error' ? '⚠️' : '✅']"></i>
         {{ message }}
       </div>
@@ -78,19 +75,55 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="depositOption in filteredDepositOptions" :key="depositOption.id || depositOption.fin_prdt_cd + depositOption.save_trm">
-                <td data-label="금융상품 코드">{{ depositOption.product?.fin_prdt_cd || depositOption.fin_prdt_cd || '-' }}</td>
-                <td data-label="금융회사명">{{ depositOption.product?.kor_co_nm || '-' }}</td>
-                <td data-label="상품명">{{ depositOption.product?.fin_prdt_nm || '-' }}</td>
-                <td data-label="금리유형">{{ depositOption.intr_rate_type === 'S' ? '단리' : '복리' }}</td>
+              <tr
+                v-for="depositOption in filteredDepositOptions"
+                :key="depositOption.id || depositOption.fin_prdt_cd + depositOption.save_trm"
+              >
+                <td data-label="금융상품 코드">
+                  {{
+                    depositOption.product?.fin_prdt_cd ||
+                    depositOption.product_fin_prdt_cd ||
+                    depositOption.fin_prdt_cd ||
+                    '-'
+                  }}
+                </td>
+                <td data-label="금융회사명">
+                  {{ depositOption.product?.kor_co_nm || depositOption.kor_co_nm || '-' }}
+                </td>
+                <td data-label="상품명">
+                  {{ depositOption.product?.fin_prdt_nm || depositOption.fin_prdt_nm || '-' }}
+                </td>
+                <td data-label="금리유형">
+                  {{ depositOption.intr_rate_type === 'S' ? '단리' : '복리' }}
+                </td>
                 <td data-label="저축 기간(개월)">{{ depositOption.save_trm }}개월</td>
-                <td data-label="기본 금리(%)">{{ depositOption.intr_rate?.toFixed(2) || '0.00' }}%</td>
-                <td data-label="최고 금리(%)">{{ depositOption.intr_rate2?.toFixed(2) || '0.00' }}%</td>
+                <td data-label="기본 금리(%)">
+                  {{
+                    depositOption.intr_rate !== undefined
+                      ? Number(depositOption.intr_rate).toFixed(2)
+                      : '0.00'
+                  }}%
+                </td>
+                <td data-label="최고 금리(%)">
+                  {{
+                    depositOption.intr_rate2 !== undefined
+                      ? Number(depositOption.intr_rate2).toFixed(2)
+                      : '0.00'
+                  }}%
+                </td>
                 <td data-label="작업" class="actions-cell">
-                  <button @click="editOption(depositOption)" class="action-btn icon-btn edit-btn" title="수정">
+                  <button
+                    @click="editOption(depositOption)"
+                    class="action-btn icon-btn edit-btn"
+                    title="수정"
+                  >
                     <i class="icon">✏️</i>
                   </button>
-                  <button @click="confirmDelete(depositOption)" class="action-btn icon-btn delete-btn" title="삭제">
+                  <button
+                    @click="confirmDelete(depositOption)"
+                    class="action-btn icon-btn delete-btn"
+                    title="삭제"
+                  >
                     <i class="icon">🗑️</i>
                   </button>
                 </td>
@@ -98,7 +131,9 @@
               <tr v-if="filteredDepositOptions.length === 0 && !loading">
                 <td colspan="8" class="no-data">
                   <p>표시할 예금 상품 옵션이 없습니다.</p>
-                  <p v-if="searchQuery || termFilter || rateTypeFilter">다른 검색어나 필터를 시도해보세요.</p>
+                  <p v-if="searchQuery || termFilter || rateTypeFilter">
+                    다른 검색어나 필터를 시도해보세요.
+                  </p>
                 </td>
               </tr>
             </tbody>
@@ -118,7 +153,7 @@
               <div class="form-grid">
                 <div class="form-group full-width" v-if="editMode === 'create'">
                   <label for="product_fin_prdt_cd">금융상품 선택 (상품 코드)</label>
-                   <input
+                  <input
                     type="text"
                     id="product_fin_prdt_cd"
                     v-model="editedOption.product_fin_prdt_cd"
@@ -127,9 +162,13 @@
                   />
                   <!-- <small>pjt0에서는 product_id 대신 fin_prdt_cd로 직접 연결합니다.</small> -->
                 </div>
-                 <div class="form-group" v-else>
+                <div class="form-group" v-else>
                   <label>금융상품 코드</label>
-                  <input type="text" :value="editedOption.product_fin_prdt_cd || editedOption.fin_prdt_cd" disabled />
+                  <input
+                    type="text"
+                    :value="editedOption.product_fin_prdt_cd || editedOption.fin_prdt_cd"
+                    disabled
+                  />
                 </div>
 
                 <div class="form-group">
@@ -184,9 +223,17 @@
                 </div>
               </div>
               <div class="modal-actions">
-                <button type="button" class="action-btn secondary-btn" @click="closeModal">취소</button>
+                <button type="button" class="action-btn secondary-btn" @click="closeModal">
+                  취소
+                </button>
                 <button type="submit" class="action-btn primary-btn" :disabled="savingChanges">
-                  {{ savingChanges ? '저장 중...' : (editMode === 'create' ? '추가하기' : '변경사항 저장') }}
+                  {{
+                    savingChanges
+                      ? '저장 중...'
+                      : editMode === 'create'
+                        ? '추가하기'
+                        : '변경사항 저장'
+                  }}
                 </button>
               </div>
             </form>
@@ -204,7 +251,8 @@
           <div class="modal-body">
             <p>정말로 이 예금 상품 옵션을 삭제하시겠습니까?</p>
             <div v-if="optionToDelete" class="product-info-delete">
-              <strong>상품명:</strong> {{ optionToDelete.product?.fin_prdt_nm || optionToDelete.fin_prdt_cd || '-' }}<br />
+              <strong>상품명:</strong>
+              {{ optionToDelete.product?.fin_prdt_nm || optionToDelete.fin_prdt_cd || '-' }}<br />
               <strong>저축 기간:</strong> {{ optionToDelete.save_trm }} 개월
             </div>
             <p class="warning-text"><i class="icon">⚠️</i> 이 작업은 되돌릴 수 없습니다!</p>
@@ -227,7 +275,7 @@ import productsService from '@/services/products' // pjt0은 productsService에 
 import AdminNavbar from '@/components/admin/AdminNavbar.vue'
 
 const allDepositProducts = ref([]) // 모든 예금 상품 (옵션들을 포함한 상품)
-const allDepositOptions = ref([])  // 모든 예금 상품 옵션 (테이블에 표시될 데이터)
+const allDepositOptions = ref([]) // 모든 예금 상품 옵션 (테이블에 표시될 데이터)
 const filteredDepositOptions = ref([]) // 필터링된 예금 상품 옵션
 
 const loading = ref(false)
@@ -240,7 +288,8 @@ const availableTerms = ref([6, 12, 24, 36]) // 예시 기간, 실제 데이터�
 
 const showEditModal = ref(false)
 const editMode = ref('edit') // 'create', 'edit'
-const editedOption = ref({ // pjt0에서는 '상품 옵션'을 직접 수정/생성
+const editedOption = ref({
+  // pjt0에서는 '상품 옵션'을 직접 수정/생성
   id: null, // 옵션의 ID (백엔드에서 자동 생성될 수 있음)
   product_fin_prdt_cd: '', // 연결될 금융상품의 코드 (DepositProduct의 fin_prdt_cd)
   dcls_month: '',
@@ -272,18 +321,22 @@ const fetchAllDeposits = async () => {
 
     // pjt0 데이터 구조에 맞춰 옵션들을 추출하고, 각 옵션에 부모 상품 정보를 연결
     const options = []
-    allDepositProducts.value.forEach(product => {
-      if (product.options && product.options.length > 0) {
-        product.options.forEach(option => {
+    allDepositProducts.value.forEach((product) => {
+      // Check if the product has deposit_options or just options
+      const productOptions = product.deposit_options || product.options || []
+
+      if (productOptions.length > 0) {
+        productOptions.forEach((option) => {
           options.push({
             ...option, // 금리, 기간 등 옵션 정보
             id: option.id, // 옵션의 고유 ID가 있다면 사용
             product_fin_prdt_cd: product.fin_prdt_cd, // 부모 상품 코드
-            product: { // 부모 상품의 주요 정보 (테이블 표시용)
+            product: {
+              // 부모 상품의 주요 정보 (테이블 표시용)
               fin_prdt_cd: product.fin_prdt_cd,
               kor_co_nm: product.kor_co_nm,
               fin_prdt_nm: product.fin_prdt_nm,
-            }
+            },
           })
         })
       }
@@ -292,7 +345,7 @@ const fetchAllDeposits = async () => {
     applyFiltersAndSearch()
 
     // 사용 가능한 저축 기간 업데이트 (allDepositOptions에서 추출)
-    const terms = new Set(allDepositOptions.value.map(opt => opt.save_trm))
+    const terms = new Set(allDepositOptions.value.map((opt) => opt.save_trm))
     availableTerms.value = Array.from(terms).sort((a, b) => a - b)
   } catch (error) {
     showMessage(`예금 상품 목록 로딩 실패: ${error.message}`, 'error')
@@ -309,26 +362,29 @@ const applyFiltersAndSearch = () => {
   let options = [...allDepositOptions.value]
 
   if (termFilter.value) {
-    options = options.filter(opt => opt.save_trm === parseInt(termFilter.value))
+    options = options.filter((opt) => opt.save_trm === parseInt(termFilter.value))
   }
 
   if (rateTypeFilter.value) {
-    options = options.filter(opt => opt.intr_rate_type === rateTypeFilter.value)
+    options = options.filter((opt) => opt.intr_rate_type === rateTypeFilter.value)
   }
 
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
-    options = options.filter(opt => {
+    options = options.filter((opt) => {
       const productName = opt.product?.fin_prdt_nm?.toLowerCase() || ''
       const companyName = opt.product?.kor_co_nm?.toLowerCase() || ''
       const productCode = opt.product_fin_prdt_cd?.toLowerCase() || ''
-      return productName.includes(query) || companyName.includes(query) || productCode.includes(query)
+      return (
+        productName.includes(query) || companyName.includes(query) || productCode.includes(query)
+      )
     })
   }
   filteredDepositOptions.value = options
 }
 
-const createNewOption = () => { // 실제로는 새 '옵션'을 추가하는 UI
+const createNewOption = () => {
+  // 실제로는 새 '옵션'을 추가하는 UI
   editMode.value = 'create'
   const currentDate = new Date()
   const year = currentDate.getFullYear()
@@ -346,9 +402,10 @@ const createNewOption = () => { // 실제로는 새 '옵션'을 추가하는 UI
   showEditModal.value = true
 }
 
-const editOption = (option) => { // '옵션' 수정
+const editOption = (option) => {
+  // '옵션' 수정
   editMode.value = 'edit'
-  editedOption.value = { ...option } 
+  editedOption.value = { ...option }
   showEditModal.value = true
 }
 
@@ -369,9 +426,9 @@ const saveOption = async () => {
 
     console.log('Saving deposit option (pjt0 - UI only):', payload)
     // TODO: pjt0 백엔드에 예금 상품 '옵션' 생성/수정 API 연동 필요
-    // 예시: if (editMode.value === 'create') { await productsService.createDepositOption(payload) } 
+    // 예시: if (editMode.value === 'create') { await productsService.createDepositOption(payload) }
     //      else { await productsService.updateDepositOption(payload.id, payload) }
-    
+
     showMessage('예금 상품 정보가 (UI상에서) 저장되었습니다. 백엔드 연동 필요', 'success')
     closeModal()
     await fetchAllDeposits() // 목록 새로고침
@@ -393,7 +450,8 @@ const cancelDelete = () => {
   showDeleteModal.value = false
 }
 
-const deleteOption = async () => { // 실제로는 '옵션' 삭제
+const deleteOption = async () => {
+  // 실제로는 '옵션' 삭제
   if (!optionToDelete.value) return
   deleting.value = true
   message.value = ''
@@ -476,7 +534,7 @@ onMounted(() => {
   background-color: var(--background-primary);
   border-radius: var(--input-border-radius, 8px);
   padding: var(--spacing-sm, 0.5rem) var(--spacing-md, 1rem);
-  flex-grow: 1; 
+  flex-grow: 1;
   min-width: 250px;
   border: 1px solid var(--border-color);
 }
@@ -569,7 +627,9 @@ onMounted(() => {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .alert-message {
@@ -580,7 +640,10 @@ onMounted(() => {
   align-items: center;
   font-weight: 500;
 }
-.alert-message .icon { margin-right: 0.75rem; font-size: 1.2rem; }
+.alert-message .icon {
+  margin-right: 0.75rem;
+  font-size: 1.2rem;
+}
 .alert-message.success {
   background-color: rgba(var(--accent-color-rgb, 163, 184, 153), 0.15);
   color: var(--accent-color);
@@ -605,13 +668,16 @@ onMounted(() => {
   font-weight: 600;
 }
 
-.products-table-responsive { overflow-x: auto; }
+.products-table-responsive {
+  overflow-x: auto;
+}
 .products-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9rem;
 }
-.products-table th, .products-table td {
+.products-table th,
+.products-table td {
   padding: 0.8rem 1rem;
   text-align: left;
   border-bottom: 1px solid var(--border-color);
@@ -627,22 +693,40 @@ onMounted(() => {
 .products-table tbody tr:hover {
   background-color: rgba(var(--accent-color-rgb, 163, 184, 153), 0.05);
 }
-.actions-cell { display: flex; gap: 0.5rem; align-items: center; white-space: nowrap; }
-.no-data td { text-align: center; padding: 2rem; color: var(--text-secondary); }
-.no-data p { margin-bottom: 0.5rem; }
+.actions-cell {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  white-space: nowrap;
+}
+.no-data td {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+}
+.no-data p {
+  margin-bottom: 0.5rem;
+}
 
 /* Modal Styles - 전역 변수 적용 (FinancialProductsView와 유사하게) */
 .modal-overlay {
-  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: var(--overlay-bg, rgba(0, 0, 0, 0.7));
-  display: flex; align-items: center; justify-content: center;
-  z-index: 1050; padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 1rem;
 }
 .modal-container {
   background-color: var(--modal-bg, var(--card-bg));
   padding: var(--spacing-lg, 1.5rem);
   border-radius: var(--modal-border-radius, var(--card-border-radius, 12px));
-  box-shadow: var(--shadow-xl, 0 10px 25px rgba(0,0,0,0.2));
+  box-shadow: var(--shadow-xl, 0 10px 25px rgba(0, 0, 0, 0.2));
   border: 1px solid var(--modal-border, var(--card-border));
   width: 100%;
   max-width: 700px; /* 상품 옵션 편집 등을 위해 적절히 조절 */
@@ -651,7 +735,9 @@ onMounted(() => {
   font-family: var(--font-body);
 }
 .modal-header {
-  display: flex; justify-content: space-between; align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding-bottom: var(--spacing-md, 1rem);
   margin-bottom: var(--spacing-lg, 1.5rem);
   border-bottom: 1px solid var(--border-color, #e0e0e0);
@@ -673,15 +759,21 @@ onMounted(() => {
   padding: var(--spacing-xs, 0.3rem);
   transition: color var(--transition-speed);
 }
-.close-modal-btn:hover { color: var(--text-primary); }
+.close-modal-btn:hover {
+  color: var(--text-primary);
+}
 
 .modal-form .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: var(--spacing-lg, 1.2rem);
 }
-.modal-form .form-group { margin-bottom: 0; }
-.modal-form .form-group.full-width { grid-column: 1 / -1; }
+.modal-form .form-group {
+  margin-bottom: 0;
+}
+.modal-form .form-group.full-width {
+  grid-column: 1 / -1;
+}
 .modal-form label {
   display: block;
   margin-bottom: var(--spacing-sm, 0.5rem);
@@ -689,8 +781,8 @@ onMounted(() => {
   color: var(--text-secondary);
   font-size: var(--font-size-sm, 0.9rem);
 }
-.modal-form input[type="text"],
-.modal-form input[type="number"],
+.modal-form input[type='text'],
+.modal-form input[type='number'],
 .modal-form textarea,
 .modal-form select {
   width: 100%;
@@ -701,17 +793,22 @@ onMounted(() => {
   background-color: var(--input-bg, var(--background-primary));
   color: var(--text-input, var(--text-primary));
   font-family: var(--font-body);
-  transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+  transition:
+    border-color var(--transition-speed),
+    box-shadow var(--transition-speed);
 }
-.modal-form input[type="text"]:focus,
-.modal-form input[type="number"]:focus,
+.modal-form input[type='text']:focus,
+.modal-form input[type='number']:focus,
 .modal-form textarea:focus,
 .modal-form select:focus {
   outline: none;
   border-color: var(--accent-color);
   box-shadow: 0 0 0 3px var(--accent-color-opacity-20, rgba(163, 184, 153, 0.2));
 }
-.modal-form textarea { resize: vertical; min-height: 100px; }
+.modal-form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
 
 .modal-actions {
   display: flex;
@@ -739,7 +836,7 @@ onMounted(() => {
   color: var(--text-secondary);
 }
 .confirmation-modal .warning-text {
-  color: var(--warning-color-text, #D97706);
+  color: var(--warning-color-text, #d97706);
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -751,21 +848,46 @@ onMounted(() => {
 }
 
 /* Responsive Table - Consistent with FinancialProductsView */
-@media (max-width: 992px) { /* Adjusted breakpoint for better table view */
-  .products-table thead { display: none; }
-  .products-table tr { display: block; margin-bottom: 1rem; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: var(--card-shadow); }
-  .products-table td { display: block; text-align: right; padding-left: 50%; position: relative; border-bottom: 1px solid var(--border-color); }
-  .products-table td:last-child { border-bottom: none; }
+@media (max-width: 992px) {
+  /* Adjusted breakpoint for better table view */
+  .products-table thead {
+    display: none;
+  }
+  .products-table tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: var(--card-shadow);
+  }
+  .products-table td {
+    display: block;
+    text-align: right;
+    padding-left: 50%;
+    position: relative;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .products-table td:last-child {
+    border-bottom: none;
+  }
   .products-table td::before {
     content: attr(data-label);
-    position: absolute; left: 1rem; font-weight: 600;
-    color: var(--text-secondary); text-align: left; white-space: nowrap;
+    position: absolute;
+    left: 1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-align: left;
+    white-space: nowrap;
   }
-  .actions-cell { justify-content: flex-end; }
+  .actions-cell {
+    justify-content: flex-end;
+  }
 }
 
 @media (max-width: 768px) {
-  .view-header h1 { font-size: 1.8rem; }
+  .view-header h1 {
+    font-size: 1.8rem;
+  }
   .controls-section .search-filter-bar {
     grid-template-columns: 1fr; /* Stack filters on smaller screens */
   }

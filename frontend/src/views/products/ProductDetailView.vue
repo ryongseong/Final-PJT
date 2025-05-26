@@ -23,9 +23,7 @@
         </button>
 
         <div class="header-actions">
-          <button @click="sharePage" class="share-button">
-            <i class="fas fa-share-alt"></i>
-          </button>
+          <button @click="sharePage" class="share-button">공유하기</button>
           <button
             @click="toggleFavorite"
             :class="['favorite-button', { 'is-favorite': isFavorite }]"
@@ -1265,13 +1263,17 @@ export default {
   display: inline-block;
   width: 50px;
   height: 50px;
-  border: 5px solid var(--border-color-light, rgba(0,0,0,0.1));
+  border: 5px solid var(--border-color-light, rgba(0, 0, 0, 0.1));
   border-radius: 50%;
   border-top-color: var(--accent-color, #3b82f6);
   animation: spin 1s ease-in-out infinite;
   margin-bottom: var(--spacing-lg, 1rem);
 }
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 .error-container {
   text-align: center;
@@ -1301,7 +1303,10 @@ export default {
 .retry-button {
   margin-top: var(--spacing-lg, 1.5rem);
   padding: var(--button-padding-y, 0.75rem) var(--button-padding-x, 1.5rem);
-  background: var(--button-bg-error, var(--accent-color)); /* Use accent or specific error button bg */
+  background: var(
+    --button-bg-error,
+    var(--accent-color)
+  ); /* Use accent or specific error button bg */
   color: var(--button-text-error, white);
   border: none;
   border-radius: var(--button-border-radius, 8px);
@@ -1356,7 +1361,9 @@ export default {
 .favorite-button.is-favorite:hover {
   background-color: var(--accent-color-opacity-20, rgba(var(--accent-color-rgb), 0.2));
 }
-.favorite-button i, .share-button i, .back-button i {
+.favorite-button i,
+.share-button i,
+.back-button i {
   font-size: 1.2em;
 }
 
@@ -1365,13 +1372,13 @@ export default {
   display: grid;
   grid-template-columns: auto 1fr auto; /* logo - main info - rate highlight */
   grid-template-areas:
-    "logo mainInfo rate"
-    "logo joinMethods rate";
+    'logo mainInfo rate'
+    'logo joinMethods rate';
   gap: var(--spacing-xl, 2rem);
   padding: var(--card-padding-lg, 2rem);
   background: var(--card-bg, white);
   border-radius: var(--card-border-radius, 16px);
-  box-shadow: var(--shadow-lg, 0 8px 20px rgba(0,0,0,0.1));
+  box-shadow: var(--shadow-lg, 0 8px 20px rgba(0, 0, 0, 0.1));
   margin-bottom: var(--spacing-xl, 2rem);
   border: 1px solid var(--card-border, transparent);
   align-items: center;
@@ -1470,7 +1477,9 @@ export default {
   color: var(--text-secondary, #6b7280);
   font-family: var(--font-body);
 }
-.product-join-methods p { margin: 0; }
+.product-join-methods p {
+  margin: 0;
+}
 
 .product-rate-highlight {
   grid-area: rate;
@@ -1547,10 +1556,12 @@ export default {
   padding: var(--card-padding-lg, 2rem);
   background-color: var(--card-bg-secondary, var(--card-bg));
   border-radius: var(--card-border-radius, 12px);
-  box-shadow: var(--shadow-md, 0 4px 6px rgba(0,0,0,0.05));
+  box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.05));
   border: 1px solid var(--card-border, transparent);
 }
-.info-section:last-child { margin-bottom: 0; }
+.info-section:last-child {
+  margin-bottom: 0;
+}
 
 .section-title {
   font-size: var(--font-size-xxl, 1.8rem);
@@ -1562,10 +1573,10 @@ export default {
   border-bottom: 1px solid var(--border-color-light, #e5e7eb);
 }
 .section-subtitle {
-    font-family: var(--font-heading);
-    font-size: var(--font-size-xl, 1.4rem);
-    color: var(--text-primary);
-    margin-bottom: var(--spacing-md, 1rem);
+  font-family: var(--font-heading);
+  font-size: var(--font-size-xl, 1.4rem);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md, 1rem);
 }
 
 .info-grid {
@@ -1573,8 +1584,14 @@ export default {
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: var(--spacing-lg, 1.5rem) var(--spacing-xl, 2rem);
 }
-.info-item { display: flex; flex-direction: column; gap: var(--spacing-xs, 0.5rem); }
-.info-item.wide { grid-column: 1 / -1; }
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs, 0.5rem);
+}
+.info-item.wide {
+  grid-column: 1 / -1;
+}
 
 .info-label {
   font-size: var(--font-size-md, 1rem);
@@ -1588,7 +1605,11 @@ export default {
   line-height: 1.6;
   font-family: var(--font-body);
 }
-.info-value .join-badges { display: flex; flex-wrap: wrap; gap: var(--spacing-sm, 0.75rem); }
+.info-value .join-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm, 0.75rem);
+}
 .info-value .join-badge {
   font-size: var(--font-size-sm, 0.9rem);
   background: var(--tag-bg, var(--accent-color-opacity-10));
@@ -1619,7 +1640,8 @@ export default {
   background-color: var(--background-light-gray, #f9f9f9);
   border-radius: var(--card-inner-border-radius, 10px);
 }
-.rate-display > div { /* Each rate block */
+.rate-display > div {
+  /* Each rate block */
   text-align: center;
 }
 .rate-display .rate-value {
@@ -1629,8 +1651,11 @@ export default {
   font-family: var(--font-heading);
   margin-bottom: var(--spacing-xs, 0.25rem);
 }
-.rate-display .rate-value.loan-rate { color: var(--color-loan-rate, #2196f3); }
-.rate-display .rate-value.highlight { /* For max_rate or similar */
+.rate-display .rate-value.loan-rate {
+  color: var(--color-loan-rate, #2196f3);
+}
+.rate-display .rate-value.highlight {
+  /* For max_rate or similar */
   font-size: var(--font-size-hero, 2.8rem);
   color: var(--accent-color-dark, var(--accent-color));
 }
@@ -1658,7 +1683,9 @@ export default {
   color: var(--text-secondary, #666);
   flex-shrink: 0; /* Prevent label from shrinking */
 }
-.detail-value { color: var(--text-primary, #333); }
+.detail-value {
+  color: var(--text-primary, #333);
+}
 
 /* --- Join Methods & Conditions (Inside Tab) --- */
 .join-methods-detailed {
@@ -1771,14 +1798,19 @@ export default {
   color: var(--button-text, white);
   border: 1px solid var(--button-bg, var(--accent-color));
 }
-.refresh-button:hover { background: var(--button-hover, var(--accent-hover)); border-color: var(--button-hover, var(--accent-hover)); }
+.refresh-button:hover {
+  background: var(--button-hover, var(--accent-hover));
+  border-color: var(--button-hover, var(--accent-hover));
+}
 
 .fallback-button {
   background: var(--button-bg-secondary, transparent);
   color: var(--button-text-secondary, var(--accent-color));
   border: 1px solid var(--button-border-color-secondary, var(--accent-color));
 }
-.fallback-button:hover { background: var(--button-hover-bg-secondary, var(--accent-color-opacity-10)); }
+.fallback-button:hover {
+  background: var(--button-hover-bg-secondary, var(--accent-color-opacity-10));
+}
 
 /* --- CTA Section --- */
 .cta-section {
@@ -1810,15 +1842,22 @@ export default {
   color: var(--button-text, white);
   border: 1px solid var(--button-bg, var(--accent-color));
 }
-.cta-button.primary:hover { background: var(--button-hover, var(--accent-hover)); border-color: var(--button-hover, var(--accent-hover)); }
+.cta-button.primary:hover {
+  background: var(--button-hover, var(--accent-hover));
+  border-color: var(--button-hover, var(--accent-hover));
+}
 
 .cta-button.secondary {
   background: var(--button-bg-secondary, transparent);
   color: var(--button-text-secondary, var(--accent-color));
   border: 2px solid var(--button-border-color-secondary, var(--accent-color)); /* Thicker border for secondary */
 }
-.cta-button.secondary:hover { background: var(--button-hover-bg-secondary, var(--accent-color-opacity-10)); }
-.cta-button i { font-size: 1.2em; }
+.cta-button.secondary:hover {
+  background: var(--button-hover-bg-secondary, var(--accent-color-opacity-10));
+}
+.cta-button i {
+  font-size: 1.2em;
+}
 
 /* --- Related Products --- */
 .related-products {
@@ -1842,46 +1881,88 @@ export default {
   .product-header-card {
     grid-template-columns: 1fr; /* Stack on medium screens */
     grid-template-areas:
-      "logo"
-      "mainInfo"
-      "rate"
-      "joinMethods";
+      'logo'
+      'mainInfo'
+      'rate'
+      'joinMethods';
     text-align: center;
   }
   .product-bank-logo {
     margin: 0 auto var(--spacing-lg, 1.5rem) auto;
   }
-  .product-main-info, .product-rate-highlight {
+  .product-main-info,
+  .product-rate-highlight {
     align-items: center; /* Center align content in stack */
   }
-  .product-rate-highlight { width: 100%; padding: var(--card-padding, 1.5rem); }
+  .product-rate-highlight {
+    width: 100%;
+    padding: var(--card-padding, 1.5rem);
+  }
 }
 
 @media (max-width: 768px) {
-  .product-detail-container { padding: var(--page-padding-sm, 1.5rem 1rem); }
-  .product-name { font-size: var(--font-size-xxl, 2rem); }
-  .product-rate-highlight .rate-value { font-size: var(--font-size-xxl, 2.2rem); }
-  .section-title { font-size: var(--font-size-xl, 1.6rem); }
-  .info-grid, .rates-grid, .join-methods-detailed, .related-products-grid {
+  .product-detail-container {
+    padding: var(--page-padding-sm, 1.5rem 1rem);
+  }
+  .product-name {
+    font-size: var(--font-size-xxl, 2rem);
+  }
+  .product-rate-highlight .rate-value {
+    font-size: var(--font-size-xxl, 2.2rem);
+  }
+  .section-title {
+    font-size: var(--font-size-xl, 1.6rem);
+  }
+  .info-grid,
+  .rates-grid,
+  .join-methods-detailed,
+  .related-products-grid {
     grid-template-columns: 1fr;
   }
   .product-tabs {
     overflow-x: auto;
     white-space: nowrap;
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
   }
-  .product-tabs::-webkit-scrollbar { display: none; /* Chrome, Safari, Opera */}
-  .tab-button { flex-shrink: 0; font-size: var(--font-size-md, 1rem); padding: var(--tab-padding-y, 0.75rem) var(--tab-padding-x, 1rem);}
-  .cta-section { flex-direction: column; }
-  .cta-button { width: 100%; }
+  .product-tabs::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+  .tab-button {
+    flex-shrink: 0;
+    font-size: var(--font-size-md, 1rem);
+    padding: var(--tab-padding-y, 0.75rem) var(--tab-padding-x, 1rem);
+  }
+  .cta-section {
+    flex-direction: column;
+  }
+  .cta-button {
+    width: 100%;
+  }
 }
 
 @media (max-width: 480px) {
-  .product-name { font-size: var(--font-size-xl, 1.75rem); }
-  .product-rate-highlight .rate-value { font-size: var(--font-size-xl, 2rem); }
-  .page-header { flex-direction: column; gap: var(--spacing-md, 1rem); align-items: stretch; }
-  .page-header .header-actions { display: flex; justify-content: space-around; width: 100%;}
-  .back-button, .share-button, .favorite-button { flex-grow: 1; justify-content: center; }
+  .product-name {
+    font-size: var(--font-size-xl, 1.75rem);
+  }
+  .product-rate-highlight .rate-value {
+    font-size: var(--font-size-xl, 2rem);
+  }
+  .page-header {
+    flex-direction: column;
+    gap: var(--spacing-md, 1rem);
+    align-items: stretch;
+  }
+  .page-header .header-actions {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+  }
+  .back-button,
+  .share-button,
+  .favorite-button {
+    flex-grow: 1;
+    justify-content: center;
+  }
 }
 </style>

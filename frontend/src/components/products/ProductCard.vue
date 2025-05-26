@@ -150,15 +150,49 @@ export default {
     },
     getInterestRate(type) {
       let rate = 0.0
-      if (type === 'max') {
-        rate = this.product.intr_rate2
-      } else if (type === 'min') {
-        rate = this.product.mortgage_options[0].lend_rate_min
-      }
-      else {
-        console.error('Invalid rate type:', type)
+
+      try {
+        if (type === 'max') {
+          // For deposit/savings products
+          if (this.product.intr_rate2 !== undefined) {
+            rate = this.product.intr_rate2
+          } else if (this.product.options && this.product.options.length) {
+            // Find max rate in options
+            rate = Math.max(...this.product.options.map((opt) => opt.intr_rate2 || 0))
+          } else if (this.product.deposit_options && this.product.deposit_options.length) {
+            rate = Math.max(...this.product.deposit_options.map((opt) => opt.intr_rate2 || 0))
+          } else if (this.product.saving_options && this.product.saving_options.length) {
+            rate = Math.max(...this.product.saving_options.map((opt) => opt.intr_rate2 || 0))
+          }
+        } else if (type === 'min') {
+          // For loan products
+          if (this.product.lend_rate_min !== undefined) {
+            rate = this.product.lend_rate_min
+          } else if (this.product.lending_options && this.product.lending_options.length) {
+            rate = Math.min(...this.product.lending_options.map((opt) => opt.lend_rate_min || 99))
+          } else if (
+            this.product.mortgage_loan_options &&
+            this.product.mortgage_loan_options.length
+          ) {
+            rate = Math.min(
+              ...this.product.mortgage_loan_options.map((opt) => opt.lend_rate_min || 99),
+            )
+          } else if (this.product.credit_loan_options && this.product.credit_loan_options.length) {
+            rate = Math.min(
+              ...this.product.credit_loan_options.map((opt) => opt.lend_rate_min || 99),
+            )
+          } else if (this.product.loan_options && this.product.loan_options.length) {
+            rate = Math.min(...this.product.loan_options.map((opt) => opt.lend_rate_min || 99))
+          }
+        } else {
+          console.error('Invalid rate type:', type)
+          return '알 수 없음'
+        }
+      } catch (error) {
+        console.error('Error calculating interest rate:', error)
         return '알 수 없음'
       }
+
       return formatRate(rate)
     },
     formatDate(dateString) {
@@ -276,7 +310,7 @@ export default {
 
 .new-badge {
   background-color: rgba(var(--info-color-rgb, 59, 130, 246), 0.15); /* Using info color for new */
-  color: var(--info-color, #3B82F6);
+  color: var(--info-color, #3b82f6);
 }
 
 .product-name {
@@ -290,6 +324,7 @@ export default {
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
 }
 
@@ -328,7 +363,7 @@ export default {
 }
 
 .rate-value.loan {
-  color: var(--info-color, #3B82F6); /* Different color for loan rates if needed */
+  color: var(--info-color, #3b82f6); /* Different color for loan rates if needed */
 }
 
 .rate-subtitle {
