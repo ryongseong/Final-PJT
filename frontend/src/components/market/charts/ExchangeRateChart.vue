@@ -68,8 +68,6 @@ const fetchExchangeRates = async () => {
   try {
     const response = await productsService.getExchangeRate()
 
-    console.log('환율 데이터:', response)
-
     // 현재 날짜 설정
     updateCurrentDate()
 

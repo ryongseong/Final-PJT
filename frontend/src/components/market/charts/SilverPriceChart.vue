@@ -48,7 +48,6 @@ const createChart = async () => {
     const gridColor = settingsStore.isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
 
     const data = await getChartData('AG')
-    console.log(data)
 
     chart.value = new Chart(ctx, {
       type: 'line',
