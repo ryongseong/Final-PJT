@@ -92,10 +92,22 @@
                 :key="savingOption.id || savingOption.product_fin_prdt_cd + savingOption.save_trm"
               >
                 <td data-label="금융상품 코드">
-                  {{ savingOption.product?.fin_prdt_cd || savingOption.product_fin_prdt_cd || '-' }}
+                  {{ savingOption.product?.fin_prdt_cd || savingOption.product || '-' }}
                 </td>
-                <td data-label="금융회사명">{{ savingOption.product?.kor_co_nm || '-' }}</td>
-                <td data-label="상품명">{{ savingOption.product?.fin_prdt_nm || '-' }}</td>
+                <td data-label="금융회사명">
+                  {{
+                    savingOption.product?.kor_co_nm ||
+                    savingOption.financial_product.kor_co_nm ||
+                    '-'
+                  }}
+                </td>
+                <td data-label="상품명">
+                  {{
+                    savingOption.product?.fin_prdt_nm ||
+                    savingOption.financial_product.fin_prdt_nm ||
+                    '-'
+                  }}
+                </td>
                 <td data-label="금리유형">
                   {{ savingOption.intr_rate_type === 'S' ? '단리' : '복리' }}
                 </td>
@@ -381,6 +393,7 @@ const applyFiltersAndSearch = () => {
       )
     })
   }
+  console.log(options)
   filteredSavingOptions.value = options
 }
 
