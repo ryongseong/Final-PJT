@@ -1,7 +1,6 @@
 <template>
   <div class="admin-products-view">
     <AdminNavbar />
-
     <div class="view-content">
       <header class="view-header">
         <h1>전체 금융 상품 관리</h1>
@@ -22,7 +21,7 @@
           </div>
           <div class="filter-input-group">
             <i class="icon filter-icon">📊</i>
-            <select v-model="categoryFilter" @change="searchProducts" class="filter-select">
+            <select v-model="categoryFilter" @change="fetchProducts" class="filter-select">
               <option value="">전체 카테고리</option>
               <option value="deposit">예금</option>
               <option value="saving">적금</option>
@@ -40,10 +39,7 @@
         <p>상품 목록을 불러오는 중...</p>
       </div>
 
-      <div
-        v-if="message"
-        :class="['alert-message', messageType === 'error' ? 'error' : 'success']"
-      >
+      <div v-if="message" :class="['alert-message', messageType === 'error' ? 'error' : 'success']">
         <i :class="['icon', messageType === 'error' ? '⚠️' : '✅']"></i>
         {{ message }}
       </div>
@@ -71,12 +67,24 @@
                 <td data-label="금융상품 코드">{{ product.fin_prdt_cd }}</td>
                 <td data-label="금융회사명">{{ product.kor_co_nm }}</td>
                 <td data-label="상품명">{{ product.fin_prdt_nm }}</td>
-                <td data-label="가입방법">{{ Array.isArray(product.join_way) ? product.join_way.join(', ') : product.join_way }}</td>
+                <td data-label="가입방법">
+                  {{
+                    Array.isArray(product.join_way) ? product.join_way.join(', ') : product.join_way
+                  }}
+                </td>
                 <td data-label="작업" class="actions-cell">
-                  <button @click="editProduct(product)" class="action-btn icon-btn edit-btn" title="수정">
+                  <button
+                    @click="editProduct(product)"
+                    class="action-btn icon-btn edit-btn"
+                    title="수정"
+                  >
                     <i class="icon">✏️</i>
                   </button>
-                  <button @click="confirmDelete(product)" class="action-btn icon-btn delete-btn" title="삭제">
+                  <button
+                    @click="confirmDelete(product)"
+                    class="action-btn icon-btn delete-btn"
+                    title="삭제"
+                  >
                     <i class="icon">🗑️</i>
                   </button>
                 </td>
@@ -118,15 +126,22 @@
                 </div>
                 <div class="form-group full-width">
                   <label for="fin_prdt_nm">금융상품명</label>
-                  <input type="text" id="fin_prdt_nm" v-model="editedProduct.fin_prdt_nm" required />
+                  <input
+                    type="text"
+                    id="fin_prdt_nm"
+                    v-model="editedProduct.fin_prdt_nm"
+                    required
+                  />
                 </div>
                 <div class="form-group full-width">
                   <label for="join_way">가입방법 (쉼표로 구분)</label>
-                  <input type="text" id="join_way" v-model="editedProduct.join_way" placeholder="예: 인터넷,스마트폰,전화(텔레뱅킹)" required />
-                </div>
-                <div class="form-group">
-                  <label for="loan_type">대출 종류 (해당하는 경우)</label>
-                  <input type="text" id="loan_type" v-model="editedProduct.loan_type" />
+                  <input
+                    type="text"
+                    id="join_way"
+                    v-model="editedProduct.join_way"
+                    placeholder="예: 인터넷,스마트폰,전화(텔레뱅킹)"
+                    required
+                  />
                 </div>
                 <div class="form-group">
                   <label for="product_type">상품 유형</label>
@@ -137,15 +152,19 @@
                     <option value="">기타</option>
                   </select>
                 </div>
-                <div class="form-group full-width">
-                  <label for="join_member">가입대상</label>
-                  <textarea id="join_member" v-model="editedProduct.join_member" rows="3"></textarea>
-                </div>
               </div>
               <div class="modal-actions">
-                <button type="button" class="action-btn secondary-btn" @click="closeModal">취소</button>
+                <button type="button" class="action-btn secondary-btn" @click="closeModal">
+                  취소
+                </button>
                 <button type="submit" class="action-btn primary-btn" :disabled="savingChanges">
-                  {{ savingChanges ? '저장 중...' : (editMode === 'create' ? '추가하기' : '변경사항 저장') }}
+                  {{
+                    savingChanges
+                      ? '저장 중...'
+                      : editMode === 'create'
+                        ? '추가하기'
+                        : '변경사항 저장'
+                  }}
                 </button>
               </div>
             </form>
@@ -167,12 +186,12 @@
               <strong>금융사:</strong> {{ productToDelete.kor_co_nm }}
             </div>
             <p class="warning-text"><i class="icon">⚠️</i> 이 작업은 되돌릴 수 없습니다!</p>
-          </div>
-          <div class="modal-actions">
-            <button class="action-btn secondary-btn" @click="cancelDelete">취소</button>
-            <button class="action-btn danger-btn" @click="deleteProduct" :disabled="deleting">
-              {{ deleting ? '삭제 중...' : '삭제' }}
-            </button>
+            <div class="modal-actions">
+              <button class="action-btn secondary-btn" @click="cancelDelete">취소</button>
+              <button class="action-btn danger-btn" @click="deleteProduct" :disabled="deleting">
+                {{ deleting ? '삭제 중...' : '삭제' }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -200,9 +219,9 @@ const editedProduct = ref({
   fin_prdt_cd: '',
   kor_co_nm: '',
   fin_prdt_nm: '',
-  join_way: '',       // 문자열로 처리 (쉼표 구분)
-  loan_type: '',      // pjt0에는 없는 필드, Final-PJT 참고
-  join_member: '',    // pjt0에 없는 필드, Final-PJT 참고
+  join_way: '', // 문자열로 처리 (쉼표 구분)
+  loan_type: '', // pjt0에는 없는 필드, Final-PJT 참고
+  join_member: '', // pjt0에 없는 필드, Final-PJT 참고
   product_type: '', // 'deposit', 'saving', 'loan' - pjt0에는 없는 필드, Final-PJT 참고. 저장 시 사용
 })
 const savingChanges = ref(false)
@@ -241,21 +260,54 @@ const fetchProducts = async () => {
         break
       default:
         // searchQuery가 있으면 searchProducts를, 없으면 getAllFinancialProducts를 사용
-        // pjt0의 getAllFinancialProducts는 params를 받지 않으므로, 검색은 searchProducts로 통합
         if (searchQuery.value) {
-          serviceCall = productsService.searchProducts(searchQuery.value) // pjt0의 searchProducts는 query만 받음
+          serviceCall = productsService.searchProducts(searchQuery.value)
         } else {
           serviceCall = productsService.getAllFinancialProducts()
         }
     }
     const response = await serviceCall
-    // pjt0의 searchProducts는 { deposits: [], savings: [], loans: [] } 형태일 수 있음
-    if (searchQuery.value && !categoryFilter.value && response && (response.deposits || response.savings || response.loans)) {
-      products.value = [...(response.deposits || []), ...(response.savings || []), ...(response.loans || [])]
-    } else {
-      products.value = Array.isArray(response) ? response : (response.results || [])
-    }
 
+    // response 형식에 따라 적절히 처리
+    if (
+      searchQuery.value &&
+      !categoryFilter.value &&
+      response &&
+      (response.deposits || response.savings || response.loans)
+    ) {
+      products.value = [
+        ...(response.deposits || []).map((item) => ({
+          ...(item.product || item),
+          id: item.id,
+          product_type: 'deposit',
+        })),
+        ...(response.savings || []).map((item) => ({
+          ...(item.product || item),
+          id: item.id,
+          product_type: 'saving',
+        })),
+        ...(response.loans || []).map((item) => ({
+          ...(item.product || item),
+          id: item.id,
+          product_type: 'loan',
+        })),
+      ]
+    } else if (Array.isArray(response)) {
+      products.value = response
+    } else if (response.results) {
+      products.value = response.results.map((item) => {
+        if (item.product) {
+          return {
+            ...item.product,
+            id: item.id,
+            product_type: categoryFilter.value,
+          }
+        }
+        return item
+      })
+    } else {
+      products.value = []
+    }
   } catch (error) {
     showMessage(`상품 목록 로딩 실패: ${error.message}`, 'error')
     console.error('Error fetching products:', error)
@@ -291,17 +343,19 @@ const editProduct = (product) => {
   // Final-PJT의 determineProductType 로직을 참고하여 단순화
   let pType = ''
   if (product.fin_prdt_cd) {
-    if (product.options && product.options.length > 0 && product.options[0].save_trm) pType = 'deposit' // 예금/적금 공통 옵션 save_trm
+    if (product.options && product.options.length > 0 && product.options[0].save_trm)
+      pType = 'deposit' // 예금/적금 공통 옵션 save_trm
     else if (product.lending_options && product.lending_options.length > 0) pType = 'loan'
-    else if (product.fin_prdt_cd.includes('D')) pType = 'deposit' // 임시 방편
-    else if (product.fin_prdt_cd.includes('S')) pType = 'saving'  // 임시 방편
+    else if (product.fin_prdt_cd.includes('D'))
+      pType = 'deposit' // 임시 방편
+    else if (product.fin_prdt_cd.includes('S')) pType = 'saving' // 임시 방편
   }
-  
+
   editedProduct.value = {
     ...product,
-    join_way: Array.isArray(product.join_way) ? product.join_way.join(',') : (product.join_way || ''),
+    join_way: Array.isArray(product.join_way) ? product.join_way.join(',') : product.join_way || '',
     // product_type이 백엔드에서 올 수도 있고, 없을 수도 있음. 없으면 위에서 추론한 값 사용.
-    product_type: product.product_type || pType || 'deposit' 
+    product_type: product.product_type || pType || 'deposit',
   }
   showEditModal.value = true
 }
@@ -319,7 +373,10 @@ const saveProduct = async () => {
   try {
     const payload = {
       ...editedProduct.value,
-      join_way: editedProduct.value.join_way.split(',').map(s => s.trim()).filter(s => s),
+      join_way: editedProduct.value.join_way
+        .split(',')
+        .map((s) => s.trim())
+        .filter((s) => s),
     }
     console.log('Saving product (pjt0 - UI only):', payload)
     // TODO: pjt0 백엔드 API에 맞춰 상품 생성/수정 로직 구현 필요
@@ -354,7 +411,10 @@ const deleteProduct = async () => {
     console.log('Deleting product (pjt0 - UI only):', productToDelete.value)
     // TODO: pjt0 백엔드 API에 맞춰 상품 삭제 로직 구현 필요
     // 예시: await productsService.deleteProduct(productToDelete.value.id, productToDelete.value.product_type)
-    showMessage(`상품 '${productToDelete.value.fin_prdt_nm}'이(가) (UI상에서) 삭제되었습니다. 백엔드 연동 필요`, 'success')
+    showMessage(
+      `상품 '${productToDelete.value.fin_prdt_nm}'이(가) (UI상에서) 삭제되었습니다. 백엔드 연동 필요`,
+      'success',
+    )
     productToDelete.value = null
     showDeleteModal.value = false
     await fetchProducts()
@@ -369,7 +429,6 @@ const deleteProduct = async () => {
 onMounted(() => {
   fetchProducts()
 })
-
 </script>
 
 <style scoped>
@@ -532,13 +591,13 @@ onMounted(() => {
 }
 
 .action-btn.danger-btn {
-  background-color: #EF4444; /* Standard Red for Danger */
+  background-color: #ef4444; /* Standard Red for Danger */
   color: white;
-  border-color: #EF4444;
+  border-color: #ef4444;
 }
 .action-btn.danger-btn:hover:not(:disabled) {
-  background-color: #DC2626;
-  border-color: #DC2626;
+  background-color: #dc2626;
+  border-color: #dc2626;
 }
 
 .action-btn:disabled {
@@ -560,7 +619,7 @@ onMounted(() => {
   color: var(--accent-color);
 }
 .action-btn.icon-btn.delete-btn:hover {
-  color: #EF4444;
+  color: #ef4444;
 }
 
 /* Loading and Alerts */
@@ -583,7 +642,9 @@ onMounted(() => {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .alert-message {
@@ -594,7 +655,10 @@ onMounted(() => {
   align-items: center;
   font-weight: 500;
 }
-.alert-message .icon { margin-right: 0.75rem; font-size: 1.2rem; }
+.alert-message .icon {
+  margin-right: 0.75rem;
+  font-size: 1.2rem;
+}
 .alert-message.success {
   background-color: rgba(var(--accent-color-rgb, 163, 184, 153), 0.15);
   color: var(--accent-color);
@@ -619,13 +683,16 @@ onMounted(() => {
   font-weight: 600;
 }
 
-.products-table-responsive { overflow-x: auto; }
+.products-table-responsive {
+  overflow-x: auto;
+}
 .products-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9rem;
 }
-.products-table th, .products-table td {
+.products-table th,
+.products-table td {
   padding: 0.8rem 1rem;
   text-align: left;
   border-bottom: 1px solid var(--border-color);
@@ -641,22 +708,40 @@ onMounted(() => {
 .products-table tbody tr:hover {
   background-color: rgba(var(--accent-color-rgb, 163, 184, 153), 0.05); /* Subtle hover */
 }
-.actions-cell { display: flex; gap: 0.5rem; align-items: center; white-space: nowrap; }
-.no-data td { text-align: center; padding: 2rem; color: var(--text-secondary); }
-.no-data p { margin-bottom: 0.5rem; }
+.actions-cell {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  white-space: nowrap;
+}
+.no-data td {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+}
+.no-data p {
+  margin-bottom: 0.5rem;
+}
 
 /* Modal Styles - 전역 변수 적용 */
 .modal-overlay {
-  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: var(--overlay-bg, rgba(0, 0, 0, 0.7)); /* 오버레이 배경색 강화 */
-  display: flex; align-items: center; justify-content: center;
-  z-index: 1050; padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 1rem;
 }
 .modal-container {
   background-color: var(--modal-bg, var(--card-bg)); /* 모달 배경 */
   padding: var(--spacing-lg, 1.5rem); /* 내부 패딩 */
   border-radius: var(--modal-border-radius, var(--card-border-radius, 12px)); /* 모달 테두리 반경 */
-  box-shadow: var(--shadow-xl, 0 10px 25px rgba(0,0,0,0.2)); /* 모달 그림자 강화 */
+  box-shadow: var(--shadow-xl, 0 10px 25px rgba(0, 0, 0, 0.2)); /* 모달 그림자 강화 */
   border: 1px solid var(--modal-border, var(--card-border)); /* 모달 테두리 */
   width: 100%;
   max-width: 600px; /* Default modal width */
@@ -665,74 +750,87 @@ onMounted(() => {
   font-family: var(--font-body);
 }
 .modal-header {
-  display: flex; justify-content: space-between; align-items: center;
-  padding-bottom: var(--spacing-md, 1rem); 
-  margin-bottom: var(--spacing-lg, 1.5rem); 
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: var(--spacing-md, 1rem);
+  margin-bottom: var(--spacing-lg, 1.5rem);
   border-bottom: 1px solid var(--border-color, #e0e0e0);
 }
 .modal-header h3 {
-  font-size: var(--font-size-xl, 1.4rem); 
+  font-size: var(--font-size-xl, 1.4rem);
   color: var(--text-primary);
   font-weight: 700; /* 제목 굵게 */
   margin: 0;
   font-family: var(--font-heading);
 }
 .close-modal-btn {
-  background: none; 
-  border: none; 
-  font-size: var(--icon-size-lg, 1.5rem); 
+  background: none;
+  border: none;
+  font-size: var(--icon-size-lg, 1.5rem);
   line-height: 1;
-  cursor: pointer; 
+  cursor: pointer;
   color: var(--text-secondary);
   padding: var(--spacing-xs, 0.3rem);
   transition: color var(--transition-speed);
 }
-.close-modal-btn:hover { color: var(--text-primary); }
+.close-modal-btn:hover {
+  color: var(--text-primary);
+}
 
 .modal-form .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: var(--spacing-lg, 1.2rem);
 }
-.modal-form .form-group { margin-bottom: 0; }
-.modal-form .form-group.full-width { grid-column: 1 / -1; }
+.modal-form .form-group {
+  margin-bottom: 0;
+}
+.modal-form .form-group.full-width {
+  grid-column: 1 / -1;
+}
 .modal-form label {
-  display: block; 
-  margin-bottom: var(--spacing-sm, 0.5rem); 
+  display: block;
+  margin-bottom: var(--spacing-sm, 0.5rem);
   font-weight: 600; /* 라벨 굵게 */
-  color: var(--text-secondary); 
+  color: var(--text-secondary);
   font-size: var(--font-size-sm, 0.9rem);
 }
-.modal-form input[type="text"],
-.modal-form input[type="number"],
+.modal-form input[type='text'],
+.modal-form input[type='number'],
 .modal-form textarea,
 .modal-form select {
-  width: 100%; 
+  width: 100%;
   padding: var(--input-padding-y, 0.75rem) var(--input-padding-x, 1rem);
   border: 1px solid var(--border-color, #ccc);
   border-radius: var(--input-border-radius, var(--border-radius-md, 8px));
-  font-size: var(--font-size-md, 0.95rem); 
+  font-size: var(--font-size-md, 0.95rem);
   background-color: var(--input-bg, var(--background-primary));
   color: var(--text-input, var(--text-primary));
   font-family: var(--font-body);
-  transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+  transition:
+    border-color var(--transition-speed),
+    box-shadow var(--transition-speed);
 }
-.modal-form input[type="text"]:focus,
-.modal-form input[type="number"]:focus,
+.modal-form input[type='text']:focus,
+.modal-form input[type='number']:focus,
 .modal-form textarea:focus,
 .modal-form select:focus {
-  outline: none; 
+  outline: none;
   border-color: var(--accent-color);
   box-shadow: 0 0 0 3px var(--accent-color-opacity-20, rgba(163, 184, 153, 0.2));
 }
-.modal-form textarea { resize: vertical; min-height: 100px; }
+.modal-form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
 
 .modal-actions {
-  display: flex; 
-  justify-content: flex-end; 
+  display: flex;
+  justify-content: flex-end;
   gap: var(--spacing-md, 1rem); /* 버튼 간 간격 증가 */
   margin-top: var(--spacing-xl, 2rem);
-  padding-top: var(--spacing-lg, 1.5rem); 
+  padding-top: var(--spacing-lg, 1.5rem);
   border-top: 1px solid var(--border-color, #e0e0e0);
 }
 /* .action-btn 스타일은 전역 또는 상위에서 이미 정의된 것을 사용 기대 */
@@ -740,14 +838,14 @@ onMounted(() => {
 
 /* Confirmation Modal Specifics - 전역 변수 적용 */
 .confirmation-modal .modal-body p {
-  margin-bottom: var(--spacing-md, 1rem); 
-  font-size: var(--font-size-lg, 1.1rem); 
+  margin-bottom: var(--spacing-md, 1rem);
+  font-size: var(--font-size-lg, 1.1rem);
   color: var(--text-primary);
   line-height: 1.6;
 }
 .confirmation-modal .product-info-delete {
-  background-color: var(--background-secondary, var(--background-primary)); 
-  padding: var(--spacing-md, 1rem); 
+  background-color: var(--background-secondary, var(--background-primary));
+  padding: var(--spacing-md, 1rem);
   border-radius: var(--border-radius-md, 8px);
   margin-bottom: var(--spacing-lg, 1.5rem);
   border: 1px solid var(--border-color, #ccc);
@@ -755,33 +853,58 @@ onMounted(() => {
   color: var(--text-secondary);
 }
 .confirmation-modal .warning-text {
-  color: var(--warning-color-text, #D97706); /* 주황색 계열 경고색 */
-  font-weight: 600; 
-  display: flex; 
+  color: var(--warning-color-text, #d97706); /* 주황색 계열 경고색 */
+  font-weight: 600;
+  display: flex;
   align-items: center;
   font-size: var(--font-size-md, 1rem);
 }
 .confirmation-modal .warning-text .icon {
-  margin-right: var(--spacing-sm, 0.5rem); 
+  margin-right: var(--spacing-sm, 0.5rem);
   font-size: var(--icon-size-md, 1.2rem);
 }
 
 /* Responsive Table */
-@media (max-width: 992px) { /* Adjusted breakpoint */
-  .products-table thead { display: none; }
-  .products-table tr { display: block; margin-bottom: 1rem; border: 1px solid var(--border-color); border-radius: var(--border-radius-md); box-shadow: var(--card-shadow-sm); }
-  .products-table td { display: block; text-align: right; padding-left: 50%; position: relative; border-bottom: 1px solid var(--border-color); }
-  .products-table td:last-child { border-bottom: none; }
+@media (max-width: 992px) {
+  /* Adjusted breakpoint */
+  .products-table thead {
+    display: none;
+  }
+  .products-table tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--card-shadow-sm);
+  }
+  .products-table td {
+    display: block;
+    text-align: right;
+    padding-left: 50%;
+    position: relative;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .products-table td:last-child {
+    border-bottom: none;
+  }
   .products-table td::before {
     content: attr(data-label);
-    position: absolute; left: 1rem; font-weight: 600;
-    color: var(--text-secondary); text-align: left; white-space: nowrap;
+    position: absolute;
+    left: 1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-align: left;
+    white-space: nowrap;
   }
-  .actions-cell { justify-content: flex-end; } 
+  .actions-cell {
+    justify-content: flex-end;
+  }
 }
 
 @media (max-width: 768px) {
-  .view-header h1 { font-size: 1.8rem; }
+  .view-header h1 {
+    font-size: 1.8rem;
+  }
   .controls-section .search-filter-bar {
     grid-template-columns: 1fr; /* Stack filters on smaller screens */
   }
@@ -791,10 +914,12 @@ onMounted(() => {
 }
 
 /* Fix for search button icon */
-.controls-section .action-btn .icon:not(:last-child) { /* if icon is not the only child */
+.controls-section .action-btn .icon:not(:last-child) {
+  /* if icon is not the only child */
   margin-right: 0.5rem;
 }
-.controls-section .action-btn .icon:empty { /* if icon has no content, like from a class */
+.controls-section .action-btn .icon:empty {
+  /* if icon has no content, like from a class */
   /* You might need to target specific icon classes if they are empty by default */
   /* For now, assuming it might be an empty <i> or <span> */
   display: inline-block; /* or 'none' if it should be hidden if empty */
@@ -805,9 +930,9 @@ onMounted(() => {
   /* background-position: center; */
   /* margin-right: 0.5rem; */
 }
-.controls-section .action-btn i.icon:before { /* If using font-icon and it's not rendering */
-  content: "🔎"; /* Fallback or ensure font is loaded */
+.controls-section .action-btn i.icon:before {
+  /* If using font-icon and it's not rendering */
+  content: '🔎'; /* Fallback or ensure font is loaded */
   font-family: initial; /* Reset font if it's a special icon font */
 }
-
 </style>

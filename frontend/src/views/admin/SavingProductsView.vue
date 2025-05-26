@@ -1,11 +1,10 @@
 <template>
   <div class="admin-products-view">
     <AdminNavbar />
-
     <div class="view-content">
       <header class="view-header">
-        <h1>적금 상품 관리</h1>
-        <p class="subtitle">등록된 적금 상품을 확인하고 관리합니다.</p>
+        <h1>적금 상품 옵션 관리</h1>
+        <p class="subtitle">등록된 적금 상품의 옵션을 확인하고 관리합니다.</p>
       </header>
 
       <section class="controls-section card-style">
@@ -30,7 +29,7 @@
             </select>
           </div>
           <div class="filter-input-group">
-            <i class="icon filter-icon">📈</i>
+            <i class="icon filter-icon">📊</i>
             <select v-model="rateTypeFilter" @change="applyFiltersAndSearch" class="filter-select">
               <option value="">전체 금리 유형</option>
               <option value="S">단리</option>
@@ -39,36 +38,37 @@
           </div>
           <div class="filter-input-group">
             <i class="icon filter-icon">💰</i>
-            <select v-model="reserveTypeFilter" @change="applyFiltersAndSearch" class="filter-select">
+            <select
+              v-model="reserveTypeFilter"
+              @change="applyFiltersAndSearch"
+              class="filter-select"
+            >
               <option value="">전체 적립 유형</option>
               <option value="F">자유적립식</option>
               <option value="S">정액적립식</option>
             </select>
           </div>
           <button class="action-btn primary-btn" @click="applyFiltersAndSearch" :disabled="loading">
-            <i class="icon">🔎</i> 적용
+            <i class="icon"></i> 검색
           </button>
         </div>
       </section>
 
       <div v-if="loading" class="loading-indicator">
         <div class="spinner"></div>
-        <p>적금 상품 목록을 불러오는 중...</p>
+        <p>적금 상품 옵션을 불러오는 중...</p>
       </div>
 
-      <div
-        v-if="message"
-        :class="['alert-message', messageType === 'error' ? 'error' : 'success']"
-      >
+      <div v-if="message" :class="['alert-message', messageType === 'error' ? 'error' : 'success']">
         <i :class="['icon', messageType === 'error' ? '⚠️' : '✅']"></i>
         {{ message }}
       </div>
 
       <section class="table-section card-style">
         <div class="table-header-actions">
-          <h3>적금 상품 목록</h3>
+          <h3>적금 상품 옵션 목록</h3>
           <button @click="createNewProduct" class="action-btn success-btn add-product-btn">
-            <i class="icon">➕</i> 새 적금 상품 추가
+            <i class="icon">➕</i> 새 적금 옵션 추가
           </button>
         </div>
         <div class="products-table-responsive">
@@ -87,28 +87,51 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="savingOption in filteredSavingOptions" :key="savingOption.id || savingOption.product_fin_prdt_cd + savingOption.save_trm">
-                <td data-label="금융상품 코드">{{ savingOption.product?.fin_prdt_cd || savingOption.product_fin_prdt_cd || '-' }}</td>
+              <tr
+                v-for="savingOption in filteredSavingOptions"
+                :key="savingOption.id || savingOption.product_fin_prdt_cd + savingOption.save_trm"
+              >
+                <td data-label="금융상품 코드">
+                  {{ savingOption.product?.fin_prdt_cd || savingOption.product_fin_prdt_cd || '-' }}
+                </td>
                 <td data-label="금융회사명">{{ savingOption.product?.kor_co_nm || '-' }}</td>
                 <td data-label="상품명">{{ savingOption.product?.fin_prdt_nm || '-' }}</td>
-                <td data-label="금리유형">{{ savingOption.intr_rate_type === 'S' ? '단리' : '복리' }}</td>
-                <td data-label="적립유형">{{ savingOption.rsrv_type === 'F' ? '자유적립식' : (savingOption.rsrv_type === 'S' ? '정액적립식' : savingOption.rsrv_type) }}</td>
+                <td data-label="금리유형">
+                  {{ savingOption.intr_rate_type === 'S' ? '단리' : '복리' }}
+                </td>
+                <td data-label="적립유형">
+                  {{ savingOption.rsrv_type === 'F' ? '자유적립식' : '정액적립식' }}
+                </td>
                 <td data-label="저축 기간(개월)">{{ savingOption.save_trm }}개월</td>
-                <td data-label="기본 금리(%)">{{ savingOption.intr_rate?.toFixed(2) || '0.00' }}%</td>
-                <td data-label="최고 금리(%)">{{ savingOption.intr_rate2?.toFixed(2) || '0.00' }}%</td>
+                <td data-label="기본 금리(%)">
+                  {{ savingOption.intr_rate?.toFixed(2) || '0.00' }}%
+                </td>
+                <td data-label="최고 금리(%)">
+                  {{ savingOption.intr_rate2?.toFixed(2) || '0.00' }}%
+                </td>
                 <td data-label="작업" class="actions-cell">
-                  <button @click="editProduct(savingOption)" class="action-btn icon-btn edit-btn" title="수정">
+                  <button
+                    @click="editProduct(savingOption)"
+                    class="action-btn icon-btn edit-btn"
+                    title="수정"
+                  >
                     <i class="icon">✏️</i>
                   </button>
-                  <button @click="confirmDelete(savingOption)" class="action-btn icon-btn delete-btn" title="삭제">
+                  <button
+                    @click="confirmDelete(savingOption)"
+                    class="action-btn icon-btn delete-btn"
+                    title="삭제"
+                  >
                     <i class="icon">🗑️</i>
                   </button>
                 </td>
               </tr>
               <tr v-if="filteredSavingOptions.length === 0 && !loading">
                 <td colspan="9" class="no-data">
-                  <p>표시할 적금 상품이 없습니다.</p>
-                  <p v-if="searchQuery || termFilter || rateTypeFilter || reserveTypeFilter">다른 검색어나 필터를 시도해보세요.</p>
+                  <p>표시할 적금 상품 옵션이 없습니다.</p>
+                  <p v-if="searchQuery || termFilter || rateTypeFilter || reserveTypeFilter">
+                    다른 검색어나 필터를 시도해보세요.
+                  </p>
                 </td>
               </tr>
             </tbody>
@@ -120,34 +143,36 @@
       <div v-if="showEditModal" class="modal-overlay" @click.self="closeModal">
         <div class="modal-container card-style">
           <div class="modal-header">
-            <h3>{{ editMode === 'create' ? '새 적금 상품 추가' : '적금 상품 정보 수정' }}</h3>
+            <h3>{{ editMode === 'create' ? '새 적금 옵션 추가' : '적금 옵션 정보 수정' }}</h3>
             <button class="close-modal-btn" @click="closeModal"><i class="icon">✕</i></button>
           </div>
           <div class="modal-body">
             <form @submit.prevent="saveProduct" class="modal-form">
               <div class="form-grid">
                 <div class="form-group full-width" v-if="editMode === 'create'">
-                  <label for="product_fin_prdt_cd">금융상품 코드 (연결)</label>
+                  <label for="product_fin_prdt_cd">금융상품 선택 (상품 코드)</label>
                   <input
                     type="text"
                     id="product_fin_prdt_cd"
                     v-model="editedOption.product_fin_prdt_cd"
                     required
-                    placeholder="연결할 금융상품의 코드 입력"
+                    placeholder="연결할 금융상품의 코드를 입력하세요."
                   />
                 </div>
                 <div class="form-group" v-else>
                   <label>금융상품 코드</label>
-                  <input type="text" :value="editedOption.product_fin_prdt_cd" disabled />
+                  <div class="static-value">{{ editedOption.product_fin_prdt_cd }}</div>
                 </div>
-
                 <div class="form-group">
-                  <label for="dcls_month">공시 월</label>
-                  <input type="text" id="dcls_month" v-model="editedOption.dcls_month" required placeholder="YYYYMM" />
+                  <label for="save_trm">저축 기간 (개월)</label>
+                  <select id="save_trm" v-model.number="editedOption.save_trm" required>
+                    <option v-for="term in availableTerms" :key="term" :value="term">
+                      {{ term }}개월
+                    </option>
+                  </select>
                 </div>
-
                 <div class="form-group">
-                  <label for="intr_rate_type">금리유형</label>
+                  <label for="intr_rate_type">금리 유형</label>
                   <select id="intr_rate_type" v-model="editedOption.intr_rate_type" required>
                     <option value="S">단리</option>
                     <option value="M">복리</option>
@@ -161,22 +186,42 @@
                   </select>
                 </div>
                 <div class="form-group">
-                  <label for="save_trm">저축 기간 (개월)</label>
-                  <input type="number" id="save_trm" v-model.number="editedOption.save_trm" min="1" required />
-                </div>
-                <div class="form-group">
                   <label for="intr_rate">기본 금리 (%)</label>
-                  <input type="number" id="intr_rate" v-model.number="editedOption.intr_rate" step="0.01" min="0" required />
+                  <input
+                    type="number"
+                    id="intr_rate"
+                    v-model="editedOption.intr_rate"
+                    min="0"
+                    max="20"
+                    step="0.01"
+                    required
+                  />
                 </div>
                 <div class="form-group">
                   <label for="intr_rate2">최고 금리 (%)</label>
-                  <input type="number" id="intr_rate2" v-model.number="editedOption.intr_rate2" step="0.01" min="0" required />
+                  <input
+                    type="number"
+                    id="intr_rate2"
+                    v-model="editedOption.intr_rate2"
+                    min="0"
+                    max="20"
+                    step="0.01"
+                    required
+                  />
                 </div>
               </div>
               <div class="modal-actions">
-                <button type="button" class="action-btn secondary-btn" @click="closeModal">취소</button>
+                <button type="button" class="action-btn secondary-btn" @click="closeModal">
+                  취소
+                </button>
                 <button type="submit" class="action-btn primary-btn" :disabled="savingChanges">
-                  {{ savingChanges ? '저장 중...' : (editMode === 'create' ? '추가하기' : '변경사항 저장') }}
+                  {{
+                    savingChanges
+                      ? '저장 중...'
+                      : editMode === 'create'
+                        ? '추가하기'
+                        : '변경사항 저장'
+                  }}
                 </button>
               </div>
             </form>
@@ -194,16 +239,31 @@
           <div class="modal-body">
             <p>정말로 이 적금 상품 옵션을 삭제하시겠습니까?</p>
             <div v-if="optionToDelete" class="product-info-delete">
-              <strong>상품명:</strong> {{ optionToDelete.product?.fin_prdt_nm || optionToDelete.product_fin_prdt_cd || '-' }}<br />
-              <strong>저축 기간:</strong> {{ optionToDelete.save_trm }} 개월 ({{ optionToDelete.rsrv_type === 'F' ? '자유적립' : '정액적립' }})
+              <p>
+                <strong>상품:</strong>
+                {{ optionToDelete.product?.fin_prdt_nm || '미지정' }} ({{
+                  optionToDelete.product?.kor_co_nm || '미지정'
+                }})
+              </p>
+              <p>
+                <strong>옵션:</strong>
+                {{ optionToDelete.save_trm }}개월,
+                {{ optionToDelete.intr_rate_type === 'S' ? '단리' : '복리' }},
+                {{ optionToDelete.rsrv_type === 'F' ? '자유적립식' : '정액적립식' }}
+              </p>
+              <p>
+                <strong>금리:</strong>
+                {{ optionToDelete.intr_rate?.toFixed(2) || '0.00' }}% ~
+                {{ optionToDelete.intr_rate2?.toFixed(2) || '0.00' }}%
+              </p>
             </div>
             <p class="warning-text"><i class="icon">⚠️</i> 이 작업은 되돌릴 수 없습니다!</p>
-          </div>
-          <div class="modal-actions">
-            <button class="action-btn secondary-btn" @click="cancelDelete">취소</button>
-            <button class="action-btn danger-btn" @click="deleteProduct" :disabled="deleting">
-              {{ deleting ? '삭제 중...' : '삭제' }}
-            </button>
+            <div class="modal-actions">
+              <button class="action-btn secondary-btn" @click="cancelDelete">취소</button>
+              <button class="action-btn danger-btn" @click="deleteProduct" :disabled="deleting">
+                {{ deleting ? '삭제 중...' : '삭제' }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -217,7 +277,7 @@ import productsService from '@/services/products'
 import AdminNavbar from '@/components/admin/AdminNavbar.vue'
 
 const allSavingProducts = ref([]) // 전체 적금 상품(옵션 포함)
-const allSavingOptions = ref([])  // 테이블에 표시될 모든 적금 상품 옵션
+const allSavingOptions = ref([]) // 테이블에 표시될 모든 적금 상품 옵션
 const filteredSavingOptions = ref([]) // 필터링된 적금 상품 옵션
 
 const loading = ref(false)
@@ -256,39 +316,40 @@ const showMessage = (msg, type = 'success') => {
 }
 
 const fetchAllSavings = async () => {
+  loading.value = true
+  message.value = ''
   try {
-    loading.value = true
-    message.value = ''
-    const response = await productsService.getSavingProducts()
-    allSavingProducts.value = response || []
+    // Fetch saving products data with options
+    const params = {}
+    if (searchQuery.value) params.search = searchQuery.value
+    if (termFilter.value) params.save_trm = termFilter.value
+    if (rateTypeFilter.value) params.intr_rate_type = rateTypeFilter.value
+    if (reserveTypeFilter.value) params.rsrv_type = reserveTypeFilter.value
 
-    const options = []
-    allSavingProducts.value.forEach(product => {
-      if (product.options && product.options.length > 0) {
-        product.options.forEach(option => {
-          options.push({
-            ...option,
-            id: option.id, // 옵션 ID가 있다면 사용
-            product_fin_prdt_cd: product.fin_prdt_cd,
-            product: {
-              fin_prdt_cd: product.fin_prdt_cd,
-              kor_co_nm: product.kor_co_nm,
-              fin_prdt_nm: product.fin_prdt_nm,
-            }
-          })
-        })
+    const response = await productsService.getSavingProducts(params)
+
+    // Handle different API response formats
+    if (response.results) {
+      allSavingOptions.value = response.results
+    } else if (Array.isArray(response)) {
+      allSavingOptions.value = response
+    } else {
+      allSavingOptions.value = []
+    }
+
+    // Extract unique saving product data for reference
+    const uniqueProducts = new Map()
+    allSavingOptions.value.forEach((option) => {
+      if (option.product) {
+        uniqueProducts.set(option.product.fin_prdt_cd, option.product)
       }
     })
-    allSavingOptions.value = options
+    allSavingProducts.value = Array.from(uniqueProducts.values())
+
     applyFiltersAndSearch()
-
-    const terms = new Set(allSavingOptions.value.map(opt => opt.save_trm))
-    availableTerms.value = Array.from(terms).sort((a, b) => a - b)
-
   } catch (error) {
-    showMessage(`적금 상품 목록 로딩 실패: ${error.message}`, 'error')
-    console.error('Error fetching savings:', error)
-    allSavingProducts.value = []
+    console.error('Error fetching saving products:', error)
+    showMessage(`적금 상품 로딩 실패: ${error.message || '알 수 없는 오류'}`, 'error')
     allSavingOptions.value = []
     filteredSavingOptions.value = []
   } finally {
@@ -300,22 +361,24 @@ const applyFiltersAndSearch = () => {
   let options = [...allSavingOptions.value]
 
   if (termFilter.value) {
-    options = options.filter(opt => opt.save_trm === parseInt(termFilter.value))
+    options = options.filter((opt) => opt.save_trm === parseInt(termFilter.value))
   }
   if (rateTypeFilter.value) {
-    options = options.filter(opt => opt.intr_rate_type === rateTypeFilter.value)
+    options = options.filter((opt) => opt.intr_rate_type === rateTypeFilter.value)
   }
   if (reserveTypeFilter.value) {
-    options = options.filter(opt => opt.rsrv_type === reserveTypeFilter.value)
+    options = options.filter((opt) => opt.rsrv_type === reserveTypeFilter.value)
   }
 
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
-    options = options.filter(opt => {
+    options = options.filter((opt) => {
       const productName = opt.product?.fin_prdt_nm?.toLowerCase() || ''
       const companyName = opt.product?.kor_co_nm?.toLowerCase() || ''
       const productCode = opt.product_fin_prdt_cd?.toLowerCase() || ''
-      return productName.includes(query) || companyName.includes(query) || productCode.includes(query)
+      return (
+        productName.includes(query) || companyName.includes(query) || productCode.includes(query)
+      )
     })
   }
   filteredSavingOptions.value = options
@@ -519,54 +582,195 @@ onMounted(() => {
   color: var(--text-primary);
 }
 
-.action-btn { display: inline-flex; align-items: center; justify-content: center; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 500; cursor: pointer; transition: all var(--transition-speed); text-align: center; font-size: 0.9rem; border: 1px solid transparent; }
-.action-btn .icon { margin-right: 0.5rem; }
-.action-btn.primary-btn { background-color: var(--accent-color); color: var(--button-text); border-color: var(--accent-color); grid-column: span 1; }
-.action-btn.primary-btn:hover:not(:disabled) { background-color: var(--accent-hover); border-color: var(--accent-hover); }
-.action-btn.secondary-btn { background-color: var(--background-primary); color: var(--text-secondary); border-color: var(--border-color); }
-.action-btn.secondary-btn:hover:not(:disabled) { background-color: var(--border-color); color: var(--text-primary); }
-.action-btn.success-btn { background-color: var(--accent-color); color: var(--button-text); border-color: var(--accent-color); }
-.action-btn.success-btn:hover:not(:disabled) { background-color: var(--accent-hover); border-color: var(--accent-hover); }
-.action-btn.danger-btn { background-color: #EF4444; color: white; border-color: #EF4444; }
-.action-btn.danger-btn:hover:not(:disabled) { background-color: #DC2626; border-color: #DC2626; }
-.action-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-.action-btn.icon-btn { padding: 0.5rem; background-color: transparent; border: none; color: var(--text-secondary); }
-.action-btn.icon-btn .icon { margin-right: 0; font-size: 1.2rem; }
-.action-btn.icon-btn.edit-btn:hover { color: var(--accent-color); }
-.action-btn.icon-btn.delete-btn:hover { color: #EF4444; }
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  text-align: center;
+  font-size: 0.9rem;
+  border: 1px solid transparent;
+}
+.action-btn .icon {
+  margin-right: 0.5rem;
+}
+.action-btn.primary-btn {
+  background-color: var(--accent-color);
+  color: var(--button-text);
+  border-color: var(--accent-color);
+  grid-column: span 1;
+}
+.action-btn.primary-btn:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+.action-btn.secondary-btn {
+  background-color: var(--background-primary);
+  color: var(--text-secondary);
+  border-color: var(--border-color);
+}
+.action-btn.secondary-btn:hover:not(:disabled) {
+  background-color: var(--border-color);
+  color: var(--text-primary);
+}
+.action-btn.success-btn {
+  background-color: var(--accent-color);
+  color: var(--button-text);
+  border-color: var(--accent-color);
+}
+.action-btn.success-btn:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+.action-btn.danger-btn {
+  background-color: #ef4444;
+  color: white;
+  border-color: #ef4444;
+}
+.action-btn.danger-btn:hover:not(:disabled) {
+  background-color: #dc2626;
+  border-color: #dc2626;
+}
+.action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.action-btn.icon-btn {
+  padding: 0.5rem;
+  background-color: transparent;
+  border: none;
+  color: var(--text-secondary);
+}
+.action-btn.icon-btn .icon {
+  margin-right: 0;
+  font-size: 1.2rem;
+}
+.action-btn.icon-btn.edit-btn:hover {
+  color: var(--accent-color);
+}
+.action-btn.icon-btn.delete-btn:hover {
+  color: #ef4444;
+}
 
-.loading-indicator { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; margin: 2rem 0; color: var(--text-secondary); }
-.spinner { width: 30px; height: 30px; border: 3px solid var(--border-color); border-top-color: var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
+.loading-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 2rem 0;
+  color: var(--text-secondary);
+}
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--accent-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
-.alert-message { padding: 1rem 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; align-items: center; font-weight: 500; }
-.alert-message .icon { margin-right: 0.75rem; font-size: 1.2rem; }
-.alert-message.success { background-color: rgba(var(--accent-color-rgb, 163, 184, 153), 0.15); color: var(--accent-color); border: 1px solid rgba(var(--accent-color-rgb, 163, 184, 153), 0.3); }
-.alert-message.error { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
+.alert-message {
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+}
+.alert-message .icon {
+  margin-right: 0.75rem;
+  font-size: 1.2rem;
+}
+.alert-message.success {
+  background-color: rgba(var(--accent-color-rgb, 163, 184, 153), 0.15);
+  color: var(--accent-color);
+  border: 1px solid rgba(var(--accent-color-rgb, 163, 184, 153), 0.3);
+}
+.alert-message.error {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
 
-.table-section .table-header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-.table-section .table-header-actions h3 { font-size: 1.3rem; color: var(--text-primary); font-weight: 600; }
+.table-section .table-header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.table-section .table-header-actions h3 {
+  font-size: 1.3rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
 
-.products-table-responsive { overflow-x: auto; }
-.products-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-.products-table th, .products-table td { padding: 0.8rem 1rem; text-align: left; border-bottom: 1px solid var(--border-color); color: var(--text-primary); vertical-align: middle; }
-.products-table th { background-color: var(--background-primary); font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
-.products-table tbody tr:hover { background-color: rgba(var(--accent-color-rgb, 163, 184, 153), 0.05); }
-.actions-cell { display: flex; gap: 0.5rem; align-items: center; white-space: nowrap; }
-.no-data td { text-align: center; padding: 2rem; color: var(--text-secondary); }
-.no-data p { margin-bottom: 0.5rem; }
+.products-table-responsive {
+  overflow-x: auto;
+}
+.products-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.products-table th,
+.products-table td {
+  padding: 0.8rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+.products-table th {
+  background-color: var(--background-primary);
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.products-table tbody tr:hover {
+  background-color: rgba(var(--accent-color-rgb, 163, 184, 153), 0.05);
+}
+.actions-cell {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  white-space: nowrap;
+}
+.no-data td {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+}
+.no-data p {
+  margin-bottom: 0.5rem;
+}
 
 .modal-overlay {
-  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: var(--overlay-bg, rgba(0, 0, 0, 0.7));
-  display: flex; align-items: center; justify-content: center;
-  z-index: 1050; padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 1rem;
 }
 .modal-container {
   background-color: var(--modal-bg, var(--card-bg));
   padding: var(--spacing-lg, 1.5rem);
   border-radius: var(--modal-border-radius, var(--card-border-radius, 12px));
-  box-shadow: var(--shadow-xl, 0 10px 25px rgba(0,0,0,0.2));
+  box-shadow: var(--shadow-xl, 0 10px 25px rgba(0, 0, 0, 0.2));
   border: 1px solid var(--modal-border, var(--card-border));
   width: 100%;
   max-width: 700px;
@@ -575,7 +779,9 @@ onMounted(() => {
   font-family: var(--font-body);
 }
 .modal-header {
-  display: flex; justify-content: space-between; align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding-bottom: var(--spacing-md, 1rem);
   margin-bottom: var(--spacing-lg, 1.5rem);
   border-bottom: 1px solid var(--border-color, #e0e0e0);
@@ -597,34 +803,132 @@ onMounted(() => {
   padding: var(--spacing-xs, 0.3rem);
   transition: color var(--transition-speed);
 }
-.close-modal-btn:hover { color: var(--text-primary); }
+.close-modal-btn:hover {
+  color: var(--text-primary);
+}
 
-.modal-form .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-lg, 1.2rem); }
-.modal-form .form-group { margin-bottom: 0; }
-.modal-form .form-group.full-width { grid-column: 1 / -1; }
-.modal-form label { display: block; margin-bottom: var(--spacing-sm, 0.5rem); font-weight: 600; color: var(--text-secondary); font-size: var(--font-size-sm, 0.9rem); }
-.modal-form input[type="text"], .modal-form input[type="number"], .modal-form textarea, .modal-form select { width: 100%; padding: var(--input-padding-y, 0.75rem) var(--input-padding-x, 1rem); border: 1px solid var(--border-color, #ccc); border-radius: var(--input-border-radius, var(--border-radius-md, 8px)); font-size: var(--font-size-md, 0.95rem); background-color: var(--input-bg, var(--background-primary)); color: var(--text-input, var(--text-primary)); font-family: var(--font-body); transition: border-color var(--transition-speed), box-shadow var(--transition-speed); }
-.modal-form input[type="text"]:focus, .modal-form input[type="number"]:focus, .modal-form textarea:focus, .modal-form select:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 3px var(--accent-color-opacity-20, rgba(163, 184, 153, 0.2)); }
-.modal-form textarea { resize: vertical; min-height: 100px; }
+.modal-form .form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-lg, 1.2rem);
+}
+.modal-form .form-group {
+  margin-bottom: 0;
+}
+.modal-form .form-group.full-width {
+  grid-column: 1 / -1;
+}
+.modal-form label {
+  display: block;
+  margin-bottom: var(--spacing-sm, 0.5rem);
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm, 0.9rem);
+}
+.modal-form input[type='text'],
+.modal-form input[type='number'],
+.modal-form textarea,
+.modal-form select {
+  width: 100%;
+  padding: var(--input-padding-y, 0.75rem) var(--input-padding-x, 1rem);
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: var(--input-border-radius, var(--border-radius-md, 8px));
+  font-size: var(--font-size-md, 0.95rem);
+  background-color: var(--input-bg, var(--background-primary));
+  color: var(--text-input, var(--text-primary));
+  font-family: var(--font-body);
+  transition:
+    border-color var(--transition-speed),
+    box-shadow var(--transition-speed);
+}
+.modal-form input[type='text']:focus,
+.modal-form input[type='number']:focus,
+.modal-form textarea:focus,
+.modal-form select:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px var(--accent-color-opacity-20, rgba(163, 184, 153, 0.2));
+}
+.modal-form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
 
-.modal-actions { display: flex; justify-content: flex-end; gap: var(--spacing-md, 1rem); margin-top: var(--spacing-xl, 2rem); padding-top: var(--spacing-lg, 1.5rem); border-top: 1px solid var(--border-color, #e0e0e0); }
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-md, 1rem);
+  margin-top: var(--spacing-xl, 2rem);
+  padding-top: var(--spacing-lg, 1.5rem);
+  border-top: 1px solid var(--border-color, #e0e0e0);
+}
 
-.confirmation-modal .modal-body p { margin-bottom: var(--spacing-md, 1rem); font-size: var(--font-size-lg, 1.1rem); color: var(--text-primary); line-height: 1.6; }
-.confirmation-modal .product-info-delete { background-color: var(--background-secondary, var(--background-primary)); padding: var(--spacing-md, 1rem); border-radius: var(--border-radius-md, 8px); margin-bottom: var(--spacing-lg, 1.5rem); border: 1px solid var(--border-color, #ccc); font-size: var(--font-size-md, 0.95rem); color: var(--text-secondary); }
-.confirmation-modal .warning-text { color: var(--warning-color-text, #D97706); font-weight: 600; display: flex; align-items: center; font-size: var(--font-size-md, 1rem); }
-.confirmation-modal .warning-text .icon { margin-right: var(--spacing-sm, 0.5rem); font-size: var(--icon-size-md, 1.2rem); }
+.confirmation-modal .modal-body p {
+  margin-bottom: var(--spacing-md, 1rem);
+  font-size: var(--font-size-lg, 1.1rem);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+.confirmation-modal .product-info-delete {
+  background-color: var(--background-secondary, var(--background-primary));
+  padding: var(--spacing-md, 1rem);
+  border-radius: var(--border-radius-md, 8px);
+  margin-bottom: var(--spacing-lg, 1.5rem);
+  border: 1px solid var(--border-color, #ccc);
+  font-size: var(--font-size-md, 0.95rem);
+  color: var(--text-secondary);
+}
+.confirmation-modal .warning-text {
+  color: var(--warning-color-text, #d97706);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  font-size: var(--font-size-md, 1rem);
+}
+.confirmation-modal .warning-text .icon {
+  margin-right: var(--spacing-sm, 0.5rem);
+  font-size: var(--icon-size-md, 1.2rem);
+}
 
 @media (max-width: 992px) {
-  .products-table thead { display: none; }
-  .products-table tr { display: block; margin-bottom: 1rem; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: var(--card-shadow); }
-  .products-table td { display: block; text-align: right; padding-left: 50%; position: relative; border-bottom: 1px solid var(--border-color); }
-  .products-table td:last-child { border-bottom: none; }
-  .products-table td::before { content: attr(data-label); position: absolute; left: 1rem; font-weight: 600; color: var(--text-secondary); text-align: left; white-space: nowrap; }
-  .actions-cell { justify-content: flex-end; }
+  .products-table thead {
+    display: none;
+  }
+  .products-table tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: var(--card-shadow);
+  }
+  .products-table td {
+    display: block;
+    text-align: right;
+    padding-left: 50%;
+    position: relative;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .products-table td:last-child {
+    border-bottom: none;
+  }
+  .products-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-align: left;
+    white-space: nowrap;
+  }
+  .actions-cell {
+    justify-content: flex-end;
+  }
 }
 
 @media (max-width: 768px) {
-  .view-header h1 { font-size: 1.8rem; }
+  .view-header h1 {
+    font-size: 1.8rem;
+  }
   .controls-section .search-filter-bar {
     grid-template-columns: 1fr;
   }
