@@ -22,15 +22,17 @@
           </div>
           <p class="card-description">{{ $t('market.preciousSilverDesc') }}</p>
         </div>
-
-        <!-- 환율 차트 -->
-        <div class="market-card">
-          <h3>{{ $t('market.exchangeRates') }}</h3>
-          <div class="chart-container">
-            <ExchangeRateChart />
-          </div>
-          <p class="card-description">{{ $t('market.exchangeRatesDesc') }}</p>
+      </div>
+    </div>
+  </section>
+  <section class="market-section">
+    <div class="container">
+      <div class="market-card-exchange">
+        <h3>{{ $t('market.exchangeRates') }}</h3>
+        <div class="chart-container-exchange">
+          <ExchangeRateChart />
         </div>
+        <p class="card-description">{{ $t('market.exchangeRatesDesc') }}</p>
       </div>
     </div>
   </section>
@@ -81,7 +83,7 @@ import SilverPriceChart from './charts/SilverPriceChart.vue'
 
 .cards-container {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 2.5rem; /* 카드 간 간격 증가 */
   transition: var(--transition-speed);
 }
@@ -116,6 +118,14 @@ import SilverPriceChart from './charts/SilverPriceChart.vue'
 .chart-container {
   width: 100%;
   height: 300px; /* 차트 크기 증가 */
+  margin-bottom: 1.5rem;
+  transition: var(--transition-speed);
+  position: relative;
+}
+
+.chart-container-exchange {
+  width: 100%;
+  height: 500px; /* 차트 크기 증가 */
   margin-bottom: 1.5rem;
   transition: var(--transition-speed);
   position: relative;

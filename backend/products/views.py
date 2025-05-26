@@ -726,12 +726,9 @@ def get_gold_and_silver_prices(request):
     import requests
     from datetime import datetime, timedelta
 
-    print(request.GET)  # <QueryDict: {'query': ['AG']}>
-
     today = datetime.now().strftime("%Y-%m-%d")
     previous_day = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
     type = request.GET.get("type", "AG")
-    print("Type:", type)
 
     response = requests.get(
         "https://prod-api.exgold.co.kr/api/v1/main/chart/period/price/domestic",
@@ -768,8 +765,6 @@ def get_exchange_rate(request):
     else:
         day = now.strftime("%Y%m%d")
 
-    print(day)
-
     response = requests.get(
         "https://www.koreaexim.go.kr/site/program/financial/exchangeJSON",
         params={
@@ -778,8 +773,6 @@ def get_exchange_rate(request):
             "data": "AP01",
         },
     )
-
-    print(response.status_code)
 
     if response.status_code != 200:
         return Response(

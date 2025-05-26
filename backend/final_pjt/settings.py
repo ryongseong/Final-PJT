@@ -24,7 +24,8 @@ env = environ.Env(
     KAKAO_CLIENT_ID=(str, ""),
     FINANCIAL_API_KEY=(str, ""),
     YOUTUBE_API_KEY=(str, ""),
-    OPENAI_API_KEY=(str, ""),  # Added for AI product recommendations
+    OPENAI_API_KEY=(str, ""),
+    EXCHANGE_RATE_API=(str, ""),
 )
 
 # Read .env file if it exists
@@ -92,7 +93,7 @@ REST_FRAMEWORK = {
 FINANCIAL_API_KEY = env("DEPOSIT_PRODUCT_API", default="")
 
 # Exchange Rate API Key
-EXCHANGE_RATE_API = env("EXCHANGE_RATE_API_KEY", default="")
+EXCHANGE_RATE_API = env("EXCHANGE_RATE_API", default="")
 
 # YouTube API Key
 YOUTUBE_API_KEY = env("YOUTUBE_API", default="")
