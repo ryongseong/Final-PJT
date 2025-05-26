@@ -249,45 +249,85 @@ export default {
 
 .card {
   margin-bottom: 1.5rem;
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-border-radius);
+  background-color: var(--card-bg);
+  box-shadow: var(--card-shadow);
 }
 
-.info-item {
+.card-header {
+  background-color: var(--background-secondary);
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--card-border);
+  border-top-left-radius: var(--card-border-radius);
+  border-top-right-radius: var(--card-border-radius);
+}
+
+.card-header h5 {
+  color: var(--text-primary);
+}
+
+.card-body {
+  padding: var(--spacing-md);
+}
+
+.user-info .info-item {
+  margin-bottom: 1rem;
+}
+
+.user-info .info-label {
+  display: block;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.user-info .info-value {
+  font-size: var(--font-size-lg);
+  color: var(--text-primary);
+}
+
+.update-profile small a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+.update-profile small a:hover {
+  text-decoration: underline;
+}
+
+.ai-result .card-header {
   display: flex;
-  flex-direction: column;
-  margin-bottom: 0.5rem;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.info-label {
-  font-weight: bold;
-  color: #6c757d;
-  font-size: 0.875rem;
-}
-
-.info-value {
-  font-size: 1.25rem;
-}
-
-.recommendations-content {
-  background-color: #f8f9fa;
-  padding: 1.5rem;
-  border-radius: 4px;
+.ai-result .card-header h5 {
+  margin-bottom: 0;
 }
 
 .recommendations-text {
   white-space: pre-wrap;
-  font-family: inherit;
-  font-size: 1rem;
-  margin: 0;
-  line-height: 1.6;
+  word-wrap: break-word;
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  background-color: var(--card-bg);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color-light);
+  line-height: 1.7;
+  font-size: var(--font-size-md);
 }
 
 .disclaimer {
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  background-color: var(--background-secondary);
+  border-color: var(--border-color);
 }
 
-.update-profile a {
-  color: inherit;
-  text-decoration: underline;
+.error-message {
+  color: var(--button-danger-text);
+  background-color: var(--button-danger-bg);
+  border-color: var(--button-danger-hover-bg);
 }
 </style>

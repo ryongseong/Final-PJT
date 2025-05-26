@@ -10,15 +10,15 @@
 
       <section class="controls-section card-style">
         <div class="search-filter-bar">
-          <div class="search-input-group">
-            <i class="icon search-icon">🔍</i>
+          <div class="search-box">
             <input
               type="text"
               v-model="searchQuery"
               placeholder="상품명, 금융사명 등으로 검색..."
               @keyup.enter="applyFiltersAndSearch"
-              class="search-input"
+              class="search-input-field"
             />
+            <i class="icon search-icon">🔍</i>
           </div>
           <div class="filter-input-group">
             <i class="icon filter-icon">🗓️</i>
@@ -222,7 +222,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import productsService from '@/services/products' // pjt0은 productsService에 모든 API가 있음
 import AdminNavbar from '@/components/admin/AdminNavbar.vue'
 
@@ -463,122 +463,90 @@ onMounted(() => {
 
 /* Controls Section - Consistent with FinancialProductsView */
 .controls-section .search-filter-bar {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive grid */
-  gap: 1rem;
+  display: flex;
   align-items: center;
+  gap: var(--spacing-sm, 0.5rem);
+  padding: var(--spacing-md, 1rem);
+  flex-wrap: wrap;
 }
 
-.search-input-group, .filter-input-group {
+.search-box {
   display: flex;
   align-items: center;
   background-color: var(--background-primary);
-  border-radius: var(--border-radius-md);
-  padding: 0.5rem 0.8rem;
+  border-radius: var(--input-border-radius, 8px);
+  padding: var(--spacing-sm, 0.5rem) var(--spacing-md, 1rem);
+  flex-grow: 1; 
+  min-width: 250px;
   border: 1px solid var(--border-color);
 }
 
-.search-input-group .icon, .filter-input-group .icon {
-  color: var(--text-secondary);
-  margin-right: 0.5rem;
-  font-size: 1.1rem;
-}
-
-.search-input, .filter-select {
+.search-input-field {
   border: none;
   outline: none;
   background-color: transparent;
   flex-grow: 1;
-  font-size: 0.95rem;
-  color: var(--text-primary);
-  padding: 0.3rem;
+  padding: var(--spacing-sm, 0.5rem);
+  font-size: var(--font-size-md, 1rem);
+  color: var(--text-input, var(--text-primary));
+  font-family: var(--font-body);
 }
 
-.filter-select { cursor: pointer; }
+.search-input-field::placeholder {
+  color: var(--text-secondary, #6c757d);
+}
 
-/* Action Buttons - Consistent with FinancialProductsView */
-.action-btn {
-  display: inline-flex;
+.search-box .search-icon {
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  margin-left: var(--spacing-sm, 0.5rem);
+}
+
+.filter-input-group {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 0.6rem 1.2rem;
-  border-radius: var(--border-radius-md);
-  font-weight: 500;
-  cursor: pointer;
-  transition: all var(--transition-speed);
-  text-align: center;
-  font-size: 0.9rem;
-  border: 1px solid transparent;
+  gap: var(--spacing-xs, 0.25rem);
+  background-color: var(--input-bg);
+  padding: var(--spacing-sm, 0.5rem) var(--spacing-sm, 0.75rem);
+  border-radius: var(--input-border-radius, 6px);
+  border: 1px solid var(--border-color);
 }
 
-.action-btn .icon {
-  margin-right: 0.5rem;
+.filter-input-group .icon {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
 }
-.action-btn .icon:last-child:first-child {
-    margin-right: 0; /* No margin if only icon */
+
+.filter-select {
+  padding: 0.5rem; /* AIRecommendationsView 스타일 적용 */
+  border-radius: 4px; /* AIRecommendationsView 스타일 적용 */
+  border: 1px solid var(--border-color, #ced4da); /* AIRecommendationsView 스타일 적용, var fallback 추가 */
+  font-size: var(--font-size-sm, 0.9rem);
+  background-color: transparent; /* 기존 스타일 유지 */
+  color: var(--text-input);
+  flex-grow: 1;
+  min-width: 150px;
+}
+
+/* Add styles for select options for theme awareness */
+.filter-select option {
+  background-color: var(--background-primary);
+  color: var(--text-primary);
 }
 
 .action-btn.primary-btn {
-  background-color: var(--accent-color);
+  padding: var(--input-padding-y, 0.6rem) var(--input-padding-x, 1rem);
+  border-radius: var(--input-border-radius, 6px);
+  border: 1px solid var(--border-color);
+  font-size: var(--font-size-sm, 0.9rem);
+  background-color: var(--button-bg);
   color: var(--button-text);
-  border-color: var(--accent-color);
-  grid-column: span 1; /* Ensure it takes one grid cell */
+  border-color: var(--button-bg);
 }
+
 .action-btn.primary-btn:hover:not(:disabled) {
-  background-color: var(--accent-hover);
-  border-color: var(--accent-hover);
-}
-
-.action-btn.secondary-btn {
-  background-color: var(--background-primary);
-  color: var(--text-secondary);
-  border-color: var(--border-color);
-}
-.action-btn.secondary-btn:hover:not(:disabled) {
-  background-color: var(--border-color);
-  color: var(--text-primary);
-}
-
-.action-btn.success-btn {
-  background-color: var(--accent-color); /* Using accent for success to match theme */
-  color: var(--button-text);
-  border-color: var(--accent-color);
-}
-.action-btn.success-btn:hover:not(:disabled) {
-  background-color: var(--accent-hover);
-  border-color: var(--accent-hover);
-}
-
-.action-btn.danger-btn {
-  background-color: #EF4444;
-  color: white;
-  border-color: #EF4444;
-}
-.action-btn.danger-btn:hover:not(:disabled) {
-  background-color: #DC2626;
-  border-color: #DC2626;
-}
-
-.action-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.action-btn.icon-btn {
-  padding: 0.5rem;
-  background-color: transparent;
-  border: none;
-  color: var(--text-secondary);
-}
-.action-btn.icon-btn .icon {
-  margin-right: 0;
-  font-size: 1.2rem;
-}
-.action-btn.icon-btn.edit-btn:hover {
-  color: var(--accent-color);
-}
-.action-btn.icon-btn.delete-btn:hover {
-  color: #EF4444;
+  background-color: var(--button-hover-bg);
+  border-color: var(--button-hover-bg);
 }
 
 /* Loading and Alerts - Consistent with FinancialProductsView */
@@ -663,73 +631,124 @@ onMounted(() => {
 .no-data td { text-align: center; padding: 2rem; color: var(--text-secondary); }
 .no-data p { margin-bottom: 0.5rem; }
 
-/* Modal Styles - Consistent with FinancialProductsView */
+/* Modal Styles - 전역 변수 적용 (FinancialProductsView와 유사하게) */
 .modal-overlay {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: var(--overlay-bg, rgba(0, 0, 0, 0.7));
   display: flex; align-items: center; justify-content: center;
   z-index: 1050; padding: 1rem;
 }
 .modal-container {
+  background-color: var(--modal-bg, var(--card-bg));
+  padding: var(--spacing-lg, 1.5rem);
+  border-radius: var(--modal-border-radius, var(--card-border-radius, 12px));
+  box-shadow: var(--shadow-xl, 0 10px 25px rgba(0,0,0,0.2));
+  border: 1px solid var(--modal-border, var(--card-border));
   width: 100%;
-  max-width: 700px; /* Slightly wider for more fields */
+  max-width: 700px; /* 상품 옵션 편집 등을 위해 적절히 조절 */
   max-height: 90vh;
   overflow-y: auto;
+  font-family: var(--font-body);
 }
 .modal-header {
   display: flex; justify-content: space-between; align-items: center;
-  padding-bottom: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color);
+  padding-bottom: var(--spacing-md, 1rem);
+  margin-bottom: var(--spacing-lg, 1.5rem);
+  border-bottom: 1px solid var(--border-color, #e0e0e0);
 }
-.modal-header h3 { font-size: 1.4rem; color: var(--text-primary); font-weight: 600; margin: 0; }
+.modal-header h3 {
+  font-size: var(--font-size-xl, 1.4rem);
+  color: var(--text-primary);
+  font-weight: 700;
+  margin: 0;
+  font-family: var(--font-heading);
+}
 .close-modal-btn {
-  background: none; border: none; font-size: 1.5rem; line-height: 1;
-  cursor: pointer; color: var(--text-secondary); padding: 0.3rem;
+  background: none;
+  border: none;
+  font-size: var(--icon-size-lg, 1.5rem);
+  line-height: 1;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: var(--spacing-xs, 0.3rem);
+  transition: color var(--transition-speed);
 }
 .close-modal-btn:hover { color: var(--text-primary); }
 
 .modal-form .form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid */
-  gap: 1.2rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-lg, 1.2rem);
 }
 .modal-form .form-group { margin-bottom: 0; }
 .modal-form .form-group.full-width { grid-column: 1 / -1; }
 .modal-form label {
-  display: block; margin-bottom: 0.5rem; font-weight: 500;
-  color: var(--text-secondary); font-size: 0.85rem;
+  display: block;
+  margin-bottom: var(--spacing-sm, 0.5rem);
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm, 0.9rem);
 }
 .modal-form input[type="text"],
 .modal-form input[type="number"],
 .modal-form textarea,
 .modal-form select {
-  width: 100%; padding: 0.7rem 0.9rem; border: 1px solid var(--border-color);
-  border-radius: 6px; font-size: 0.95rem; background-color: var(--background-primary);
-  color: var(--text-primary);
+  width: 100%;
+  padding: var(--input-padding-y, 0.75rem) var(--input-padding-x, 1rem);
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: var(--input-border-radius, var(--border-radius-md, 8px)); /* 기존 6px에서 변경 */
+  font-size: var(--font-size-md, 0.95rem);
+  background-color: var(--input-bg, var(--background-primary));
+  color: var(--text-input, var(--text-primary));
+  font-family: var(--font-body);
   transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
 }
 .modal-form input[type="text"]:focus,
 .modal-form input[type="number"]:focus,
 .modal-form textarea:focus,
 .modal-form select:focus {
-  outline: none; border-color: var(--accent-color);
-  box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb, 163, 184, 153), 0.2);
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px var(--accent-color-opacity-20, rgba(163, 184, 153, 0.2));
 }
-.modal-form textarea { resize: vertical; min-height: 80px; }
+.modal-form textarea { resize: vertical; min-height: 100px; }
 
 .modal-actions {
-  display: flex; justify-content: flex-end; gap: 0.8rem; margin-top: 2rem;
-  padding-top: 1.5rem; border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-md, 1rem);
+  margin-top: var(--spacing-xl, 2rem);
+  padding-top: var(--spacing-lg, 1.5rem);
+  border-top: 1px solid var(--border-color, #e0e0e0);
 }
 
-.confirmation-modal .modal-body p { margin-bottom: 0.8rem; font-size: 1.05rem; color: var(--text-primary); }
+/* Confirmation Modal Specifics - 전역 변수 적용 (FinancialProductsView와 유사하게) */
+.confirmation-modal .modal-body p {
+  margin-bottom: var(--spacing-md, 1rem);
+  font-size: var(--font-size-lg, 1.1rem);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
 .confirmation-modal .product-info-delete {
-  background-color: var(--background-primary); padding: 0.8rem; border-radius: 6px;
-  margin-bottom: 1rem; border: 1px solid var(--border-color); font-size: 0.9rem;
+  background-color: var(--background-secondary, var(--background-primary));
+  padding: var(--spacing-md, 1rem);
+  border-radius: var(--border-radius-md, 8px); /* 기존 6px에서 변경 */
+  margin-bottom: var(--spacing-lg, 1.5rem);
+  border: 1px solid var(--border-color, #ccc);
+  font-size: var(--font-size-md, 0.95rem);
+  color: var(--text-secondary);
 }
 .confirmation-modal .warning-text {
-  color: #D97706; font-weight: 500; display: flex; align-items: center;
+  color: var(--warning-color-text, #D97706);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  font-size: var(--font-size-md, 1rem);
 }
-.confirmation-modal .warning-text .icon { margin-right: 0.4rem; font-size: 1.1rem; }
+.confirmation-modal .warning-text .icon {
+  margin-right: var(--spacing-sm, 0.5rem);
+  font-size: var(--icon-size-md, 1.2rem);
+}
 
 /* Responsive Table - Consistent with FinancialProductsView */
 @media (max-width: 992px) { /* Adjusted breakpoint for better table view */

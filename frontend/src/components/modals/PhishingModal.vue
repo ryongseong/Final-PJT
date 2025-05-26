@@ -24,9 +24,9 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
+// import { useI18n } from 'vue-i18n' // 주석 처리 또는 삭제
 
-const { t } = useI18n()
+// const { t } = useI18n() // 주석 처리 또는 삭제
 const showModal = ref(false)
 const dontShowToday = ref(false)
 
@@ -51,84 +51,99 @@ onMounted(() => {
 <style scoped>
 .modal-backdrop {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-color: var(--overlay-bg, rgba(0, 0, 0, 0.7));
   z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .phishing-alert {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   width: 90%;
   max-width: 500px;
-  background: var(--card-bg);
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  background: var(--modal-bg, var(--card-bg));
+  border-radius: var(--modal-border-radius, var(--card-border-radius, 12px));
+  box-shadow: var(--shadow-xl, 0 10px 25px rgba(0,0,0,0.2));
+  border: 1px solid var(--modal-border, var(--card-border));
   z-index: 1000;
-  padding: 20px;
+  padding: var(--spacing-xl, 1.5rem);
+  font-family: var(--font-body);
 }
 
 .alert-header {
   display: flex;
   align-items: center;
-  margin-bottom: 15px;
-  gap: 10px;
-}
-
-.alert-header h3 {
-  margin: 0;
-  font-size: 1.2rem;
-  color: var(--text-primary);
+  margin-bottom: var(--spacing-lg, 1.25rem);
+  gap: var(--spacing-md, 0.75rem);
 }
 
 .warning-icon {
-  color: #ff9800;
-  font-size: 1.5rem;
+  font-size: var(--icon-size-xl, 1.8rem);
+  color: var(--warning-color-icon, #f97316);
 }
 
-.alert-content {
-  margin-bottom: 20px;
+.alert-header h3 {
+  font-size: var(--font-size-xl, 1.4rem);
+  color: var(--text-primary);
+  font-weight: 700;
+  margin: 0;
+  font-family: var(--font-heading);
+}
+
+.alert-content p {
   color: var(--text-secondary);
-  line-height: 1.5;
+  margin-bottom: var(--spacing-md, 1rem);
+  line-height: 1.6;
+  font-size: var(--font-size-md, 1rem);
 }
 
-.report-number {
-  margin-top: 10px;
-  font-weight: 500;
-  color: var(--accent-color);
+.alert-content p.report-number {
+  font-weight: 600;
+  color: var(--warning-color-text, var(--accent-color));
+  background-color: var(--warning-color-bg-light, rgba(249, 115, 22, 0.1));
+  padding: var(--spacing-sm, 0.5rem) var(--spacing-md, 0.75rem);
+  border-radius: var(--border-radius-sm, 6px);
+  text-align: center;
+  margin-top: var(--spacing-md, 1rem);
 }
 
 .alert-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 15px;
+  margin-top: var(--spacing-lg, 1.5rem);
+  padding-top: var(--spacing-lg, 1.25rem);
+  border-top: 1px solid var(--border-color, #e0e0e0);
 }
 
 .dont-show {
   display: flex;
   align-items: center;
-  gap: 8px;
   color: var(--text-secondary);
+  font-size: var(--font-size-sm, 0.9rem);
   cursor: pointer;
 }
 
-.close-button {
-  padding: 8px 16px;
-  background: var(--accent-color);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+.dont-show input[type="checkbox"] {
+  margin-right: var(--spacing-sm, 0.5rem);
+  accent-color: var(--accent-color);
 }
 
-.close-button:hover {
+.alert-footer .close-button {
+  padding: var(--button-padding-y, 0.6rem) var(--button-padding-x, 1.2rem);
+  font-size: var(--button-font-size, 0.95rem);
+  font-weight: 500;
+  background-color: var(--button-bg, var(--accent-color));
+  color: var(--button-text, #FFFFFF);
+  border: 1px solid transparent;
+  border-radius: var(--button-border-radius, var(--border-radius-md, 8px));
+  cursor: pointer;
+  transition: background-color var(--transition-speed), opacity var(--transition-speed);
+}
+
+.alert-footer .close-button:hover {
+  background-color: var(--button-hover, var(--accent-hover));
   opacity: 0.9;
 }
 </style> 

@@ -1,73 +1,74 @@
 <!-- Saved Videos Component -->
 <template>
-  <div class="saved-videos">
-    <h2>나중에 볼 영상</h2>
+  <div class="saved-videos-container">
+    <h2 class="page-title">{{ $t('common.savedVideos') }}</h2>
 
-    <div v-if="error" class="error-message">
+    <div v-if="error" class="error-message-global">
       {{ error }}
     </div>
 
-    <div v-if="isLoading" class="loading-container">
-      <div class="loading-spinner"></div>
-      <p>저장된 영상을 불러오는 중...</p>
+    <div v-if="isLoading" class="loading-container-global">
+      <div class="loading-spinner-global"></div>
+      <p>{{ $t('common.loading') }}</p>
     </div>
 
-    <div v-else-if="savedVideos.length === 0" class="info-message">
-      <p>저장된 주식 관련 영상이 없습니다.</p>
-      <router-link to="/youtube/search" class="action-button primary-button">
-        영상을 검색해보세요.
+    <div v-else-if="savedVideos.length === 0" class="empty-state-container">
+      <i class="bi bi-camera-video-off empty-state-icon"></i>
+      <p class="empty-state-text">{{ $t('youtube.noSavedVideos') }}</p>
+      <router-link to="/youtube/search" class="action-btn primary-btn">
+        <i class="bi bi-search"></i> {{ $t('youtube.searchVideosLink') }}
       </router-link>
     </div>
 
-    <div v-else class="video-grid">
-      <div v-for="savedVideo in savedVideos" :key="savedVideo.id" class="video-card">
-        <div class="video-thumbnail">
+    <div v-else class="video-grid-global">
+      <div v-for="savedVideo in savedVideos" :key="savedVideo.id" class="video-card-global">
+        <div class="video-thumbnail-global">
           <img :src="savedVideo.video.thumbnail_url" :alt="savedVideo.video.title" />
         </div>
-        <div class="video-content">
-          <h3 class="video-title" :title="savedVideo.video.title">
+        <div class="video-content-global">
+          <h3 class="video-title-global" :title="savedVideo.video.title">
             {{ savedVideo.video.title }}
           </h3>
-          <p class="video-channel">{{ savedVideo.video.channel_title }}</p>
-          <p class="video-date">저장된 일시: {{ formatDate(savedVideo.saved_at) }}</p>
-          <div class="notes-container">
+          <p class="video-channel-global">{{ savedVideo.video.channel_title }}</p>
+          <p class="video-date-global">{{ $t('youtube.savedAt') }}: {{ formatDate(savedVideo.saved_at) }}</p>
+          <div class="notes-input-area">
             <textarea
-              class="notes-textarea"
+              class="form-control-global notes-textarea-custom"
               :id="'notes-' + savedVideo.id"
               v-model="savedVideo.notes"
               @blur="updateNotes(savedVideo)"
-              placeholder="메모를 추가하세요..."
+              :placeholder="$t('youtube.addNotesPlaceholder')"
             ></textarea>
           </div>
         </div>
-        <div class="video-actions">
+        <div class="video-actions-global">
           <a
             :href="'https://www.youtube.com/watch?v=' + savedVideo.video.youtube_id"
             target="_blank"
-            class="action-button watch-button"
+            class="action-btn watch-btn-global"
           >
-            보기
+            <i class="bi bi-play-circle"></i> {{ $t('common.watch') }}
           </a>
-          <button @click="confirmDelete(savedVideo)" class="action-button delete-button">
-            제거
+          <button @click="confirmDelete(savedVideo)" class="action-btn delete-btn-global">
+            <i class="bi bi-trash"></i> {{ $t('common.remove') }}
           </button>
         </div>
       </div>
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div class="modal-overlay" v-if="showDeleteModal" @click="cancelDelete">
-      <div class="modal-container" @click.stop>
-        <div class="modal-header">
-          <h3>제거 확인</h3>
-          <button class="close-button" @click="cancelDelete">×</button>
+    <div class="modal-overlay-global" v-if="showDeleteModal" @click="cancelDelete">
+      <div class="modal-container-global" @click.stop>
+        <div class="modal-header-global">
+          <h3>{{ $t('youtube.confirmRemoveTitle') }}</h3>
+          <button class="close-button-global" @click="cancelDelete">&times;</button>
         </div>
-        <div class="modal-body">
-          <p>이 영상을 저장 목록에서 제거하시겠습니까?</p>
+        <div class="modal-body-global">
+          <p>{{ $t('youtube.confirmRemoveMessage') }}</p>
         </div>
-        <div class="modal-footer">
-          <button class="action-button secondary-button" @click="cancelDelete">취소</button>
-          <button @click="deleteVideo" class="action-button delete-button">제거</button>
+        <div class="modal-footer-global">
+          <button class="action-btn secondary-btn-global" @click="cancelDelete">{{ $t('common.cancel') }}</button>
+          <button @click="deleteVideo" class="action-btn delete-btn-global">{{ $t('common.remove') }}</button>
         </div>
       </div>
     </div>
@@ -78,10 +79,12 @@
 import { ref, onMounted } from 'vue'
 import { useToast } from 'vue-toast-notification'
 import youtubeApi from '@/services/youtube'
+import { useI18n } from 'vue-i18n'
 
 export default {
   name: 'SavedVideos',
   setup() {
+    const { t } = useI18n()
     const savedVideos = ref([])
     const isLoading = ref(true)
     const error = ref('')
@@ -98,7 +101,7 @@ export default {
         savedVideos.value = response.data
       } catch (err) {
         console.error('Error fetching saved videos:', err)
-        error.value = 'Failed to load your saved videos. Please try again.'
+        error.value = t('youtube.errorLoad')
       } finally {
         isLoading.value = false
       }
@@ -107,10 +110,10 @@ export default {
     const updateNotes = async (savedVideo) => {
       try {
         await youtubeApi.updateSavedVideo(savedVideo.id, { notes: savedVideo.notes })
-        $toast.success('Notes updated successfully')
+        $toast.success(t('youtube.notesUpdated'))
       } catch (err) {
         console.error('Error updating notes:', err)
-        $toast.error('Failed to update notes. Please try again.')
+        $toast.error(t('youtube.errorUpdateNotes'))
       }
     }
 
@@ -129,10 +132,10 @@ export default {
       try {
         await youtubeApi.deleteSavedVideo(selectedVideo.value.id)
         savedVideos.value = savedVideos.value.filter((v) => v.id !== selectedVideo.value.id)
-        $toast.success('Video removed from your saved list')
+        $toast.success(t('youtube.videoRemoved'))
       } catch (err) {
         console.error('Error deleting video:', err)
-        $toast.error('Failed to remove video. Please try again.')
+        $toast.error(t('youtube.errorRemoveVideo'))
       } finally {
         selectedVideo.value = null
         showDeleteModal.value = false
@@ -165,264 +168,292 @@ export default {
       cancelDelete,
       deleteVideo,
       formatDate,
+      t
     }
   },
 }
 </script>
 
 <style scoped>
-.saved-videos {
-  max-width: 1200px;
+/* 기존 스타일은 모두 제거하고 전역 스타일 및 페이지 특화 스타일을 새로 작성합니다. */
+
+/* 페이지 컨테이너 */
+.saved-videos-container {
+  padding: var(--page-padding, 2rem 1.5rem);
+  max-width: var(--container-max-width, 1200px);
   margin: 0 auto;
-  padding: 20px;
-  position: relative;
+  font-family: var(--font-body);
 }
 
-.error-message {
-  background-color: #fee2e2;
-  color: #b91c1c;
-  padding: 12px 16px;
-  border-radius: 6px;
-  margin-bottom: 20px;
+/* 페이지 제목 */
+.page-title {
+  font-size: var(--font-size-xxxl, 2.5rem);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xl, 2rem);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  text-align: center;
 }
 
-.info-message {
-  background-color: #e0f2fe;
-  color: #075985;
-  padding: 12px 16px;
-  border-radius: 6px;
-  margin-bottom: 20px;
+/* 전역 에러 메시지 (기존 스타일이 이미 전역적일 수 있으므로 확인 필요) */
+.error-message-global {
+  background-color: var(--background-error, #fee2e2);
+  color: var(--text-error, #b91c1c);
+  padding: var(--alert-padding-y, 1rem) var(--alert-padding-x, 1.5rem);
+  border-radius: var(--alert-border-radius, 8px);
+  margin-bottom: var(--spacing-lg, 1.5rem);
+  border: 1px solid var(--border-error, #fecaca);
+  text-align: center;
 }
 
-.loading-container {
+/* 전역 로딩 (기존 스타일이 이미 전역적일 수 있으므로 확인 필요) */
+.loading-container-global {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 0;
+  padding: var(--spacing-xxl, 3rem) 0;
+  color: var(--text-secondary);
 }
-
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #e0e0e0;
-  border-top: 4px solid #4f46e5;
+.loading-spinner-global {
+  width: 48px;
+  height: 48px;
+  border: 5px solid var(--border-color-light, #e0e0e0);
+  border-top: 5px solid var(--accent-color, #4f46e5);
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: 16px;
+  margin-bottom: var(--spacing-md, 1rem);
 }
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+/* 빈 상태 컨테이너 */
+.empty-state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xxl, 4rem) var(--spacing-lg, 2rem);
+  background-color: var(--background-secondary-accent, var(--background-secondary)); /* 약간 다른 배경 */
+  border-radius: var(--card-border-radius-lg, 16px);
+  text-align: center;
+  color: var(--text-secondary);
+  border: 1px dashed var(--border-color-light);
 }
 
-.video-grid {
+.empty-state-icon {
+  font-size: 4rem; /* 아이콘 크기 키움 */
+  color: var(--text-placeholder, var(--text-secondary-light));
+  margin-bottom: var(--spacing-lg, 1.5rem);
+}
+
+.empty-state-text {
+  font-size: var(--font-size-lg, 1.2rem);
+  margin-bottom: var(--spacing-xl, 2rem);
+  color: var(--text-primary);
+}
+
+/* 비디오 그리드 (YoutubeSearch.vue 와 유사하게) */
+.video-grid-global {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); /* 카드 최소 너비 조정 */
+  gap: var(--spacing-xl, 2rem); /* 카드 간 간격 조정 */
 }
 
-.video-card {
-  border-radius: 8px;
+/* 비디오 카드 (YoutubeSearch.vue 와 유사하게) */
+.video-card-global {
+  background: var(--card-bg, white);
+  border: 1px solid var(--card-border, #e0e0e0);
+  border-radius: var(--card-border-radius-lg, 16px); /* 더 둥근 모서리 */
+  box-shadow: var(--shadow-lg, 0 8px 16px rgba(0,0,0,0.1)); /* 좀 더 부드러운 그림자 */
   overflow: hidden;
-  background-color: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--transition-fast, 0.2s), box-shadow var(--transition-fast, 0.2s);
 }
 
-.video-card:hover {
-  transform: translateY(-5px);
+.video-card-global:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-xl, 0 12px 24px rgba(0,0,0,0.15));
 }
 
-.video-thumbnail img {
+.video-thumbnail-global img {
   width: 100%;
-  height: 180px;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
+  border-bottom: 1px solid var(--card-border);
 }
 
-.video-content {
-  padding: 16px;
+.video-content-global {
+  padding: var(--card-padding-lg, 1.5rem);
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-.video-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  height: 48px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.video-title-global {
+  font-size: var(--font-size-xl, 1.3rem);
+  font-weight: 700;
+  color: var(--text-heading, var(--text-primary));
+  font-family: var(--font-heading);
+  margin: 0 0 var(--spacing-md, 0.75rem) 0;
+  line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
-  line-clamp: 2;
   -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: calc(1.3rem * 1.4 * 2); /* 2줄 높이 확보 */
 }
 
-.video-channel {
-  color: #666;
-  font-size: 14px;
-  margin-bottom: 4px;
-}
-
-.video-date {
-  color: #888;
-  font-size: 12px;
-  margin-bottom: 12px;
-}
-
-.notes-container {
-  margin-bottom: 16px;
-}
-
-.notes-textarea {
-  width: 100%;
-  min-height: 80px;
-  padding: 10px;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  resize: vertical;
-  font-family: inherit;
-  font-size: 14px;
+.video-channel-global,
+.video-date-global {
+  font-size: var(--font-size-sm, 0.9rem);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-sm, 0.5rem);
   line-height: 1.5;
 }
 
-.notes-textarea:focus {
-  border-color: #4f46e5;
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+.notes-input-area {
+  margin-top: var(--spacing-md, 1rem);
+  flex-grow: 1; /* 남은 공간 채우도록 */
+  display: flex; /* 내부 textarea 높이 100%를 위해 */
 }
 
-.video-actions {
+.notes-textarea-custom {
+  /* .form-control-global 스타일 상속 + 추가 */
+  min-height: 80px; /* 최소 높이 */
+  resize: vertical; /* 수직 리사이즈만 허용 */
+  font-size: var(--font-size-sm, 0.9rem);
+  width: 100%;
+}
+
+.video-actions-global {
+  padding: var(--spacing-md, 1rem) var(--card-padding-lg, 1.5rem);
+  border-top: 1px solid var(--card-border-light, var(--border-color-light));
   display: flex;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border-top: 1px solid #eee;
+  gap: var(--spacing-md, 1rem);
+  background-color: var(--background-secondary-ultralight, rgba(0,0,0,0.02)); /* 액션 영역 배경 구분 */
 }
 
-.action-button {
-  padding: 8px 12px;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  text-decoration: none;
-  text-align: center;
-  border: 1px solid transparent;
-}
-
-.primary-button {
-  background-color: #4f46e5;
-  color: white;
-}
-
-.primary-button:hover {
-  background-color: #4338ca;
-}
-
-.secondary-button {
-  background-color: #f3f4f6;
-  color: #4b5563;
-  border-color: #d1d5db;
-}
-
-.secondary-button:hover {
-  background-color: #e5e7eb;
-}
-
-.watch-button {
-  color: #4f46e5;
-  border: 1px solid #4f46e5;
-  background-color: transparent;
-}
-
-.watch-button:hover {
-  background-color: #f5f5ff;
-}
-
-.delete-button {
-  color: #ef4444;
-  border: 1px solid #ef4444;
-  background-color: transparent;
-}
-
-.delete-button:hover {
-  background-color: #fef2f2;
-}
-
-/* Modal styles */
-.modal-overlay {
+/* 모달 스타일 (App.vue 또는 전역 모달 스타일 참조) */
+.modal-overlay-global {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  height: 100%;
+  background-color: var(--modal-overlay-bg, rgba(0, 0, 0, 0.6));
   display: flex;
-  align-items: center;
   justify-content: center;
-  z-index: 1000;
-}
-
-.modal-container {
-  background-color: white;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 500px;
-  overflow: hidden;
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-
-.modal-header {
-  padding: 16px;
-  border-bottom: 1px solid #e5e7eb;
-  display: flex;
   align-items: center;
+  z-index: var(--z-modal-overlay, 1000);
+}
+
+.modal-container-global {
+  background-color: var(--modal-bg, var(--card-bg));
+  padding: var(--modal-padding, 2rem);
+  border-radius: var(--modal-border-radius, 12px);
+  box-shadow: var(--modal-shadow, 0 5px 15px rgba(0,0,0,0.3));
+  width: 100%;
+  max-width: var(--modal-max-width, 500px);
+  animation: modal-fade-in var(--transition-normal) ease-out;
+}
+
+.modal-header-global {
+  display: flex;
   justify-content: space-between;
+  align-items: center;
+  padding-bottom: var(--spacing-md, 1rem);
+  margin-bottom: var(--spacing-lg, 1.5rem);
+  border-bottom: 1px solid var(--border-color);
 }
 
-.modal-header h3 {
+.modal-header-global h3 {
   margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #111827;
+  font-size: var(--font-size-xl, 1.5rem);
+  color: var(--text-heading, var(--text-primary));
+  font-family: var(--font-heading);
 }
 
-.close-button {
+.close-button-global {
   background: none;
   border: none;
-  font-size: 24px;
-  line-height: 1;
+  font-size: 2rem;
+  color: var(--text-secondary);
   cursor: pointer;
-  color: #9ca3af;
+  padding: 0;
+  line-height: 1;
+}
+.close-button-global:hover {
+  color: var(--text-primary);
 }
 
-.modal-body {
-  padding: 16px;
+.modal-body-global p {
+  font-size: var(--font-size-md, 1rem);
+  color: var(--text-primary);
+  line-height: 1.6;
+  margin-bottom: 0; /* 푸터와의 간격은 푸터에서 처리 */
 }
 
-.modal-footer {
-  padding: 12px 16px;
-  border-top: 1px solid #e5e7eb;
+.modal-footer-global {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: var(--spacing-md, 1rem);
+  padding-top: var(--spacing-lg, 1.5rem);
+  margin-top: var(--spacing-lg, 1.5rem);
+  border-top: 1px solid var(--border-color-light);
 }
 
+/* 전역 버튼 스타일 (.action-btn 등은 variables.css 또는 App.vue에 정의되어 있어야 함) */
+/* .action-btn, .primary-btn, .secondary-btn, .delete-btn-global, .watch-btn-global 등은 */
+/* 이미 전역적으로 스타일이 정의되어 있다고 가정하고, 필요한 경우 여기서 오버라이드 또는 추가 */
+
+.action-btn i {
+  margin-right: var(--spacing-xs, 0.4rem);
+}
+
+/* 특정 버튼에 대한 추가 스타일 (필요시) */
+.watch-btn-global {
+  /* 시청 버튼 고유 스타일 (필요시) */
+}
+
+.delete-btn-global {
+  /* 제거 버튼 고유 스타일 (필요시) */
+  /* 예: background-color: var(--button-danger-bg); color: var(--button-danger-text); */
+}
+
+@keyframes modal-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 반응형 스타일 (기존 스타일 참조 및 전역 기준 적용) */
 @media (max-width: 768px) {
-  .video-grid {
+  .video-grid-global {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+  .page-title {
+    font-size: var(--font-size-xxl, 2rem);
   }
 }
 
 @media (max-width: 480px) {
-  .video-grid {
+  .video-grid-global {
     grid-template-columns: 1fr;
+  }
+   .modal-container-global {
+    margin: 1rem;
+    padding: 1.5rem;
   }
 }
 </style>

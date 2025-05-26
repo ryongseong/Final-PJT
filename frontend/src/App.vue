@@ -38,9 +38,9 @@
                 <router-link to="/youtube/saved" class="dropdown-item">
                   <i class="icon">🎬</i> {{ $t('common.savedVideos') }}
                 </router-link>
-                <router-link to="/settings" class="dropdown-item">
+                <!-- <router-link to="/settings" class="dropdown-item">
                   <i class="icon">⚙️</i> {{ $t('common.settings') }}
-                </router-link>
+                </router-link> -->
                 <div class="dropdown-divider"></div>
                 <button @click="logout" class="dropdown-item logout">
                   <i class="icon">🚪</i> {{ $t('common.logout') }}
@@ -56,9 +56,9 @@
                 $t('common.register')
               }}</router-link>
             </div>
-            <router-link to="/settings" class="settings-link">
+            <!-- <router-link to="/settings" class="settings-link">
               <i class="icon">⚙️</i>
-            </router-link>
+            </router-link> -->
           </template>
         </div>
       </div>
@@ -103,7 +103,7 @@ import { useSettingsStore } from '@/stores/settings'
 import { useI18n } from 'vue-i18n'
 // Components
 import PhishingModal from '@/components/modals/PhishingModal.vue'
-import ParticleNetwork from '@/components/effects/ParticleNetwork.vue'
+// import ParticleNetwork from '@/components/effects/ParticleNetwork.vue' // 주석 처리
 
 const userStore = useUserStore()
 const settingsStore = useSettingsStore()

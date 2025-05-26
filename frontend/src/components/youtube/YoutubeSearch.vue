@@ -1,20 +1,17 @@
 <!-- YouTube Search Component -->
 <template>
-  <div class="youtube-search">
+  <div class="youtube-search-container">
     <h2>주식 관련 영상 검색</h2>
-
-    <div class="search-form">
-      <div class="search-input-group">
+    <div class="search-box-wrapper">
+      <div class="search-box">
         <input
+          type="text"
           v-model="searchQuery"
           @keyup.enter="searchVideos"
-          type="text"
-          class="search-input"
+          class="search-input-field"
           placeholder="주식 관련 영상을 검색해보세요!!"
         />
-        <button @click="searchVideos" class="search-button" :disabled="isLoading">
-          {{ isLoading ? '검색중...' : '검색' }}
-        </button>
+        <i class="search-icon">🔍</i>
       </div>
     </div>
 
@@ -148,66 +145,91 @@ export default {
 </script>
 
 <style scoped>
-.youtube-search {
+/* 유튜브 검색 컨테이너 및 기본 요소 - 전역 스타일 변수 적용 */
+.youtube-search-container {
+  padding: var(--page-padding, 2rem 1.5rem);
+  text-align: center;
+  background-color: var(--background-secondary, #f4f4f4);
+  border-radius: var(--card-border-radius, 12px);
+  box-shadow: var(--shadow-lg, 0 8px 16px rgba(0, 0, 0, 0.1));
   max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+  margin: 2rem auto;
+  font-family: var(--font-body, 'Noto Sans KR', sans-serif);
 }
 
-.search-form {
-  max-width: 600px;
-  margin: 0 auto 30px;
+h2 {
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xl, 2rem);
+  font-size: var(--font-size-xxxl, 2.5rem);
+  font-family: var(--font-heading, 'Playfair Display', serif);
+  font-weight: 700;
 }
 
-.search-input-group {
+.search-box-wrapper {
   display: flex;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  justify-content: center;
+  align-items: center;
+  margin-bottom: var(--spacing-xl, 2rem);
+  padding: var(--spacing-md, 1rem);
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius-lg, 12px);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--card-border);
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.search-input {
-  flex: 1;
-  padding: 12px 16px;
-  border: 1px solid #e0e0e0;
-  border-right: none;
-  font-size: 16px;
-  outline: none;
+.search-box {
+  display: flex;
+  align-items: center;
+  background-color: var(--background-primary);
+  border-radius: var(--input-border-radius, 8px);
+  padding: var(--spacing-sm, 0.5rem) var(--spacing-md, 1rem);
+  flex-grow: 1;
+  border: 1px solid var(--border-color);
 }
 
-.search-button {
-  background-color: #4f46e5;
-  color: white;
+.search-input-field {
   border: none;
-  padding: 0 20px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background-color 0.2s;
+  outline: none;
+  background-color: transparent;
+  flex-grow: 1;
+  padding: var(--spacing-sm, 0.5rem);
+  font-size: var(--font-size-md, 1rem);
+  color: var(--text-primary);
+  font-family: var(--font-body);
 }
 
-.search-button:hover {
-  background-color: #4338ca;
+.search-input-field:focus {
+  /* 포커스 스타일은 ArticlesView에 없었으므로, 필요시 추가 또는 전역 스타일 따름 */
+  /* box-shadow: 0 0 0 3px var(--accent-color-opacity-20, rgba(0,123,255,0.2)); */ /* 기존 스타일 유지 시 */
 }
 
-.search-button:disabled {
-  background-color: #a5b4fc;
-  cursor: not-allowed;
+.search-icon {
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  /* 기존 search-button 대신 사용되므로, 필요시 cursor: pointer 추가 가능 */
+}
+
+/* 메시지 및 로딩 스타일 - 전역 변수 적용 */
+.error-message, .info-message {
+  padding: var(--alert-padding-y, 1rem) var(--alert-padding-x, 1.5rem);
+  border-radius: var(--alert-border-radius, 8px);
+  margin-bottom: var(--spacing-lg, 1.5rem);
+  font-size: var(--font-size-md, 1rem);
 }
 
 .error-message {
-  background-color: #fee2e2;
-  color: #b91c1c;
-  padding: 12px 16px;
-  border-radius: 6px;
-  margin-bottom: 20px;
+  background-color: var(--background-error, #fee2e2);
+  color: var(--text-error, #b91c1c);
+  border: 1px solid var(--border-error, #fecaca);
 }
 
 .info-message {
-  background-color: #e0f2fe;
-  color: #075985;
-  padding: 12px 16px;
-  border-radius: 6px;
-  margin-bottom: 20px;
+  background-color: var(--background-info, #e0f2fe);
+  color: var(--text-info, #075985);
+  border: 1px solid var(--border-info, #bae6fd);
 }
 
 .loading-container {
@@ -215,17 +237,144 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 0;
+  padding: var(--spacing-xxl, 3rem) 0;
+  color: var(--text-secondary);
 }
 
 .loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #e0e0e0;
-  border-top: 4px solid #4f46e5;
+  width: 48px; /* 크기 증가 */
+  height: 48px;
+  border: 5px solid var(--border-color-light, #e0e0e0);
+  border-top: 5px solid var(--accent-color, #4f46e5);
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: 16px;
+  margin-bottom: var(--spacing-md, 1rem);
+}
+
+/* 비디오 카드 그리드 */
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* 반응형 그리드 */
+  gap: var(--spacing-lg, 1.5rem);
+  margin-top: var(--spacing-xl, 2rem);
+}
+
+/* 비디오 카드 스타일 개선 - HomeView 카드 스타일 참조 */
+.video-card {
+  background: var(--card-bg, white);
+  border: 1px solid var(--card-border, #e0e0e0);
+  border-radius: var(--card-border-radius, 12px);
+  box-shadow: var(--shadow-md, 0 4px 6px rgba(0,0,0,0.1));
+  overflow: hidden; /* 썸네일 경계 처리 */
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+.video-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg, 0 8px 12px rgba(0,0,0,0.15));
+}
+
+.video-thumbnail {
+  width: 100%;
+  aspect-ratio: 16 / 9; /* 16:9 비율 유지 */
+  background-color: var(--background-light-gray, #f0f0f0); /* 로딩 중 배경색 */
+}
+
+.video-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 이미지가 영역을 꽉 채우도록 */
+}
+
+.video-content {
+  padding: var(--card-padding-lg, 1.5rem);
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.video-title {
+  font-size: var(--font-size-xl, 1.35rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: var(--font-heading, 'Noto Sans KR', sans-serif);
+  margin: 0 0 var(--spacing-md, 0.75rem) 0;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: calc(1.35rem * 1.45 * 2);
+}
+
+.video-channel, .video-date {
+  font-size: var(--font-size-md, 0.95rem);
+  color: var(--text-secondary);
+  font-family: var(--font-body, 'Noto Sans KR', sans-serif);
+  margin-bottom: var(--spacing-sm, 0.5rem);
+  line-height: 1.5;
+}
+
+.video-description {
+  font-size: var(--font-size-md, 0.95rem);
+  color: var(--text-secondary);
+  font-family: var(--font-body, 'Noto Sans KR', sans-serif);
+  line-height: 1.6;
+  margin-top: var(--spacing-sm, 0.5rem);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-grow: 1;
+}
+
+.video-actions {
+  padding: var(--spacing-md, 0.75rem) var(--card-padding, 1.25rem);
+  border-top: 1px solid var(--border-color-light, #eee);
+  display: flex;
+  gap: var(--spacing-sm, 0.5rem);
+  margin-top: auto; /* 버튼들을 카드 하단에 고정 */
+}
+
+/* 버튼 스타일 - 전역 .action-btn 스타일 활용 */
+.action-button {
+  flex: 1;
+  padding: var(--button-padding-y, 0.75rem) var(--button-padding-x, 1.25rem);
+  border-radius: var(--button-border-radius, 8px);
+  font-weight: 600;
+  font-size: var(--font-size-md, 1rem);
+  font-family: var(--font-body, 'Noto Sans KR', sans-serif);
+  text-align: center;
+  cursor: pointer;
+  transition: background-color var(--transition-speed), border-color var(--transition-speed), color var(--transition-speed);
+  text-decoration: none;
+}
+
+.watch-button {
+  background-color: var(--button-bg, #007bff);
+  color: var(--button-text, white);
+  border: 1px solid var(--button-bg, #007bff);
+}
+
+.watch-button:hover {
+  background-color: var(--button-hover, #0056b3);
+  border-color: var(--button-hover, #0056b3);
+}
+
+.save-button {
+  background-color: var(--button-bg-secondary, transparent);
+  color: var(--button-text-secondary, var(--accent-color));
+  border: 1px solid var(--button-border-color-secondary, var(--accent-color));
+}
+
+.save-button:hover {
+  background-color: var(--button-hover-bg-secondary, var(--accent-color-opacity-10));
+  color: var(--accent-hover, var(--accent-color-dark));
+  border-color: var(--accent-hover, var(--accent-color-dark));
 }
 
 @keyframes spin {
@@ -237,118 +386,50 @@ export default {
   }
 }
 
-.video-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 24px;
-}
-
-.video-card {
-  border-radius: 8px;
-  overflow: hidden;
-  background-color: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
-}
-
-.video-card:hover {
-  transform: translateY(-5px);
-}
-
-.video-thumbnail img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-}
-
-.video-content {
-  padding: 16px;
-}
-
-.video-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  height: 48px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.video-channel {
-  color: #666;
-  font-size: 14px;
-  margin-bottom: 4px;
-}
-
-.video-date {
-  color: #888;
-  font-size: 12px;
-  margin-bottom: 8px;
-}
-
-.video-description {
-  font-size: 14px;
-  color: #444;
-  margin-bottom: 16px;
-  height: 60px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  -webkit-box-orient: vertical;
-}
-
-.video-actions {
-  display: flex;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border-top: 1px solid #eee;
-}
-
-.action-button {
-  padding: 8px 12px;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  text-decoration: none;
-  text-align: center;
-}
-
-.watch-button {
-  color: #4f46e5;
-  border: 1px solid #4f46e5;
-  background-color: transparent;
-}
-
-.watch-button:hover {
-  background-color: #f5f5ff;
-}
-
-.save-button {
-  color: #4b5563;
-  border: 1px solid #d1d5db;
-  background-color: transparent;
-}
-
-.save-button:hover {
-  background-color: #f8f9fa;
-}
-
+/* 반응형 조정 */
 @media (max-width: 768px) {
+  .youtube-search-container {
+    margin: 1rem auto;
+    padding: 1.5rem;
+  }
+  h2 {
+    font-size: var(--font-size-xl, 1.8rem);
+  }
+  .search-box-wrapper {
+    flex-direction: column;
+    gap: var(--spacing-md, 1rem);
+  }
+  .search-input-field {
+    width: 100%;
+    border-radius: var(--input-border-radius, 8px); /* 모바일에서 전체 둥글게 */
+  }
+  .search-input-field {
+    border-right: 1px solid var(--border-color, #ccc); /* 모바일에서 오른쪽 테두리 복원 */
+  }
+
   .video-grid {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--spacing-md, 1rem);
+  }
+  .video-title {
+    font-size: var(--font-size-md, 1.1rem);
+     min-height: calc(1.1rem * 1.4 * 2);
   }
 }
 
 @media (max-width: 480px) {
   .video-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* 매우 작은 화면에서는 한 줄로 */
+  }
+  .video-card {
+    margin-bottom: var(--spacing-lg, 1rem);
+  }
+   .video-title {
+    font-size: var(--font-size-md, 1rem);
+     min-height: calc(1rem * 1.4 * 2);
+  }
+  .video-actions {
+    flex-direction: column;
   }
 }
 </style>

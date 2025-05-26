@@ -85,6 +85,8 @@ export default {
       selectedBank: '',
       districts: [],
       kakaoMarkers: [],
+      kakaoOverlays: [],
+      activeOverlay: null,
       currentLatitude: this.initialLatitude,
       currentLongitude: this.initialLongitude,
       places: null,
@@ -124,12 +126,16 @@ export default {
             const newCenter = new kakao.maps.LatLng(this.currentLatitude, this.currentLongitude)
             this.map.setCenter(newCenter)
 
-            // Add a marker for current location
-            this.addMarker({
+            // Add a marker and custom overlay for current location
+            this.addMarkerWithCustomOverlay({
               lat: this.currentLatitude,
               lng: this.currentLongitude,
-              content: '<div style="padding:5px;">현재 위치</div>',
-            })
+              content: '<div style="padding: 8px 12px; background-color: rgba(255, 255, 255, 0.9); color: #333; font-size: 13px; font-weight: 600; text-align: center; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin: 0;">현재 위치</div>',
+              title: 'currentLocation',
+              yAnchor: 2.0 // Adjust to position slightly more above the marker
+            });
+          } else {
+            // Map is not yet initialized
           }
         },
         () => {
@@ -152,16 +158,25 @@ export default {
         this.addMarkers(this.markers)
       }
 
-      // Add a marker for current location right after map initialization
-      const currentLocationMarker = {
-        lat: this.currentLatitude,
-        lng: this.currentLongitude,
-        content: '<div style="padding:5px;">현재 위치</div>',
-      }
-      this.addMarker(currentLocationMarker)
+      // Check if a current location marker already exists to prevent duplicates
+      const existingCurrentLocationMarker = this.kakaoMarkers.find(m => m.getTitle && m.getTitle() === 'currentLocation');
 
-      // Add event listener for map click
+      if (!existingCurrentLocationMarker) {
+        this.addMarkerWithCustomOverlay({
+          lat: this.currentLatitude, 
+          lng: this.currentLongitude,
+          content: '<div style="padding: 8px 12px; background-color: rgba(255, 255, 255, 0.9); color: #333; font-size: 13px; font-weight: 600; text-align: center; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin: 0;">현재 위치</div>',
+          title: 'currentLocation',
+          yAnchor: 2.0 // Adjust to position slightly more above the marker
+        });
+      }
+
+      // Add event listener for map click (to close active overlay)
       kakao.maps.event.addListener(this.map, 'click', (mouseEvent) => {
+        if (this.activeOverlay) {
+          this.activeOverlay.setMap(null);
+          this.activeOverlay = null;
+        }
         const latlng = mouseEvent.latLng
 
         this.currentLocation = {
@@ -236,13 +251,16 @@ export default {
 
           // Clear previous markers except the current location marker
           this.clearMarkers()
+          this.clearOverlays()
 
-          // Add a marker for the selected location
-          this.addMarker({
+          // Add a marker and custom overlay for the selected location
+          this.addMarkerWithCustomOverlay({
             lat: coords.getLat(),
             lng: coords.getLng(),
-            content: `<div style="padding:5px;">${searchTerm}</div>`,
-          })
+            content: `<div style="padding: 8px 12px; background-color: rgba(255, 255, 255, 0.9); color: #333; font-size: 13px; font-weight: 600; text-align: center; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin: 0;">${searchTerm}</div>`,
+            title: 'searchLocation',
+            yAnchor: 2.0 // Adjust to position slightly more above the marker
+          });
 
           this.$emit('location-changed', {
             address: searchTerm,
@@ -253,68 +271,105 @@ export default {
       })
     },
 
-    addMarkers(markerData) {
-      // Clear existing markers
-      this.clearMarkers()
+    addMarkers(markerDataArray) {
+      this.clearMarkers();
+      this.clearOverlays();
 
-      // Add new markers
-      markerData.forEach((marker) => {
-        const position = new kakao.maps.LatLng(marker.lat, marker.lng)
-
-        const markerObj = new kakao.maps.Marker({
-          position: position,
-          map: this.map,
-        })
-
-        // If marker has content, add an info window
-        if (marker.content) {
-          const infoWindow = new kakao.maps.InfoWindow({
-            content: marker.content,
-          })
-
-          kakao.maps.event.addListener(markerObj, 'click', () => {
-            infoWindow.open(this.map, markerObj)
-            this.$emit('marker-clicked', marker)
-          })
-        } else {
-          kakao.maps.event.addListener(markerObj, 'click', () => {
-            this.$emit('marker-clicked', marker)
-          })
-        }
-
-        this.kakaoMarkers.push(markerObj)
-      })
+      markerDataArray.forEach((markerData) => {
+        this.addMarkerWithCustomOverlay(markerData);
+      });
     },
 
     clearMarkers() {
       this.kakaoMarkers.forEach((marker) => {
-        marker.setMap(null)
-      })
-      this.kakaoMarkers = []
+        marker.setMap(null);
+      });
+      this.kakaoMarkers = [];
     },
 
-    // Public method to add a new marker programmatically
-    addMarker(markerData) {
-      const position = new kakao.maps.LatLng(markerData.lat, markerData.lng)
+    clearOverlays() {
+      this.kakaoOverlays.forEach((overlay) => {
+        overlay.setMap(null);
+      });
+      this.kakaoOverlays = [];
+      if (this.activeOverlay) {
+        this.activeOverlay.setMap(null);
+        this.activeOverlay = null;
+      }
+    },
+
+    // New method to add marker with CustomOverlay
+    addMarkerWithCustomOverlay(markerData) {
+      const position = new kakao.maps.LatLng(markerData.lat, markerData.lng);
 
       const markerObj = new kakao.maps.Marker({
         position: position,
         map: this.map,
-      })
+        title: markerData.title || undefined
+      });
 
       if (markerData.content) {
-        const infoWindow = new kakao.maps.InfoWindow({
-          content: markerData.content,
-        })
+        let finalContent; 
+        if (typeof markerData.content === 'string') {
+          const originalContent = markerData.content;
+          const trimmedContentForCheck = originalContent.trim();
 
-        kakao.maps.event.addListener(markerObj, 'click', () => {
-          infoWindow.open(this.map, markerObj)
-          this.$emit('marker-clicked', markerData)
-        })
+          if (trimmedContentForCheck.includes('class="custom-overlay-bank-detail"')) {
+            // Bank detail HTML from handlePlacesSearchResult - use as is
+            finalContent = originalContent; 
+          } else if (trimmedContentForCheck.startsWith('<div style="padding:')) {
+            // Simple styled content like "현재 위치" or selected search location - use as is
+            finalContent = originalContent;
+          } else {
+            // Fallback for plain text or unknown HTML structure: strip HTML and wrap in default style
+            const textOnly = trimmedContentForCheck.replace(/<[^>]+>/g, '').trim();
+            if (textOnly) {
+              finalContent = `<div style="padding: 8px 12px; background-color: rgba(255, 255, 255, 0.9); color: #333; font-size: 13px; font-weight: 600; text-align: center; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin: 0;">${textOnly}</div>`;
+            } else {
+              finalContent = ''; // Avoid creating an overlay for empty content
+            }
+          }
+        } else {
+          // If markerData.content is not a string (e.g. already a DOM element)
+          finalContent = markerData.content;
+        }
+
+        // Ensure customOverlay is only created if finalContent is truthy and not just whitespace
+        if (finalContent && String(finalContent).trim() !== '') {
+          const customOverlay = new kakao.maps.CustomOverlay({
+            content: finalContent,
+            position: position,
+            xAnchor: 0.5,
+            yAnchor: markerData.yAnchor || 1.5, 
+            zIndex: 3
+          });
+          
+          customOverlay.setMap(null); // Initially hide the overlay
+
+          kakao.maps.event.addListener(markerObj, 'click', () => {
+            // If there's an active overlay and it's different from the current one, hide it.
+            if (this.activeOverlay && this.activeOverlay !== customOverlay) {
+              this.activeOverlay.setMap(null);
+            }
+            
+            // Toggle visibility of the current overlay
+            if (customOverlay.getMap()) {
+              customOverlay.setMap(null);
+              // If we are hiding the currently active overlay, clear activeOverlay
+              if (this.activeOverlay === customOverlay) {
+                this.activeOverlay = null;
+              }
+            } else {
+              customOverlay.setMap(this.map);
+              this.activeOverlay = customOverlay;
+            }
+            this.$emit('marker-clicked', markerData);
+          });
+          this.kakaoOverlays.push(customOverlay); // Store overlay
+        }
       }
-
-      this.kakaoMarkers.push(markerObj)
-      return markerObj
+      this.kakaoMarkers.push(markerObj);
+      return markerObj;
     },
 
     // Update map size if container changes
@@ -390,50 +445,48 @@ export default {
 
     // Process bank search results
     handlePlacesSearchResult(places) {
-      // Save search results
-      this.bankSearchResults = places
+      this.clearMarkers(); // Clear existing markers
+      this.clearOverlays(); // Clear existing overlays
 
-      // Create bounds to fit all markers
-      const bounds = new kakao.maps.LatLngBounds()
+      this.bankSearchResults = places;
+      const bounds = new kakao.maps.LatLngBounds();
 
-      // Add markers for all places
       places.forEach((place) => {
-        const position = new kakao.maps.LatLng(place.y, place.x)
-        bounds.extend(position)
+        const position = new kakao.maps.LatLng(place.y, place.x);
+        bounds.extend(position);
 
-        // Create marker
-        const marker = new kakao.maps.Marker({
-          position: position,
-          map: this.map,
-        })
+        // Ensure place_name, address_name are defined to prevent 'undefined' in content string
+        const placeName = place.place_name || '이름 정보 없음';
+        const addressName = place.address_name || '주소 정보 없음';
 
-        // Create content for info window
-        const content = `
-          <div style="padding:5px; min-width:300px;">
-            <h3 style="margin:5px 0; color: black;">${place.place_name}</h3>
-            <p style="margin:5px 0; color: black;">${place.address_name}</p>
-            ${place.phone ? `<p style="margin:5px 0; color: black;">전화: ${place.phone}</p>` : ''}
-            ${place.distance ? `<p style="margin:5px 0; color: black;">거리: ${this.formatDistance(place.distance)}</p>` : ''}
+        let content = `
+          <div class="custom-overlay-bank-detail" style="display: flex; flex-direction: column; background-color:white; border-radius:8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); width:320px; max-height:250px; font-family: 'Malgun Gothic', Dotum, '돋움', sans-serif; line-height:1.5;">
+            <div style="padding:12px 16px; background-color:#f0f2f5; border-bottom:1px solid #e0e3e8; border-top-left-radius:8px; border-top-right-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+              <h5 style="margin:0; font-size:17px; font-weight:600; color:#1c1e21;">${placeName}</h5>
+              <button onclick="this.closest('.custom-overlay-bank-detail').style.display='none'; event.stopPropagation();" style="background:transparent; border:none; font-size:20px; color:#606770; cursor:pointer; padding:0; line-height:1;">×</button>
+            </div>
+            <div style="padding:16px; overflow-y:auto; flex-grow:1;">
+              <p style="margin:0 0 8px 0; font-size:14px; color:#333;">
+                <span style="color:#606770; display:inline-block; width:20px; text-align:center; margin-right:5px;">📍</span>${addressName}
+              </p>
+              ${place.phone ? `<p style="margin:0 0 8px 0; font-size:14px; color:#333;"><span style="color:#606770; display:inline-block; width:20px; text-align:center; margin-right:5px;">📞</span>${place.phone}</p>` : ''}
+              ${place.distance ? `<p style="margin:0; font-size:14px; color:#333;"><span style="color:#606770; display:inline-block; width:20px; text-align:center; margin-right:5px;">🚶</span>${this.formatDistance(place.distance)}</p>` : ''}
+            </div>
           </div>
-        `
+        `; // Removed .replace(/\n\s*/g, '') to preserve newlines in the template literal
 
-        // Create info window
-        const infoWindow = new kakao.maps.InfoWindow({
-          content: content,
-          removable: true,
-        })
+        this.addMarkerWithCustomOverlay({
+            lat: place.y,
+            lng: place.x,
+            content: content, // Use the content string directly
+            title: placeName,
+            yAnchor: 1.6 // Slightly adjust yAnchor for bank details card
+        });
+      });
 
-        // Add click event to marker
-        kakao.maps.event.addListener(marker, 'click', () => {
-          infoWindow.open(this.map, marker)
-          this.$emit('bank-clicked', place)
-        })
-
-        this.kakaoMarkers.push(marker)
-      })
-
-      // Adjust map to show all markers
-      this.map.setBounds(bounds)
+      if (places.length > 0) {
+        this.map.setBounds(bounds);
+      }
     },
 
     // Move to the selected bank
@@ -486,80 +539,93 @@ export default {
   flex-direction: column;
   width: 100%;
   height: 100%;
+  overflow-y: auto;
 }
 
 .location-selector {
-  margin-bottom: 10px;
+  margin-bottom: var(--spacing-md, 1rem);
   display: flex;
-  gap: 10px;
+  gap: var(--spacing-sm, 0.5rem);
   flex-wrap: wrap;
+  padding: var(--spacing-sm, 0.5rem);
+  background-color: var(--background-secondary, #f0f0f0);
+  border-radius: var(--border-radius-md, 6px);
 }
 
 .location-selector select {
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  font-size: 14px;
+  padding: var(--input-padding-y, 0.5rem) var(--input-padding-x, 0.75rem);
+  border-radius: var(--input-border-radius, 4px);
+  border: 1px solid var(--border-color, #ccc);
+  font-size: var(--font-size-sm, 0.9rem);
   min-width: 150px;
+  background-color: var(--input-bg, #fff);
+  color: var(--text-input, #333);
+  flex-grow: 1;
 }
 
 .search-button {
-  padding: 8px 16px;
-  background-color: #4caf50;
-  color: white;
+  padding: var(--button-padding-y, 0.5rem) var(--button-padding-x, 1rem);
+  background-color: var(--button-bg, var(--accent-color));
+  color: var(--button-text, #fff);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--button-border-radius, 4px);
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--font-size-sm, 0.9rem);
   transition: background-color 0.3s;
+  flex-grow: 0;
 }
 
-.search-button:hover {
-  background-color: #45a049;
+.search-button:hover:not(:disabled) {
+  background-color: var(--button-hover-bg, var(--accent-hover));
 }
 
 .search-button:disabled {
-  background-color: #cccccc;
+  background-color: var(--button-disabled-bg, #cccccc);
+  color: var(--button-disabled-text, #888888);
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
 #map {
   width: 100%;
   height: 500px;
-  border-radius: 8px;
+  border-radius: var(--border-radius-lg, 8px);
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+  box-shadow: var(--card-shadow, 0 2px 8px rgba(0, 0, 0, 0.1));
+  margin-bottom: var(--spacing-lg, 1.5rem);
 }
 
 .search-results {
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  padding: 15px;
-  margin-top: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  background-color: var(--card-bg, #fff);
+  padding: var(--spacing-lg, 1.5rem);
+  border-radius: var(--border-radius-lg, 8px);
+  box-shadow: var(--card-shadow, 0 2px 10px rgba(0, 0, 0, 0.1));
+  max-height: 350px;
+  overflow-y: auto;
 }
 
 .search-results h3 {
   margin-top: 0;
-  margin-bottom: 15px;
-  color: #333;
-  font-size: 18px;
+  margin-bottom: var(--spacing-md, 1rem);
+  font-size: var(--font-size-lg, 1.2rem);
+  color: var(--text-primary, #333);
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-color, #eee);
+  padding-bottom: var(--spacing-sm, 0.5rem);
 }
 
 .bank-list {
   list-style: none;
   padding: 0;
   margin: 0;
-  max-height: 300px;
-  overflow-y: auto;
 }
 
 .bank-item {
-  padding: 12px;
-  border-bottom: 1px solid #eee;
+  padding: var(--spacing-md, 1rem) var(--spacing-sm, 0.75rem);
+  border-bottom: 1px solid var(--border-color-light, #f0f0f0);
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color var(--transition-speed, 0.2s);
 }
 
 .bank-item:last-child {
@@ -567,24 +633,61 @@ export default {
 }
 
 .bank-item:hover {
-  background-color: #f0f0f0;
+  background-color: var(--background-secondary-hover, #f0f0f0);
 }
 
 .bank-name {
-  font-weight: bold;
-  margin-bottom: 4px;
-  color: #333;
+  font-weight: 600;
+  color: var(--text-primary, #333);
+  margin-bottom: var(--spacing-xs, 0.25rem);
+  font-size: var(--font-size-md, 1rem);
 }
 
 .bank-address {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 4px;
+  font-size: var(--font-size-sm, 0.9rem);
+  color: var(--text-secondary, #666);
+  margin-bottom: var(--spacing-xs, 0.25rem);
 }
 
 .bank-distance {
-  font-size: 13px;
-  color: #888;
-  font-style: italic;
+  font-size: var(--font-size-xs, 0.8rem);
+  color: var(--accent-color, #007bff);
 }
+
+/* Kakao InfoWindow Customization */
+/* All custom styling is now INLINE within the 'content' HTML strings. */
+/* CSS classes like .custom-infowindow, .card-style, .card-header, etc., are NO LONGER USED. */
+/* .kakao-infowindow-content might only act as a very basic fallback if some unstyled string gets through. */
+
+.kakao-infowindow-content { /* Minimal fallback styling */
+  padding: 8px;
+  background-color: white;
+  color: black;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  font-size:14px; /* ensure basic readability */
+}
+
+.kakao-infowindow-content p {
+  color: black !important;
+  margin: 0;
+}
+
+.kakao-infowindow-content h5.infowindow-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: black !important;
+  margin: 0 0 4px 0;
+}
+
+/* All previously defined classes for infowindow styling like:
+   .infowindow-current-location,
+   .infowindow-selected-location,
+   .custom-infowindow.card-style,
+   .custom-infowindow .card-header,
+   .custom-infowindow .card-title,
+   .custom-infowindow .card-body,
+   .custom-infowindow .card-text,
+   .custom-infowindow .infowindow-phone
+   ARE NOW REMOVED as styles are inline. */
 </style>

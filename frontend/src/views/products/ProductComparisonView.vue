@@ -438,84 +438,89 @@ export default {
   margin-bottom: 1.5rem;
 }
 
-/* Modal styles */
+/* Modal styles - 전역 변수 적용 */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: var(--overlay-bg, rgba(0, 0, 0, 0.7));
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; /* 다른 모달과 z-index 조율 필요시 수정 */
+  padding: 1rem;
 }
 
-.modal-content {
-  background: white;
-  border-radius: 8px;
+.modal-content { /* FinancialProductsView.vue의 .modal-container 와 유사하게 */
+  background-color: var(--modal-bg, var(--card-bg));
+  border-radius: var(--modal-border-radius, var(--card-border-radius, 12px));
   width: 90%;
-  max-width: 800px;
+  max-width: 800px; /* 비교 모달은 내용이 많을 수 있어 약간 더 넓게 */
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-xl, 0 10px 25px rgba(0,0,0,0.2));
+  border: 1px solid var(--modal-border, var(--card-border));
+  font-family: var(--font-body);
 }
 
 .modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: var(--spacing-lg, 1.25rem) var(--spacing-lg, 1.5rem);
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
 }
 
 .modal-header h3 {
   margin: 0;
-  font-size: 1.25rem;
-  color: #111827;
+  font-size: var(--font-size-xl, 1.4rem);
+  color: var(--text-primary);
+  font-weight: 700;
+  font-family: var(--font-heading);
 }
 
-.close-button {
+.close-button { /* FinancialProductsView.vue의 .close-modal-btn 와 유사하게 */
   background: none;
   border: none;
-  color: #6b7280;
-  font-size: 1.25rem;
+  color: var(--text-secondary);
+  font-size: var(--icon-size-lg, 1.5rem);
+  line-height: 1;
   cursor: pointer;
-  padding: 0.25rem;
+  padding: var(--spacing-xs, 0.25rem);
+  transition: color var(--transition-speed);
 }
 
-.close-button:hover {
-  color: #111827;
-}
+.close-button:hover { color: var(--text-primary); }
 
 .modal-body {
-  padding: 1.5rem;
+  padding: var(--spacing-lg, 1.5rem);
 }
 
 .modal-loading,
 .modal-error,
 .modal-empty {
   text-align: center;
-  padding: 3rem 0;
+  padding: var(--spacing-xl, 3rem) 0;
+  font-family: var(--font-body);
+  color: var(--text-secondary);
+}
+.modal-loading p, .modal-error p, .modal-empty p {
+  font-size: var(--font-size-md, 1rem);
 }
 
+/* Loading spinner는 전역 또는 다른 곳에 정의된 것을 재사용하거나, 필요시 여기서 전역 변수 사용 */
 .loading-spinner {
   display: inline-block;
   width: 40px;
   height: 40px;
-  border: 4px solid rgba(75, 85, 99, 0.1);
+  border: 4px solid var(--border-color-light, rgba(0,0,0,0.1));
   border-radius: 50%;
-  border-top-color: #3b82f6;
+  border-top-color: var(--accent-color, #3b82f6);
   animation: spin 1s ease-in-out infinite;
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-md, 1rem);
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
+
+/* ProductFilterBar, ProductGrid 등 내부 컴포넌트 스타일은 유지하되, 
+   모달 컨텍스트에 맞게 필요한 경우 여기서 추가 조정 가능 */
 
 .product-grid {
   display: grid;

@@ -34,12 +34,12 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useSettingsStore } from '@/stores/settings'
-import { useI18n } from 'vue-i18n'
+// import { useI18n } from 'vue-i18n' // 주석 처리 또는 삭제
 
 const showPhishingModal = ref(true) // 기본값을 true로 변경하여 자동으로 표시
 const doNotShowToday = ref(false)
 const settingsStore = useSettingsStore()
-const { t } = useI18n()
+// const { t } = useI18n() // 주석 처리 또는 삭제
 
 const isDarkMode = computed(() => settingsStore.isDarkMode)
 
@@ -132,82 +132,87 @@ onBeforeUnmount(() => {
 
 .phishing-modal {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-color: var(--overlay-bg, rgba(0, 0, 0, 0.6));
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(4px);
+  padding: 1rem;
 }
 
 .phishing-modal-bottom {
   align-items: flex-end;
-  padding-bottom: 20px;
 }
 
 .phishing-modal-content {
-  background-color: var(--card-bg);
-  border-radius: 16px;
-  box-shadow: 0 12px 40px var(--shadow-color);
-  padding: 2rem;
-  max-width: 500px;
-  width: 90%;
-  border: 1px solid var(--border-color);
+  background-color: var(--modal-bg, var(--card-bg));
+  border-radius: var(--modal-border-radius, var(--card-border-radius, 16px));
+  box-shadow: var(--shadow-xl, 0 12px 40px rgba(0,0,0,0.25));
+  padding: var(--spacing-xl, 2rem);
+  max-width: 550px;
+  width: 95%;
+  border: 1px solid var(--modal-border, var(--border-color));
   position: relative;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  font-family: var(--font-body);
 }
 
 .close-button {
   position: absolute;
-  top: 15px;
-  right: 15px;
+  top: var(--spacing-md, 1rem);
+  right: var(--spacing-md, 1rem);
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: var(--icon-size-xl, 1.8rem);
   color: var(--text-secondary);
   cursor: pointer;
-  padding: 5px 10px;
+  padding: var(--spacing-xs, 0.3rem);
   border-radius: 50%;
-  transition: background-color 0.2s;
+  transition: color var(--transition-speed), background-color var(--transition-speed);
+  line-height: 1;
 }
 
 .close-button:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
+  background-color: var(--button-hover-bg-light, rgba(0, 0, 0, 0.08));
 }
 
 .phishing-modal-content h3 {
-  color: #d97706;
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
-  font-family: 'Playfair Display', serif;
+  color: var(--warning-color-text, #d97706);
+  margin-bottom: var(--spacing-lg, 1.25rem);
+  font-size: var(--font-size-xxl, 1.6rem);
+  font-family: var(--font-heading, 'Playfair Display', serif);
+  font-weight: 700;
 }
 
 .phishing-modal-content p {
   color: var(--text-primary);
-  margin-bottom: 1.5rem;
-  font-size: 1.1rem;
-  line-height: 1.6;
+  margin-bottom: var(--spacing-lg, 1.25rem);
+  font-size: var(--font-size-md-lg, 1.05rem);
+  line-height: 1.7;
 }
 
 .report-number {
   font-weight: 700;
-  color: #d97706;
+  color: var(--warning-color-text, #d97706);
   text-align: center;
-  padding: 10px;
-  border-radius: 8px;
-  background-color: rgba(217, 119, 6, 0.1);
+  padding: var(--spacing-sm, 0.6rem) var(--spacing-md, 0.8rem);
+  border-radius: var(--border-radius-md, 8px);
+  background-color: var(--warning-color-bg-light, rgba(217, 119, 6, 0.1));
   margin-top: 0;
+  margin-bottom: var(--spacing-lg, 1.25rem);
+  font-size: var(--font-size-md, 1rem);
 }
 
 .phishing-modal-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 1.5rem;
+  margin-top: var(--spacing-xl, 1.8rem);
+  padding-top: var(--spacing-lg, 1.25rem);
+  border-top: 1px solid var(--border-color);
 }
 
 .checkbox-container {
@@ -215,24 +220,33 @@ onBeforeUnmount(() => {
   align-items: center;
   cursor: pointer;
   color: var(--text-secondary);
+  font-size: var(--font-size-sm, 0.9rem);
 }
 
-.checkbox-container input {
-  margin-right: 0.5rem;
+.checkbox-container input[type="checkbox"] {
+  margin-right: var(--spacing-sm, 0.6rem);
+  accent-color: var(--accent-color);
+  width: 16px;
+  height: 16px;
+}
+.checkbox-text {
+  line-height: 1;
 }
 
 .btn-primary {
-  background: var(--accent-color);
-  color: white;
-  padding: 10px 20px;
-  border-radius: 8px;
-  border: none;
-  font-weight: 500;
+  background-color: var(--button-bg, var(--accent-color));
+  color: var(--button-text, white);
+  padding: var(--button-padding-y-lg, 0.7rem) var(--button-padding-x-lg, 1.4rem);
+  border-radius: var(--button-border-radius, var(--border-radius-md, 8px));
+  border: 1px solid transparent;
+  font-weight: 600;
+  font-size: var(--button-font-size, 0.95rem);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color var(--transition-speed), opacity var(--transition-speed);
 }
 
 .btn-primary:hover {
+  background-color: var(--button-hover, var(--accent-hover));
   opacity: 0.9;
 }
 

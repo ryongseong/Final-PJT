@@ -772,6 +772,7 @@ def get_exchange_rate(request):
             "searchdate": day,
             "data": "AP01",
         },
+        verify=False
     )
 
     if response.status_code != 200:

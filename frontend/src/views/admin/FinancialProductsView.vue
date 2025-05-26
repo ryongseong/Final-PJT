@@ -10,15 +10,15 @@
 
       <section class="controls-section card-style">
         <div class="search-filter-bar">
-          <div class="search-input-group">
-            <i class="icon search-icon">🔍</i>
+          <div class="search-box">
             <input
               type="text"
               v-model="searchQuery"
               placeholder="상품명, 금융사명 등으로 검색..."
               @keyup.enter="searchProducts"
-              class="search-input"
+              class="search-input-field"
             />
+            <i class="icon search-icon">🔍</i>
           </div>
           <div class="filter-input-group">
             <i class="icon filter-icon">📊</i>
@@ -181,7 +181,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 // pjt0의 productsService 사용 (adminService 대신)
 import productsService from '@/services/products'
 import AdminNavbar from '@/components/admin/AdminNavbar.vue'
@@ -417,39 +417,79 @@ onMounted(() => {
 
 /* Controls Section */
 .controls-section .search-filter-bar {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Adjusted minmax */
-  gap: 1rem;
-  align-items: center;
-}
-
-.search-input-group, .filter-input-group {
   display: flex;
   align-items: center;
-  background-color: var(--background-primary); /* Lighter background for inputs */
-  border-radius: var(--border-radius-md);
-  padding: 0.5rem 0.8rem;
+  gap: var(--spacing-md, 1rem);
+  padding: var(--spacing-md, 1rem);
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  background-color: var(--background-primary);
+  border-radius: var(--input-border-radius, 8px);
+  padding: var(--spacing-sm, 0.5rem) var(--spacing-md, 1rem);
+  flex-grow: 1;
   border: 1px solid var(--border-color);
 }
 
-.search-input-group .icon, .filter-input-group .icon {
-  color: var(--text-secondary);
-  margin-right: 0.5rem;
-  font-size: 1.1rem;
-}
-
-.search-input, .filter-select {
+.search-input-field {
   border: none;
   outline: none;
   background-color: transparent;
   flex-grow: 1;
-  font-size: 0.95rem;
-  color: var(--text-primary);
-  padding: 0.3rem; /* Remove extra padding if already in group */
+  padding: var(--spacing-sm, 0.5rem);
+  font-size: var(--font-size-md, 1rem);
+  color: var(--text-input, var(--text-primary));
+  font-family: var(--font-body);
 }
 
-.filter-select {
-  cursor: pointer;
+.search-input-field::placeholder {
+  color: var(--text-secondary, #6c757d); /* Ensuring placeholder is visible in dark mode */
+}
+
+.search-box .search-icon {
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  margin-left: var(--spacing-sm, 0.5rem);
+}
+
+.filter-input-group {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs, 0.5rem);
+}
+
+.filter-input-group .icon,
+.action-btn .icon {
+  color: var(--text-secondary);
+}
+
+.filter-select,
+.action-btn {
+  padding: 0.5rem; /* AIRecommendationsView 스타일 적용 */
+  border-radius: 4px; /* AIRecommendationsView 스타일 적용 */
+  border: 1px solid var(--border-color, #ced4da); /* AIRecommendationsView 스타일 적용, var fallback 추가 */
+  font-size: var(--font-size-sm, 0.9rem);
+  background-color: var(--input-bg);
+  color: var(--text-input);
+}
+
+/* Add styles for select options for theme awareness */
+.filter-select option {
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+}
+
+.action-btn.primary-btn {
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border-color: var(--button-bg);
+}
+
+.action-btn.primary-btn:hover:not(:disabled) {
+  background-color: var(--button-hover-bg);
+  border-color: var(--button-hover-bg);
 }
 
 /* Action Buttons (Shared) */
@@ -469,18 +509,6 @@ onMounted(() => {
 
 .action-btn .icon {
   margin-right: 0.5rem;
-}
-
-.action-btn.primary-btn {
-  background-color: var(--accent-color);
-  color: var(--button-text);
-  border-color: var(--accent-color);
-  /* Ensure it doesn't take full grid width unless specified */
-  grid-column: span 1; 
-}
-.action-btn.primary-btn:hover:not(:disabled) {
-  background-color: var(--accent-hover);
-  border-color: var(--accent-hover);
 }
 
 .action-btn.secondary-btn {
@@ -617,81 +645,126 @@ onMounted(() => {
 .no-data td { text-align: center; padding: 2rem; color: var(--text-secondary); }
 .no-data p { margin-bottom: 0.5rem; }
 
-/* Modal Styles */
+/* Modal Styles - 전역 변수 적용 */
 .modal-overlay {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6); /* Darker overlay */
+  background-color: var(--overlay-bg, rgba(0, 0, 0, 0.7)); /* 오버레이 배경색 강화 */
   display: flex; align-items: center; justify-content: center;
   z-index: 1050; padding: 1rem;
 }
 .modal-container {
-  /* background-color: var(--card-bg); Handled by card-style */
-  /* padding: 1.5rem; Handled by card-style */
-  /* border-radius: var(--border-radius-lg); Handled by card-style */
-  /* box-shadow: var(--card-shadow); Handled by card-style */
-  /* border: 1px solid var(--card-border); Handled by card-style */
+  background-color: var(--modal-bg, var(--card-bg)); /* 모달 배경 */
+  padding: var(--spacing-lg, 1.5rem); /* 내부 패딩 */
+  border-radius: var(--modal-border-radius, var(--card-border-radius, 12px)); /* 모달 테두리 반경 */
+  box-shadow: var(--shadow-xl, 0 10px 25px rgba(0,0,0,0.2)); /* 모달 그림자 강화 */
+  border: 1px solid var(--modal-border, var(--card-border)); /* 모달 테두리 */
   width: 100%;
   max-width: 600px; /* Default modal width */
   max-height: 90vh;
-  overflow-y: auto; /* Add scroll for long content */
+  overflow-y: auto;
+  font-family: var(--font-body);
 }
 .modal-header {
   display: flex; justify-content: space-between; align-items: center;
-  padding-bottom: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color);
+  padding-bottom: var(--spacing-md, 1rem); 
+  margin-bottom: var(--spacing-lg, 1.5rem); 
+  border-bottom: 1px solid var(--border-color, #e0e0e0);
 }
-.modal-header h3 { font-size: 1.4rem; color: var(--text-primary); font-weight: 600; margin: 0; }
+.modal-header h3 {
+  font-size: var(--font-size-xl, 1.4rem); 
+  color: var(--text-primary);
+  font-weight: 700; /* 제목 굵게 */
+  margin: 0;
+  font-family: var(--font-heading);
+}
 .close-modal-btn {
-  background: none; border: none; font-size: 1.5rem; line-height: 1;
-  cursor: pointer; color: var(--text-secondary); padding: 0.3rem; /* Ensure clickable area */
+  background: none; 
+  border: none; 
+  font-size: var(--icon-size-lg, 1.5rem); 
+  line-height: 1;
+  cursor: pointer; 
+  color: var(--text-secondary);
+  padding: var(--spacing-xs, 0.3rem);
+  transition: color var(--transition-speed);
 }
 .close-modal-btn:hover { color: var(--text-primary); }
 
 .modal-form .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.2rem;
+  gap: var(--spacing-lg, 1.2rem);
 }
-.modal-form .form-group { margin-bottom: 0; } /* Removed default margin, using gap */
+.modal-form .form-group { margin-bottom: 0; }
 .modal-form .form-group.full-width { grid-column: 1 / -1; }
 .modal-form label {
-  display: block; margin-bottom: 0.5rem; font-weight: 500;
-  color: var(--text-secondary); font-size: 0.85rem;
+  display: block; 
+  margin-bottom: var(--spacing-sm, 0.5rem); 
+  font-weight: 600; /* 라벨 굵게 */
+  color: var(--text-secondary); 
+  font-size: var(--font-size-sm, 0.9rem);
 }
 .modal-form input[type="text"],
 .modal-form input[type="number"],
 .modal-form textarea,
 .modal-form select {
-  width: 100%; padding: 0.7rem 0.9rem; border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm); /* Slightly smaller radius for inputs */
-  font-size: 0.95rem; background-color: var(--background-primary);
-  color: var(--text-primary);
+  width: 100%; 
+  padding: var(--input-padding-y, 0.75rem) var(--input-padding-x, 1rem);
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: var(--input-border-radius, var(--border-radius-md, 8px));
+  font-size: var(--font-size-md, 0.95rem); 
+  background-color: var(--input-bg, var(--background-primary));
+  color: var(--text-input, var(--text-primary));
+  font-family: var(--font-body);
   transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
 }
 .modal-form input[type="text"]:focus,
 .modal-form input[type="number"]:focus,
 .modal-form textarea:focus,
 .modal-form select:focus {
-  outline: none; border-color: var(--accent-color);
-  box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb, 163, 184, 153), 0.2);
+  outline: none; 
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px var(--accent-color-opacity-20, rgba(163, 184, 153, 0.2));
 }
-.modal-form textarea { resize: vertical; min-height: 80px; }
+.modal-form textarea { resize: vertical; min-height: 100px; }
 
 .modal-actions {
-  display: flex; justify-content: flex-end; gap: 0.8rem; margin-top: 2rem;
-  padding-top: 1.5rem; border-top: 1px solid var(--border-color);
+  display: flex; 
+  justify-content: flex-end; 
+  gap: var(--spacing-md, 1rem); /* 버튼 간 간격 증가 */
+  margin-top: var(--spacing-xl, 2rem);
+  padding-top: var(--spacing-lg, 1.5rem); 
+  border-top: 1px solid var(--border-color, #e0e0e0);
 }
+/* .action-btn 스타일은 전역 또는 상위에서 이미 정의된 것을 사용 기대 */
+/* 필요시 여기서 .modal-actions .action-btn 으로 특정 스타일 추가 */
 
-/* Confirmation Modal Specifics */
-.confirmation-modal .modal-body p { margin-bottom: 0.8rem; font-size: 1.05rem; color: var(--text-primary); }
+/* Confirmation Modal Specifics - 전역 변수 적용 */
+.confirmation-modal .modal-body p {
+  margin-bottom: var(--spacing-md, 1rem); 
+  font-size: var(--font-size-lg, 1.1rem); 
+  color: var(--text-primary);
+  line-height: 1.6;
+}
 .confirmation-modal .product-info-delete {
-  background-color: var(--background-primary); padding: 0.8rem; border-radius: var(--border-radius-sm);
-  margin-bottom: 1rem; border: 1px solid var(--border-color); font-size: 0.9rem;
+  background-color: var(--background-secondary, var(--background-primary)); 
+  padding: var(--spacing-md, 1rem); 
+  border-radius: var(--border-radius-md, 8px);
+  margin-bottom: var(--spacing-lg, 1.5rem);
+  border: 1px solid var(--border-color, #ccc);
+  font-size: var(--font-size-md, 0.95rem);
+  color: var(--text-secondary);
 }
 .confirmation-modal .warning-text {
-  color: #D97706; /* Orange for warning */
-  font-weight: 500; display: flex; align-items: center;
+  color: var(--warning-color-text, #D97706); /* 주황색 계열 경고색 */
+  font-weight: 600; 
+  display: flex; 
+  align-items: center;
+  font-size: var(--font-size-md, 1rem);
 }
-.confirmation-modal .warning-text .icon { margin-right: 0.4rem; font-size: 1.1rem; }
+.confirmation-modal .warning-text .icon {
+  margin-right: var(--spacing-sm, 0.5rem); 
+  font-size: var(--icon-size-md, 1.2rem);
+}
 
 /* Responsive Table */
 @media (max-width: 992px) { /* Adjusted breakpoint */

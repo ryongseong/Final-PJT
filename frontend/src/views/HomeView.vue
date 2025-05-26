@@ -25,7 +25,7 @@
     <MarketSection />
 
     <!-- 주식 관련 영상 검색 섹션 (신규 추가) -->
-    <section class="video-search-section">
+    <!-- <section class="video-search-section">
       <h2>{{ $t('home.videoSearchTitle') }}</h2>
       <div class="search-bar-container">
         <input
@@ -37,14 +37,14 @@
         />
         <button @click="searchVideos" class="search-button">{{ $t('common.search') }}</button>
       </div>
-      <!-- 검색 결과 표시 영역 (추후 구현) -->
+      
       <div v-if="videoSearchResults.length > 0" class="video-results">
-        <!-- 검색된 영상 목록 -->
+        
       </div>
       <p v-else-if="searchedVideos && videoSearchResults.length === 0" class="no-results">
         {{ $t('home.noVideoResults') }}
       </p>
-    </section>
+    </section> -->
 
     <section class="top-products-section">
       <h2>{{ $t('products.recommended') }}</h2>
@@ -103,8 +103,8 @@
               <span v-if="hasJoinWay(product, '영업점')" class="join-badge-home">영업점</span>
               <span v-if="hasJoinWay(product, '스마트폰')" class="join-badge-home">스마트폰</span>
             </div>
-            <button class="view-details-btn action-btn primary-btn">
-              {{ $t('products.viewDetails') }}
+            <button @click.stop="viewProductDetails(product)" class="action-btn product-details-btn">
+              {{ $t('자세히 보기') }}
             </button>
           </div>
         </div>
@@ -120,8 +120,8 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, onBeforeUnmount, watch } from 'vue'
-import { useUserStore } from '@/stores/user'
+import { onMounted, ref, onBeforeUnmount, watch } from 'vue'
+// import { useUserStore } from '@/stores/user' // 주석 처리
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import Chart from 'chart.js/auto'
@@ -130,12 +130,12 @@ import { formatRate } from '@/utils/rateUtils'
 import MarketSection from '@/components/market/MarketSection.vue'
 import ParticleNetwork from '@/components/effects/ParticleNetwork.vue'
 
-const userStore = useUserStore()
+// const userStore = useUserStore()
 const router = useRouter()
 const i18n = useI18n()
 
-const isLoggedIn = computed(() => userStore.isLoggedIn)
-const user = computed(() => userStore.user)
+// const isLoggedIn = computed(() => userStore.isLoggedIn)
+// const user = computed(() => userStore.user)
 
 // Top products section
 const activeTab = ref('deposit')
@@ -150,24 +150,6 @@ const exchangeRateChart = ref(null)
 let interestRateChartInstance = null
 let preciousMetalsChartInstance = null
 let exchangeRateChartInstance = null
-
-// 주식 관련 영상 검색 (신규 추가)
-const videoSearchQuery = ref('')
-const videoSearchResults = ref([])
-const searchedVideos = ref(false)
-
-const searchVideos = async () => {
-  if (!videoSearchQuery.value.trim()) return
-  searchedVideos.value = true
-  // 실제 영상 검색 API 호출 로직 (예시, 실제 구현 필요)
-  console.log('Searching videos for:', videoSearchQuery.value)
-  // videoSearchResults.value = await videoApiService.search(videoSearchQuery.value);
-  // 임시로 빈 배열 또는 메시지
-  videoSearchResults.value = []
-  if (videoSearchResults.value.length === 0) {
-    console.log('No videos found or API not implemented yet.')
-  }
-}
 
 // Load top products based on active tab
 const loadTopProducts = async () => {
@@ -1040,4 +1022,53 @@ onBeforeUnmount(() => {
 
 /* 기존 스타일 중복 제거 및 Final-PJT 스타일 우선 적용 */
 /* .view-details-btn, .view-all-link 등은 위에서 상세히 재정의되었으므로 하단의 중복 스타일은 제거해도 무방 */
+
+/* 전역 스타일을 사용하는 버튼 스타일 */
+.action-btn {
+  padding: 0.6rem 1.2rem; /* 기존 hero-btn과 유사한 패딩 */
+  border-radius: 8px; /* 일관된 테두리 반경 */
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color var(--transition-speed), color var(--transition-speed);
+  border: 1px solid transparent; /* 기본 테두리 투명 처리 */
+}
+
+.product-details-btn {
+  background-color: var(--button-bg); /* 전역 버튼 배경색 */
+  color: var(--button-text); /* 전역 버튼 텍스트색 */
+  border-color: var(--button-bg); /* 테두리도 버튼 배경색과 동일하게 */
+  display: block; /* 카드의 전체 너비를 차지하도록 변경 */
+  width: 100%; /* 카드의 전체 너비를 차지하도록 변경 */
+  margin-top: 1rem; /* 위 요소와의 간격 */
+}
+
+.product-details-btn:hover {
+  background-color: var(--button-hover); /* 전역 버튼 호버 배경색 */
+  border-color: var(--button-hover);
+}
+
+/* 기존 hero-btn 스타일과 통일성 유지 (필요시) */
+.hero-btn.primary {
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border: 1px solid var(--button-bg);
+}
+
+.hero-btn.primary:hover {
+  background-color: var(--button-hover);
+  border-color: var(--button-hover);
+}
+
+.hero-btn.secondary {
+  background-color: transparent;
+  color: var(--button-bg); /* 텍스트 색상을 accent으로 */
+  border: 1px solid var(--button-bg);
+}
+
+.hero-btn.secondary:hover {
+  background-color: var(--accent-color-opacity-10, rgba(163, 184, 153, 0.1)); /* Soft Mint의 10% 투명도 */
+  color: var(--button-hover);
+  border-color: var(--button-hover);
+}
 </style>

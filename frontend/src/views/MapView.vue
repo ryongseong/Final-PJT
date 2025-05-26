@@ -9,40 +9,42 @@
       </p>
     </div>
 
-    <div class="map-wrapper">
-      <KakaoMap
-        ref="kakaoMap"
-        :markers="markers"
-        @location-changed="onLocationChanged"
-        @marker-clicked="onMarkerClicked"
-        @map-clicked="onMapClicked"
-        @bank-clicked="onBankClicked"
-        @current-location="onCurrentLocation"
-      />
-    </div>
-
-    <div class="info-panel" v-if="selectedLocation">
-      <h3>선택된 위치 정보</h3>
-      <div v-if="selectedBank">
-        <p><strong>은행명:</strong> {{ selectedBank.place_name }}</p>
-        <p><strong>주소:</strong> {{ selectedBank.address_name }}</p>
-        <p v-if="selectedBank.phone"><strong>전화번호:</strong> {{ selectedBank.phone }}</p>
-        <p v-if="selectedBank.distance">
-          <strong>거리:</strong> {{ formatDistance(selectedBank.distance) }}
-        </p>
-        <div class="directions-link" v-if="selectedBank.road_address_name">
-          <a :href="getKakaoMapUrl(selectedBank)" target="_blank" class="btn btn-directions">
-            길찾기
-          </a>
-          <a :href="getNaverMapUrl(selectedBank)" target="_blank" class="btn btn-directions naver">
-            네이버 지도에서 보기
-          </a>
-        </div>
+    <div class="map-content-area">
+      <div class="map-wrapper">
+        <KakaoMap
+          ref="kakaoMap"
+          :markers="markers"
+          @location-changed="onLocationChanged"
+          @marker-clicked="onMarkerClicked"
+          @map-clicked="onMapClicked"
+          @bank-clicked="onBankClicked"
+          @current-location="onCurrentLocation"
+        />
       </div>
-      <div v-else>
-        <p><strong>주소:</strong> {{ selectedLocation.address }}</p>
-        <p><strong>위도:</strong> {{ selectedLocation.lat }}</p>
-        <p><strong>경도:</strong> {{ selectedLocation.lng }}</p>
+
+      <div class="info-panel" v-if="selectedLocation">
+        <h3>선택된 위치 정보</h3>
+        <div v-if="selectedBank">
+          <p><strong>은행명:</strong> {{ selectedBank.place_name }}</p>
+          <p><strong>주소:</strong> {{ selectedBank.address_name }}</p>
+          <p v-if="selectedBank.phone"><strong>전화번호:</strong> {{ selectedBank.phone }}</p>
+          <p v-if="selectedBank.distance">
+            <strong>거리:</strong> {{ formatDistance(selectedBank.distance) }}
+          </p>
+          <div class="directions-link" v-if="selectedBank.road_address_name">
+            <a :href="getKakaoMapUrl(selectedBank)" target="_blank" class="btn btn-directions">
+              길찾기
+            </a>
+            <a :href="getNaverMapUrl(selectedBank)" target="_blank" class="btn btn-directions naver">
+              네이버 지도에서 보기
+            </a>
+          </div>
+        </div>
+        <div v-else>
+          <p><strong>주소:</strong> {{ selectedLocation.address }}</p>
+          <p><strong>위도:</strong> {{ selectedLocation.lat }}</p>
+          <p><strong>경도:</strong> {{ selectedLocation.lng }}</p>
+        </div>
       </div>
     </div>
   </div>
@@ -138,6 +140,8 @@ export default {
   font-family: var(--font-family-base); /* Apply global font */
   color: var(--text-primary);
   background-color: var(--background-primary); /* Ensure view has background */
+  display: flex; /* Make map-view a flex container */
+  flex-direction: column; /* Stack children vertically by default */
 }
 
 .map-view h1 {
@@ -160,23 +164,34 @@ export default {
   border: 1px solid var(--card-border);
 }
 
+.map-content-area {
+  display: flex;
+  flex-direction: column; /* Default to vertical stacking */
+  gap: 2rem; /* Gap between map and info panel */
+  flex-grow: 1; /* Allow this area to grow */
+}
+
 .map-wrapper {
-  margin-bottom: 2rem;
+  margin-bottom: 0; /* Removed bottom margin as gap is handled by flex */
   border-radius: var(--border-radius-lg); /* Consistent border radius */
   overflow: hidden;
   box-shadow: var(--card-shadow); /* Consistent shadow */
   border: 1px solid var(--card-border); /* Consistent border */
-  height: 60vh; /* Fixed height for map */
+  /* height: 60vh; Fixed height for map - We might need to make this flexible */
   min-height: 400px;
+  flex-shrink: 0; /* Prevent map from shrinking too much in flex layout */
 }
 
 .info-panel {
   background-color: var(--card-bg); /* Use card background */
   border-radius: var(--border-radius-lg);
   padding: 1.5rem; /* Consistent padding */
-  margin-top: 2rem;
+  margin-top: 0; /* Removed top margin as gap is handled by flex */
   box-shadow: var(--card-shadow);
   border: 1px solid var(--card-border);
+  overflow-y: auto; /* Allow vertical scrolling if content overflows */
+  max-height: 60vh; /* Example max-height, can be adjusted */
+  flex-grow: 1; /* Allow info panel to take available space */
 }
 
 .info-panel h3 {
@@ -247,6 +262,22 @@ export default {
   color: var(--text-primary);
   border-color: var(--accent-hover); /* Or slightly darker border */
 }
+
+/* @media (min-width: 992px) { 
+  .map-content-area {
+    flex-direction: row; 
+  }
+  .map-wrapper {
+    flex: 2; 
+    height: auto; 
+     min-height: 500px; 
+  }
+  .info-panel {
+    flex: 1; 
+    max-height: none; 
+     align-self: flex-start; 
+  }
+} */
 
 @media (max-width: 768px) {
   .map-view {

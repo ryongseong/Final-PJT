@@ -152,7 +152,10 @@ export default {
       let rate = 0.0
       if (type === 'max') {
         rate = this.product.intr_rate2
-      } else {
+      } else if (type === 'min') {
+        rate = this.product.mortgage_options[0].lend_rate_min
+      }
+      else {
         console.error('Invalid rate type:', type)
         return '알 수 없음'
       }

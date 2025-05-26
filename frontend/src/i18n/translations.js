@@ -140,6 +140,21 @@ export default {
         loan: '대출 상품',
       },
     },
+    youtube: {
+      noSavedVideos: '저장된 영상이 아직 없습니다. 관심 있는 금융 영상을 검색하고 저장해보세요!',
+      searchVideosLink: '영상 검색하러 가기',
+      savedAt: '저장일',
+      addNotesPlaceholder: '여기에 영상에 대한 메모를 추가하세요...',
+      confirmRemoveTitle: '영상 제거 확인',
+      confirmRemoveMessage: '이 영상을 저장된 목록에서 정말로 제거하시겠습니까?',
+      errorLoad: '저장된 영상을 불러오는데 실패했습니다. 잠시 후 다시 시도해주세요.',
+      notesUpdated: '메모가 성공적으로 업데이트되었습니다.',
+      errorUpdateNotes: '메모 업데이트에 실패했습니다. 다시 시도해주세요.',
+      videoRemoved: '영상이 목록에서 제거되었습니다.',
+      errorRemoveVideo: '영상 제거에 실패했습니다. 다시 시도해주세요.',
+      watch: '시청하기',
+      remove: '제거하기'
+    }
   },
   en: {
     common: {
@@ -280,5 +295,20 @@ export default {
         loan: 'Loan Products',
       },
     },
+    youtube: {
+      noSavedVideos: 'You haven\'t saved any videos yet. Search for financial videos you\'re interested in and save them!',
+      searchVideosLink: 'Go to Video Search',
+      savedAt: 'Saved at',
+      addNotesPlaceholder: 'Add your notes about this video here...',
+      confirmRemoveTitle: 'Confirm Video Removal',
+      confirmRemoveMessage: 'Are you sure you want to remove this video from your saved list?',
+      errorLoad: 'Failed to load saved videos. Please try again later.',
+      notesUpdated: 'Notes updated successfully.',
+      errorUpdateNotes: 'Failed to update notes. Please try again.',
+      videoRemoved: 'Video removed from the list.',
+      errorRemoveVideo: 'Failed to remove video. Please try again.',
+      watch: 'Watch Video',
+      remove: 'Remove Video'
+    }
   },
 }

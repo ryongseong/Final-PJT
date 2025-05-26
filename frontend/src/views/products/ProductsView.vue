@@ -43,18 +43,10 @@
           v-for="product in paginatedProducts"
           :key="product.fin_prdt_cd || product.id"
           :product="{
+            ...(product.financial_product || product.product_info || product),
             ...product,
-            id: product.fin_prdt_cd || product.id,
-            type: product.product_type || getTypeFromCategory(product),
-            product_type: product.product_type || getTypeFromCategory(product),
-            mortgage_options:
-              product.mortgage_options ||
-              (product.product_info && product.product_info.mortgage_options) ||
-              [],
-            credit_options:
-              product.credit_options ||
-              (product.product_info && product.product_info.credit_options) ||
-              [],
+            type: activeTab,
+            product_type: activeTab,
           }"
           :isFavorite="isProductInFavorites(product.fin_prdt_cd || product.id)"
           @toggle-favorite="toggleFavorite(product)"
@@ -117,58 +109,120 @@ export default {
     const paginatedProducts = computed(() => {
       const start = (currentPage.value - 1) * itemsPerPage.value
       const end = start + itemsPerPage.value
-      return filteredProducts.value.slice(start, end)
+      const slicedProducts = filteredProducts.value.slice(start, end);
+      return slicedProducts;
     })
 
     // Load products based on filters
     const loadProducts = async () => {
-      loading.value = true
-      error.value = null
-      // Reset to first page when filters change
-      currentPage.value = 1
+      const currentActiveTab = activeTab.value;
+      console.log(`[ProductsView] loadProducts: Tab='${currentActiveTab}', Sort='${sortBy.value}', Query='${searchQuery.value}'`);
+      loading.value = true;
+      error.value = null;
+      currentPage.value = 1;
 
       try {
-        let response
+        let response;
+        let serviceMethod;
+        let orderingValue = sortBy.value; // 기본값
 
-        // Apply filters based on product type
-        switch (activeTab.value) {
+        // Determine orderingValue based on activeTab and sortBy
+        if (currentActiveTab === 'deposit' || currentActiveTab === 'saving') {
+          switch (sortBy.value) {
+            case 'name':
+              orderingValue = 'product__fin_prdt_nm';
+              break;
+            case 'rate-desc':
+              orderingValue = '-intr_rate2';
+              break;
+            case 'rate-asc':
+              orderingValue = 'intr_rate2';
+              break;
+            case 'bank':
+              orderingValue = 'product__kor_co_nm';
+              break;
+            default:
+              orderingValue = sortBy.value; 
+              break;
+          }
+        } else if (currentActiveTab === 'loan') {
+          switch (sortBy.value) {
+            case 'name':
+              orderingValue = 'product__fin_prdt_nm';
+              break;
+            case 'bank':
+              orderingValue = 'product__kor_co_nm';
+              break;
+            case 'rate-desc':
+            case 'rate-asc':
+              console.warn(`[ProductsView] Loan products rate sorting ('${sortBy.value}') is not yet supported by the backend. Defaulting to name sort.`);
+              orderingValue = 'product__fin_prdt_nm'; 
+              break;
+            default:
+              orderingValue = sortBy.value;
+              break;
+          }
+        } else { // 'all'
+          switch (sortBy.value) {
+            case 'name':
+              orderingValue = 'fin_prdt_nm'; 
+              break;
+            case 'bank':
+              orderingValue = 'kor_co_nm'; 
+              break;
+            case 'rate-desc':
+            case 'rate-asc':
+              console.warn(`[ProductsView] Sorting by rate on 'all' products tab is complex. The ordering value '${sortBy.value}' will be passed to sub-APIs.`);
+              orderingValue = sortBy.value; 
+              break;
+            default:
+              orderingValue = sortBy.value;
+              break;
+          }
+        }
+
+        const params = { query: searchQuery.value, ordering: orderingValue };
+        console.log(`[ProductsView] API call params for ${currentActiveTab}:`, params);
+
+        switch (currentActiveTab) {
           case 'deposit':
-            response = await productsService.getDepositProducts({
-              query: searchQuery.value,
-              sort: sortBy.value,
-            })
-            break
+            serviceMethod = productsService.getDepositProducts;
+            response = await serviceMethod(params);
+            break;
           case 'saving':
-            response = await productsService.getSavingProducts({
-              query: searchQuery.value,
-              sort: sortBy.value,
-            })
-            break
+            serviceMethod = productsService.getSavingProducts;
+            response = await serviceMethod(params);
+            break;
           case 'loan':
-            response = await productsService.getLoanProducts({
-              query: searchQuery.value,
-              sort: sortBy.value,
-            })
-            break
-          default:
-            response = await productsService.getAllProducts({
-              query: searchQuery.value,
-              sort: sortBy.value,
-            })
-            break
-        } // Make sure to include mortgage and credit options
-        allProducts.value = response
-        products.value = response.map((product) => {
-          return product
-        })
-        totalItems.value = response.length
+            serviceMethod = productsService.getLoanProducts;
+            response = await serviceMethod(params);
+            break;
+          default: // 'all'
+            serviceMethod = productsService.getAllProducts;
+            response = await serviceMethod(params); 
+            break;
+        }
+
+        if (!response || !Array.isArray(response)) {
+          console.error(`[ProductsView] API response for ${currentActiveTab} is not a valid array or is undefined/null.`, response);
+          allProducts.value = [];
+          products.value = [];
+          error.value = `상품 데이터(${currentActiveTab})를 가져오는데 문제가 발생했습니다 (응답 형식 오류).`;
+        } else {
+          allProducts.value = response;
+          products.value = response.map((product) => product);
+          console.log(`[ProductsView] Products loaded for ${currentActiveTab}. Count: ${products.value.length}`);
+        }
+        
+        totalItems.value = products.value.length; 
         totalPages.value = Math.ceil(totalItems.value / itemsPerPage.value)
 
-        // Load user favorites
         await loadUserFavorites()
       } catch (err) {
-        console.error('Error loading products:', err)
-        error.value = '상품을 불러오는데 실패했습니다. 다시 시도해주세요.'
+        console.error(`[ProductsView] Error loading products for tab '${currentActiveTab}':`, err);
+        error.value = `상품 (${currentActiveTab})을 불러오는데 실패했습니다: ${err.message}.`
+        products.value = []; 
+        allProducts.value = [];
       } finally {
         loading.value = false
       }
@@ -300,15 +354,17 @@ export default {
 
 <style scoped>
 .products-container {
+  padding: var(--spacing-xl, 2rem);
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 1rem;
 }
 
 .products-title {
+  font-size: var(--font-size-xxl, 2.5rem);
+  color: var(--text-primary); /* Ensure text color is set by theme */
   text-align: center;
-  margin-bottom: 2rem;
-  color: #333;
+  margin-bottom: var(--spacing-xl, 2rem);
+  font-weight: 700;
 }
 
 .products-grid {
