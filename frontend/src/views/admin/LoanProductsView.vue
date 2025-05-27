@@ -666,7 +666,7 @@ onMounted(() => {
   font-size: 2.2rem;
   color: var(--text-primary);
   margin-bottom: 0.4rem;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Pretendard Variable', serif;
   font-weight: 700;
 }
 

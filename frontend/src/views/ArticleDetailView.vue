@@ -522,7 +522,7 @@ onMounted(() => {
   color: var(--text-primary);
   margin-bottom: 1.5rem;
   line-height: 1.3;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Pretendard Variable', serif;
 }
 
 .article-meta {

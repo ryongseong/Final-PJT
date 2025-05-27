@@ -183,7 +183,7 @@ onBeforeUnmount(() => {
   color: var(--warning-color-text, #d97706);
   margin-bottom: var(--spacing-lg, 1.25rem);
   font-size: var(--font-size-xxl, 1.6rem);
-  font-family: var(--font-heading, 'Playfair Display', serif);
+  font-family: var(--font-heading, 'Pretendard Variable', serif);
   font-weight: 700;
 }
 

@@ -185,7 +185,7 @@ export default {
 }
 
 .map-view h1 {
-  font-family: 'Playfair Display', serif; /* Title font */
+  font-family: 'Pretendard Variable', serif; /* Title font */
   font-size: 2.2rem;
   color: var(--text-primary);
   margin-bottom: 1rem; /* Consistent margin */

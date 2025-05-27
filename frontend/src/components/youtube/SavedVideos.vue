@@ -348,6 +348,7 @@ export default {
   padding-top: 1rem; /* Space above buttons, ProductCard와 유사하게 */
   border-top: 1px solid var(--border-color); /* ProductCard와 유사하게 */
   display: flex;
+  align-items: center; /* 버튼들을 세로 중앙 정렬 */
   gap: var(--spacing-md, 1rem);
   /* background-color: var(--background-secondary-ultralight, rgba(0,0,0,0.02)); ProductCard에는 없는 부분이므로 제거 또는 조정 */
 }
@@ -447,6 +448,7 @@ export default {
 .delete-btn-global {
   /* 제거 버튼 고유 스타일 (필요시) */
   /* 기본적으로 delete-btn-global 스타일을 따르도록 variables.css 또는 App.vue에서 정의 권장 */
+  margin-left: auto; /* "제거하기" 버튼을 오른쪽으로 정렬 */
 }
 
 /* Dark mode specific styles for this component */

@@ -9,7 +9,7 @@ class User(AbstractUser):
         upload_to="profile_images/",
         null=True,
         blank=True,
-        default="profile_images/default.JPEG",
+        default="profile_images/default.jpeg",
     )
     age = models.IntegerField(null=True, blank=True)
     gender = models.CharField(

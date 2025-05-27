@@ -51,7 +51,7 @@ export default {
 .admin-title {
   margin: 0 0 1rem 0;
   color: var(--text-primary);
-  font-family: 'Playfair Display', serif;
+  font-family: 'Pretendard Variable', serif;
   font-size: 1.8rem;
   font-weight: 700;
 }

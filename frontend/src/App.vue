@@ -6,7 +6,7 @@
 
         <nav class="main-nav">
           <router-link to="/products" class="nav-link">{{ $t('header.financial') }}</router-link>
-          <router-link to="/products/stocks" class="nav-link">주식</router-link>
+          <router-link to="/products/stocks" class="nav-link">{{ $t('header.stocks') }}</router-link>
           <router-link to="/products/ai-recommendations" class="nav-link">
             <i class="bi bi-robot"></i> {{ $t('header.aiRecommendations') }}
           </router-link>
@@ -200,7 +200,7 @@ body {
     -apple-system,
     BlinkMacSystemFont,
     'Segoe UI',
-    Roboto,
+    'Pretendard Variable',
     Helvetica,
     Arial,
     sans-serif;
@@ -215,7 +215,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Pretendard Variable', serif;
 }
 
 a {

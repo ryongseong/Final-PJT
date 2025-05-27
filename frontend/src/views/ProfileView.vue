@@ -373,7 +373,7 @@ const handleImageError = (e) => {
   text-align: center;
   margin-bottom: 2rem;
   color: var(--text-primary);
-  font-family: 'Playfair Display', serif;
+  font-family: 'Pretendard Variable', serif;
   font-size: 2rem;
   font-weight: 700;
 }
@@ -465,7 +465,7 @@ const handleImageError = (e) => {
   margin: 0 0 0.5rem;
   color: var(--text-primary);
   font-size: 1.5rem;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Pretendard Variable', serif;
 }
 
 .profile-info p {
@@ -580,7 +580,7 @@ const handleImageError = (e) => {
   margin-bottom: 1rem;
   color: var(--text-primary);
   font-size: 1.25rem;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Pretendard Variable', serif;
 }
 
 .info-item {

@@ -290,10 +290,10 @@ const createChart = () => {
                 size: 13,
                 weight: '500',
               },
-              padding: 12,
+              padding: 15,
             },
             title: {
-              display: true,
+              display: false,
               text: locale.value === 'ko' ? '통화' : 'Currency',
               color: textColor,
               font: {
@@ -301,7 +301,7 @@ const createChart = () => {
                 size: 14,
                 weight: 'bold',
               },
-              padding: { top: 15 },
+              // padding: { top: 15 },
             },
           },
           y: {
@@ -427,7 +427,7 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem 0;
+  /* padding: 1rem 0; */
 }
 
 .chart-container {
@@ -444,6 +444,7 @@ onBeforeUnmount(() => {
   border: 1px solid rgba(0, 0, 0, 0.04);
   margin: 0.75rem;
   max-width: calc(100% - 1.5rem);
+  max-height: calc(100% - 1.5rem);
 }
 
 .dark .chart-container {
@@ -453,7 +454,7 @@ onBeforeUnmount(() => {
 }
 
 .chart-header {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
   position: relative;
 }
 

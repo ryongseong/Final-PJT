@@ -20,9 +20,9 @@
         </div>
       </div>
     </div>
+    <MarketSection />
 
     <!-- 금융 시장 동향 섹션 -->
-    <MarketSection />
 
     <!-- 주식 관련 영상 검색 섹션 (신규 추가) -->
     <!-- <section class="video-search-section">
@@ -487,7 +487,7 @@ onBeforeUnmount(() => {
   text-shadow: var(--hero-text-shadow);
   font-weight: 700;
   line-height: 1.2;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Pretendard Variable', serif;
 }
 
 .hero-content p {
@@ -496,7 +496,7 @@ onBeforeUnmount(() => {
   color: var(--text-secondary);
   max-width: 95%;
   line-height: 1.6;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Pretendard Variable', sans-serif;
 }
 
 .hero-buttons {
@@ -511,7 +511,7 @@ onBeforeUnmount(() => {
   border-radius: 16px;
   cursor: pointer;
   transition: all var(--transition-speed);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Pretendard Variable', sans-serif;
   border: none;
 }
 

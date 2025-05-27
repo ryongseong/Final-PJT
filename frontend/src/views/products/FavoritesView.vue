@@ -152,12 +152,20 @@ export default {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem 1rem;
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius-lg, 8px);
+  box-shadow: var(--card-shadow, 0 2px 10px rgba(0, 0, 0, 0.05));
+  color: var(--text-primary);
 }
 
 .favorites-title {
   text-align: center;
   margin-bottom: 2rem;
-  color: #333;
+  color: var(--text-primary);
+}
+
+#app.dark .favorites-title {
+  color: #ffffff !important;
 }
 
 .favorites-grid {
@@ -166,12 +174,10 @@ export default {
   gap: 1.5rem;
 }
 
-.loading-indicator,
-.error-message,
-.no-favorites {
-  text-align: center;
-  padding: 3rem 0;
-  color: #555;
+.loading-indicator p,
+.error-message p,
+.no-favorites p {
+  color: var(--text-secondary);
 }
 
 .error-message {
@@ -179,8 +185,9 @@ export default {
 }
 
 .no-favorites {
+  text-align: center;
   padding: 5rem 0;
-  background: #f9f9fa;
+  background: var(--card-bg);
   border-radius: 8px;
 }
 

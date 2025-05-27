@@ -302,7 +302,7 @@ onMounted(() => {
   color: var(--text-primary);
   margin-bottom: 0.75rem;
   font-weight: 700; /* Bold */
-  font-family: 'Playfair Display', serif; /* Title font */
+  font-family: 'Pretendard Variable', serif; /* Title font */
 }
 
 .articles-header .subtitle {

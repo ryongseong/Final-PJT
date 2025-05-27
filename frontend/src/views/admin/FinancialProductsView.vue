@@ -456,7 +456,7 @@ onMounted(() => {
   font-size: 2.2rem; /* Consistent with other admin views */
   color: var(--text-primary);
   margin-bottom: 0.4rem;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Pretendard Variable', serif;
   font-weight: 700;
 }
 

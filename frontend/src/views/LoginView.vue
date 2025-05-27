@@ -141,7 +141,7 @@ const kakaoLogin = () => {
   text-align: center;
   margin-bottom: 2rem; /* Increased margin */
   color: var(--text-primary);
-  font-family: 'Playfair Display', serif; /* Title font */
+  font-family: 'Pretendard Variable', serif; /* Title font */
   font-size: 2rem; /* Adjusted size */
   font-weight: 700;
 }

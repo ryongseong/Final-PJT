@@ -324,7 +324,7 @@
             </div>
 
             <div class="requirement-note">
-              * 자세한 가입 요건은 해당 금융회사에 문의하시기 바랍니다.
+              자세한 가입 요건은 해당 금융회사에 문의하시기 바랍니다.
             </div>
           </div>
 
@@ -539,6 +539,13 @@ export default {
         error.value = '상품 정보를 불러오는데 실패했습니다. 다시 시도해주세요.'
       } finally {
         loading.value = false
+        // 추가: requirementOptions가 비어있고, 예금/적금 상품인 경우 fallback 데이터 생성
+        if (product.value && 
+            (determineProductType(product.value) === 'deposit' || determineProductType(product.value) === 'saving') && 
+            requirementOptions.value.length === 0) {
+          console.log('loadProductDetails: No requirement options, attempting to create fallback data.');
+          createFallbackData();
+        }
       }
     }
 
@@ -670,7 +677,14 @@ export default {
         error.value = '상품 정보를 불러오는데 실패했습니다. 다시 시도해주세요.'
         console.error('Error loading product:', err)
       } finally {
-        loading.value = false
+        loading.value = false;
+        // 추가: requirementOptions가 비어있고, 예금/적금 상품인 경우 fallback 데이터 생성
+        if (product.value && 
+            (determineProductType(product.value) === 'deposit' || determineProductType(product.value) === 'saving') && 
+            requirementOptions.value.length === 0) {
+            console.log('fetchProduct: No requirement options, attempting to create fallback data.');
+            createFallbackData();
+        }
       }
     }
 
@@ -1310,9 +1324,9 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--spacing-xl, 2rem);
-  padding-bottom: var(--spacing-lg, 1rem);
-  border-bottom: 1px solid var(--border-color, #e5e7eb);
+  margin-bottom: 1.5rem; /* 기존 StockDetailView와 유사한 마진 */
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e9ecef; /* 구분선 추가 */
 }
 .back-button,
 .share-button,
@@ -1704,12 +1718,12 @@ export default {
   font-size: var(--font-size-xl, 1.3rem);
   font-weight: 700;
   margin: 0 0 var(--spacing-sm, 0.5rem) 0;
-  color: var(--text-primary, #111827);
+  color: #000000; /* 검은색으로 변경 */
   font-family: var(--font-heading);
 }
 .join-method-content p {
   margin: 0;
-  color: var(--text-secondary, #4b5563);
+  color: #000000; /* 검은색으로 변경 */
   line-height: 1.6;
   font-size: var(--font-size-md, 1rem);
   font-family: var(--font-body);
@@ -1730,7 +1744,7 @@ export default {
   border-radius: var(--card-border-radius-sm, 8px);
   font-family: var(--font-body);
   font-size: var(--font-size-md, 1rem);
-  color: var(--text-primary);
+  color: #000000; /* 검은색으로 변경 */
 }
 .condition-item i {
   color: var(--success-color, var(--accent-color));
@@ -1739,7 +1753,7 @@ export default {
 
 .requirement-note {
   font-size: var(--font-size-md, 0.95rem);
-  color: var(--text-secondary, #6b7280);
+  color: #000000; /* 검은색으로 변경 */
   margin-top: var(--spacing-lg, 1.5rem);
   padding: var(--spacing-md, 1rem);
   background-color: var(--background-info-light, #f3f4f6);
@@ -1949,5 +1963,11 @@ export default {
     flex-grow: 1;
     justify-content: center;
   }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center; /* 버튼들을 세로 중앙으로 정렬 */
+  gap: 0.75rem; /* 버튼 사이의 간격 추가 */
 }
 </style>

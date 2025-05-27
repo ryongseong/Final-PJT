@@ -142,7 +142,7 @@ onMounted(() => {
   margin-bottom: 2rem;
   text-align: center;
   font-weight: 700;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Pretendard Variable', serif;
 }
 
 .article-form {

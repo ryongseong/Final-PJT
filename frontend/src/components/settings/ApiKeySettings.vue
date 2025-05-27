@@ -138,7 +138,7 @@ const toggleExchangeKeyVisibility = () => {
 }
 
 .settings-title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Pretendard Variable', serif;
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
   color: var(--text-primary);

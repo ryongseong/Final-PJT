@@ -70,7 +70,7 @@ import SilverPriceChart from './charts/SilverPriceChart.vue'
 <style scoped>
 .market-section {
   padding: 6rem 1rem; /* 섹션 크기 증가 */
-  margin: 4rem 0; /* 섹션 간격 추가 */
+  margin: 2rem 0; /* 섹션 간격 추가 */
   background: var(--background-gradient);
   transition: var(--transition-speed);
 }
@@ -81,7 +81,7 @@ import SilverPriceChart from './charts/SilverPriceChart.vue'
 }
 
 .section-title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Pretendard Variable', serif;
   font-size: 3rem; /* 제목 크기 증가 */
   margin-bottom: 1.5rem;
   color: var(--text-primary);
@@ -92,7 +92,7 @@ import SilverPriceChart from './charts/SilverPriceChart.vue'
 }
 
 .section-description {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Pretendard Variable', sans-serif;
   text-align: center;
   margin-bottom: 4rem; /* 마진 증가 */
   color: var(--text-secondary);
@@ -130,7 +130,7 @@ import SilverPriceChart from './charts/SilverPriceChart.vue'
 }
 
 .market-card h3 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Pretendard Variable', serif;
   font-size: 1.8rem; /* 제목 크기 증가 */
   margin-bottom: 1.8rem;
   color: var(--text-primary);
@@ -155,7 +155,7 @@ import SilverPriceChart from './charts/SilverPriceChart.vue'
 }
 
 .card-description {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Pretendard Variable', sans-serif;
   color: var(--text-secondary);
   font-size: 1rem; /* 설명 글씨 크기 증가 */
   transition: var(--transition-speed);

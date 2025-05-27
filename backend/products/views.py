@@ -960,6 +960,9 @@ def get_stock_details(request, stock_code):
 
     API_URL = f"https://wts-info-api.tossinvest.com/api/v1/c-chart/kr-s/{stock_code}/day:1?count=100&useAdjustedRate=true"
 
+    if stock_code.startswith("U"):
+        API_URL = f"https://wts-info-api.tossinvest.com/api/v1/c-chart/us-s/{stock_code}/day:1?count=100&useAdjustedRate=true"
+
     response = requests.get(
         API_URL,
         headers={

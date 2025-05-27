@@ -68,7 +68,7 @@ const currentLanguage = computed(() => {
 }
 
 .page-title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Pretendard Variable', serif;
   font-size: 2.5rem;
   margin-bottom: 2rem;
   color: var(--text-primary);
@@ -91,7 +91,7 @@ const currentLanguage = computed(() => {
 }
 
 .settings-title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Pretendard Variable', serif;
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
   color: var(--text-primary);
