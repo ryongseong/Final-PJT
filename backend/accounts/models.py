@@ -5,7 +5,12 @@ from django.utils import timezone
 
 class User(AbstractUser):
     nickname = models.CharField(max_length=15, unique=True)
-    profile_img = models.ImageField(upload_to="profile_images/", null=True, blank=True)
+    profile_img = models.ImageField(
+        upload_to="profile_images/",
+        null=True,
+        blank=True,
+        default="profile_images/default.JPEG",
+    )
     age = models.IntegerField(null=True, blank=True)
     gender = models.CharField(
         max_length=1, choices=[("M", "Male"), ("F", "Female")], null=True, blank=True

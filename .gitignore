@@ -179,3 +179,4 @@ cython_debug/
 
 backend/media/profile_images/*
 !backend/media/profile_images/.gitkeep
+!backend/media/profile_images/default.JPEG
