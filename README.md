@@ -1,9 +1,10 @@
+README.md
+
 # MergeBank
 
 [![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)](https://developer.mozilla.org/docs/Web/JavaScript)
 [![Vue.js](https://img.shields.io/badge/Vue.js-42b883?style=flat-square&logo=vuedotjs&logoColor=white)](https://vuejs.org/)
 [![Vite](https://img.shields.io/badge/Vite-3D1663?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-A5F3FC?style=flat-square&logo=tailwindcss&logoColor=black)](https://tailwindcss.com/)
 [![Python](https://img.shields.io/badge/Python-4584b6?style=flat-square&logo=Python&logoColor=white)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/Django-092e20?style=flat-square&logo=django&logoColor=white)](https://www.djangoproject.com/)
 
@@ -207,3 +208,15 @@ Final-PJT/
 
 ## 아키텍처 설계
 ![Project Architecture](./architecture.png)
+
+## 느낀점 및 후기
+이번 MergeBank 프로젝트는 단순한 기능 구현을 넘어서, 사용자 중심의 서비스 설계와 실제 금융 데이터를 활용한 추천 시스템 구축이라는 점에서 매우 실무적인 경험을 제공해주었습니다. 특히 다음과 같은 부분에서 많은 인사이트와 성장을 느낄 수 있었습니다.
+
+### 요구사항 기반 개발 역량 향상
+사전에 주어진 요구사항 문서를 바탕으로 핵심 기능을 분석하고, 이를 바탕으로 전체 프로젝트의 흐름과 구조를 설계하였습니다. 덕분에 기능 구현 시 혼선 없이 체계적으로 개발을 진행할 수 있었으며, 요구사항 기반 개발의 중요성을 체감할 수 있었습니다
+
+### 팀 협업 및 역할 분담의 중요성
+2인 팀으로 진행되었기에 모든 기능을 균형 있게 분담하며, 효율적인 커뮤니케이션을 통해 문제를 빠르게 해결해 나갔습니다. 특히 각자의 강점을 살려 FE/BE를 유기적으로 나누어 진행했던 점이 프로젝트 완성도 향상에 크게 기여했습니다.
+
+### 기술적 도전과 확장성 고민
+지도 기반 은행 검색(Kakao Map), YouTube 영상 검색 및 저장 기능, 금융 상품 추천 알고리즘 구현 등 다양한 외부 API와 라이브러리를 활용하면서 기술적 난이도도 높았지만, 그만큼 폭넓은 경험을 쌓을 수 있었습니다. 향후 더 많은 데이터와 AI 기술을 접목해 확장 가능한 플랫폼으로 발전시켜 보고 싶다는 생각도 들었습니다.
