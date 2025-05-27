@@ -7,8 +7,8 @@ const i18n = createI18n({
   messages: translations,
   legacy: false, // Vue 3 Composition API와 함께 사용
   globalInjection: true, // 전역 주입 활성화
-  silentTranslationWarn: true, // 번역 누락 경고 비활성화
-  silentFallbackWarn: true // 폴백 경고 비활성화
+  silentTranslationWarn: false, // 번역 누락 경고 활성화 (개발 중 유용)
+  silentFallbackWarn: false // 폴백 경고 활성화 (개발 중 유용)
 })
 
 export default i18n

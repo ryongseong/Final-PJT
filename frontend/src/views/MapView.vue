@@ -31,7 +31,7 @@
           <p v-if="selectedBank.distance">
             <strong>거리:</strong> {{ formatDistance(selectedBank.distance) }}
           </p>
-          <div class="directions-link" v-if="selectedBank.road_address_name">
+          <div class="directions-link" v-if="selectedBank.y && selectedBank.x">
             <a :href="getKakaoMapUrl(selectedBank)" target="_blank" class="btn btn-directions">
               길찾기
             </a>
@@ -77,13 +77,45 @@ export default {
       this.currentLocation = location
     },
 
-    onMarkerClicked(marker) {
-      this.selectedLocation = marker
-      // Check if the marker is a bank
-      if (marker.place_name) {
-        this.selectedBank = marker
+    onMarkerClicked(markerData) {
+      // Ensure lat/lng are present, falling back to y/x if available from older structures
+      const lat = markerData.lat || markerData.y;
+      const lng = markerData.lng || markerData.x;
+
+      // Standardize selectedLocation for all marker clicks
+      this.selectedLocation = {
+        address: markerData.address_name || markerData.place_name || markerData.title || '주소 정보 없음',
+        lat: lat,
+        lng: lng,
+      };
+
+      // If it's a bank or has a place_name, treat it as a selectable entity for directions
+      if (markerData.place_name && lat && lng) {
+        this.selectedBank = {
+          place_name: markerData.place_name,
+          // Ensure address_name has a fallback if not directly provided
+          address_name: markerData.address_name || markerData.road_address_name || '상세 주소 정보 없음',
+          road_address_name: markerData.road_address_name, // Keep for potential display or specific use
+          phone: markerData.phone || '',
+          distance: markerData.distance,
+          y: lat, // Use consistent lat for y
+          x: lng, // Use consistent lng for x
+        };
+      } else if (lat && lng) {
+        // If not a bank (no place_name) but has coordinates, allow directions to this point
+        // This primarily handles the case where a generic map click was treated as a marker click
+        // or a marker without detailed place information was clicked.
+        this.selectedBank = {
+          place_name: markerData.title || '선택된 위치',
+          address_name: this.selectedLocation.address, // Use address from selectedLocation
+          road_address_name: '',
+          phone: '',
+          y: lat,
+          x: lng,
+        };
       } else {
-        this.selectedBank = null
+        // If no coordinates, cannot show directions
+        this.selectedBank = null;
       }
     },
 
@@ -99,9 +131,17 @@ export default {
     onMapClicked(location) {
       this.selectedLocation = {
         address: '선택한 위치',
-        ...location,
-      }
-      this.selectedBank = null
+        lat: location.lat,
+        lng: location.lng,
+      };
+
+      this.selectedBank = {
+        place_name: '선택한 위치',
+        address_name: location.address || '상세 주소 없음',
+        road_address_name: location.address || '상세 주소 없음',
+        y: location.lat,
+        x: location.lng,
+      };
 
       // We don't need to add a marker here, as the component will handle it
     },

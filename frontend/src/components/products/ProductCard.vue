@@ -365,7 +365,7 @@ export default {
 }
 
 .rate-value.loan {
-  color: var(--info-color, #3b82f6); /* Different color for loan rates if needed */
+  color: var(--accent-color); /* CHANGED to use --accent-color for consistency */
 }
 
 .rate-subtitle {
