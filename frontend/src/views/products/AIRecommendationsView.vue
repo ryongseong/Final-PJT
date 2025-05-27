@@ -84,7 +84,8 @@
         </div>
         <div class="card-body">
           <div class="recommendations-content">
-            <pre class="recommendations-text">{{ recommendations }}</pre>
+            <!-- <pre class="recommendations-text">{{ recommendations }}</pre> -->
+            <pre class="recommendations-text" v-html="recommendations"></pre>
           </div>
         </div>
       </div>
