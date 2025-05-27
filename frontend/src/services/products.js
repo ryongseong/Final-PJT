@@ -32,6 +32,15 @@ export default {
   async getExchangeRate() {
     return await apiClient.get('exchange-rate/').then((response) => response.data)
   },
+
+  async getKosdaqData() {
+    return await apiClient.get('kosdaq-stock-market/').then((response) => response)
+  },
+
+  async getKospiData() {
+    return await apiClient.get('kospi-stock-market/').then((response) => response)
+  },
+
   // Get all financial products
   async getAllFinancialProducts() {
     return apiClient.get('financial-products/').then((response) => response.data)

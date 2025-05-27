@@ -59,6 +59,16 @@ urlpatterns = [
         views.get_exchange_rate,
         name="exchange-rate",
     ),
+    path(
+        "kosdaq-stock-market/",
+        views.get_kosdaq_data,
+        name="kosdaq-stock-market-data",
+    ),
+    path(
+        "kospi-stock-market/",
+        views.get_kospi_data,
+        name="kospi-stock-market-data",
+    ),
     # Admin endpoints for updating financial product data
     path("admin/update-all/", views.update_all_products, name="update-all-products"),
     path(

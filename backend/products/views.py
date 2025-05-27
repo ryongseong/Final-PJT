@@ -802,6 +802,124 @@ def get_exchange_rate(request):
     return Response(data, status=status.HTTP_200_OK)
 
 
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def get_kospi_data(request):
+    import requests
+    import ast
+    from datetime import datetime, timedelta
+
+    now = datetime.now()
+
+    previous_day = (datetime.now() - timedelta(days=30)).strftime("%Y%m%d")
+    response = requests.get(
+        "https://m.stock.naver.com/front-api/external/chart/domestic/info",
+        params={
+            "symbol": "KOSPI",
+            "requestType": 1,
+            "startTime": previous_day,
+            "endTime": now.strftime("%Y%m%d"),
+            "timeframe": "day",
+        },
+        headers={"User-Agent": "Mozilla/5.0"},
+    )
+
+    if response.status_code != 200:
+        return Response(
+            {"detail": "주식 시장 데이터를 가져오는 데 실패했습니다."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+    try:
+        parsed_data = ast.literal_eval(response.text.strip())
+    except Exception as e:
+        return Response(
+            {"detail": f"데이터 파싱 실패: {str(e)}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+    if len(parsed_data) <= 1:
+        return Response(
+            {"detail": "유효하지 않은 주식 시장 데이터입니다."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+    COLUMN_MAP = {
+        "날짜": "date",
+        "시가": "open",
+        "고가": "high",
+        "저가": "low",
+        "종가": "close",
+        "거래량": "volume",
+        "외국인소진율": "foreign_rate",
+    }
+
+    columns = parsed_data[0]
+    columns = [COLUMN_MAP.get(col, col) for col in columns]
+    rows = parsed_data[1:]
+    json_ready = [dict(zip(columns, row)) for row in rows]
+
+    return Response(json_ready, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def get_kosdaq_data(request):
+    import requests
+    import ast
+    from datetime import datetime, timedelta
+
+    now = datetime.now()
+
+    previous_day = (datetime.now() - timedelta(days=30)).strftime("%Y%m%d")
+    response = requests.get(
+        "https://m.stock.naver.com/front-api/external/chart/domestic/info",
+        params={
+            "symbol": "KOSDAQ",
+            "requestType": 1,
+            "startTime": previous_day,
+            "endTime": now.strftime("%Y%m%d"),
+            "timeframe": "day",
+        },
+        headers={"User-Agent": "Mozilla/5.0"},
+    )
+
+    if response.status_code != 200:
+        return Response(
+            {"detail": "주식 시장 데이터를 가져오는 데 실패했습니다."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+    try:
+        parsed_data = ast.literal_eval(response.text.strip())
+    except Exception as e:
+        return Response(
+            {"detail": f"데이터 파싱 실패: {str(e)}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+    if len(parsed_data) <= 1:
+        return Response(
+            {"detail": "유효하지 않은 주식 시장 데이터입니다."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+    COLUMN_MAP = {
+        "날짜": "date",
+        "시가": "open",
+        "고가": "high",
+        "저가": "low",
+        "종가": "close",
+        "거래량": "volume",
+        "외국인소진율": "foreign_rate",
+    }
+
+    columns = parsed_data[0]
+    columns = [COLUMN_MAP.get(col, col) for col in columns]
+    rows = parsed_data[1:]
+    json_ready = [dict(zip(columns, row)) for row in rows]
+
+    return Response(json_ready, status=status.HTTP_200_OK)
+
+
 # Admin API endpoints for updating financial products
 @api_view(["POST"])
 @permission_classes([IsAdminUser])

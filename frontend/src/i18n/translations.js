@@ -95,6 +95,12 @@ export default {
       loadingData: '데이터를 불러오는 중...',
       errorLoadingData: '데이터를 불러오는 중 오류가 발생했습니다.',
       retry: '다시 시도',
+      kopsi: '코스피 지수',
+      kopsiDesc:
+        '코스피 지수는 한국 증시의 대표적인 주가 지수로, 최근 1개월간의 변동 추이를 보여줍니다.',
+      kosdaq: '코스닥 지수',
+      kosdaqDesc:
+        '코스닥 지수는 한국의 중소기업 중심의 주가 지수로, 최근 1개월간의 변동 추이를 보여줍니다.',
     },
     footer: {
       companyInfo: '회사 정보',
@@ -153,8 +159,8 @@ export default {
       videoRemoved: '영상이 목록에서 제거되었습니다.',
       errorRemoveVideo: '영상 제거에 실패했습니다. 다시 시도해주세요.',
       watch: '시청하기',
-      remove: '제거하기'
-    }
+      remove: '제거하기',
+    },
   },
   en: {
     common: {
@@ -296,7 +302,8 @@ export default {
       },
     },
     youtube: {
-      noSavedVideos: 'You haven\'t saved any videos yet. Search for financial videos you\'re interested in and save them!',
+      noSavedVideos:
+        "You haven't saved any videos yet. Search for financial videos you're interested in and save them!",
       searchVideosLink: 'Go to Video Search',
       savedAt: 'Saved at',
       addNotesPlaceholder: 'Add your notes about this video here...',
@@ -308,7 +315,7 @@ export default {
       videoRemoved: 'Video removed from the list.',
       errorRemoveVideo: 'Failed to remove video. Please try again.',
       watch: 'Watch Video',
-      remove: 'Remove Video'
-    }
+      remove: 'Remove Video',
+    },
   },
 }

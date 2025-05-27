@@ -36,11 +36,34 @@
       </div>
     </div>
   </section>
+  <section class="market-section">
+    <div class="container">
+      <div class="cards-container">
+        <div class="market-card">
+          <h3>{{ $t('market.kopsi') }}</h3>
+          <div class="chart-container">
+            <KospiChart />
+          </div>
+          <p class="card-description">{{ $t('market.kopsiDesc') }}</p>
+        </div>
+
+        <div class="market-card">
+          <h3>{{ $t('market.kosdaq') }}</h3>
+          <div class="chart-container">
+            <KosdaqChart />
+          </div>
+          <p class="card-description">{{ $t('market.kosdaqDesc') }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
 </template>
 
 <script setup>
 import ExchangeRateChart from './charts/ExchangeRateChart.vue'
 import GoldPriceChart from './charts/GoldPriceChart.vue'
+import KosdaqChart from './charts/KosdaqChart.vue'
+import KospiChart from './charts/KospiChart.vue'
 import SilverPriceChart from './charts/SilverPriceChart.vue'
 </script>
 
