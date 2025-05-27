@@ -103,13 +103,14 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
 # 환경 변수 설정 (.env 파일 생성)
+# FINANCE_API=
+# EXCHANGE_RATE_API=
+# DEPOSIT_PRODUCT_API=
 # GOOGLE_CLIENT_ID=
 # GOOGLE_CLIENT_SECRET=
 # KAKAO_CLIENT_ID=
-# FINANCIAL_API_KEY=
-# YOUTUBE_API_KEY=
 # OPENAI_API_KEY=
-# EXCHANGE_RATE_API=
+# YOUTUBE_API=
 
 # 데이터베이스 마이그레이션
 python manage.py migrate
@@ -127,11 +128,14 @@ cd frontend
 # 의존성 설치
 npm install
 
+# 환경 변수 설정 (.env 파일 생성)
+# VITE_KAKAO_API=
+# VITE_KAKAO_CLIENT_ID=
+# VITE_GOOGLE_CLIENT_ID=
+# VITE_GOOGLE_CLIENT_SECRET=
+
 # 개발 서버 실행
 npm run dev
-
-# 프로덕션 빌드
-npm run build
 ```
 
 ## API 명세
