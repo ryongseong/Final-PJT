@@ -139,9 +139,9 @@ const createChart = async () => {
         },
         elements: {
           point: {
-            radius: 5,
+            radius: 0,
             hoverRadius: 8,
-            hitRadius: 10,
+            hitRadius: 0,
           },
           line: {
             borderWidth: 3,

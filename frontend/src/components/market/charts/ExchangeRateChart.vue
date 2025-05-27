@@ -200,7 +200,8 @@ const createChart = () => {
     const gridColor = settingsStore.isDarkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'
 
     chart.value = new Chart(ctx, {
-      type: 'line',
+      // type: 'line',
+      type: 'bar',
       data: getChartData(),
       options: {
         responsive: true,

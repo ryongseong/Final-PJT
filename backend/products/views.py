@@ -740,7 +740,7 @@ def get_gold_and_silver_prices(request):
     from datetime import datetime, timedelta
 
     today = datetime.now().strftime("%Y-%m-%d")
-    previous_day = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+    previous_day = (datetime.now() - timedelta(days=90)).strftime("%Y-%m-%d")
     type = request.GET.get("type", "AG")
 
     response = requests.get(
