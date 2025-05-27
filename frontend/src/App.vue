@@ -2,11 +2,15 @@
   <div id="app" :class="{ dark: isDarkMode }">
     <header class="app-header" v-if="showHeader">
       <div class="header-container">
-        <router-link to="/" class="logo"> FinanceApp </router-link>
+        <router-link to="/" class="logo" :style="{ color: isDarkMode ? '#feab71' : '#2c3e50' }"
+          ><img class="logo-image" src="@/assets/logo.png" /> MergeBank</router-link
+        >
 
         <nav class="main-nav">
           <router-link to="/products" class="nav-link">{{ $t('header.financial') }}</router-link>
-          <router-link to="/products/stocks" class="nav-link">{{ $t('header.stocks') }}</router-link>
+          <router-link to="/products/stocks" class="nav-link">{{
+            $t('header.stocks')
+          }}</router-link>
           <router-link to="/products/ai-recommendations" class="nav-link">
             <i class="bi bi-robot"></i> {{ $t('header.aiRecommendations') }}
           </router-link>
@@ -255,10 +259,17 @@ main {
   margin: 0 auto;
 }
 
+.logo-image {
+  width: 90px;
+  height: 40px;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
 .logo {
-  font-size: 1.8rem;
+  font-size: 1.2rem;
   font-weight: 700;
-  color: var(--accent-color);
+  /* color: var(--accent-color); */
   text-decoration: none;
   transition: color var(--transition-speed);
 }
