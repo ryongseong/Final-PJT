@@ -1,0 +1,246 @@
+:root {
+  /* Light Theme Colors - Adjusted for eye comfort and premium look */
+  --background-primary: #F5F1E9; /* More muted sand/beige */
+  --background-gradient: linear-gradient(135deg, #F5F1E9 0%, #EFEAE0 50%, #E8E0D3 100%); /* Adjusted gradient */
+  --background-secondary: #EFEAE0; /* 섹션 배경용 중간톤 베이지 */
+  --text-primary: #4B3F36; /* Dark Cappuccino ( 유지 ) */
+  --text-secondary: #796A5F; /* Medium Cappuccino ( 유지 ) */
+  --accent-color: #A3B899; /* Soft Mint ( 유지 - my_pjt dark theme green ) */
+  --accent-hover: #8FA87F; /* Darker Soft Mint ( 유지 ) */
+  --card-bg: #FCF9F3; /* Slightly darker, less saturated off-white */
+  --card-border: #E8E0D3; /* To match new gradient end */
+  --header-bg: rgba(245, 241, 233, 0.9); /* Adjusted for new primary, slightly more opaque */
+  --footer-bg: #EFEAE0; /* Mid-tone from the new gradient */
+  --shadow-color: rgba(75, 63, 54, 0.08); /* Soft Cappuccino Shadow ( 유지 ) */
+  --border-color: #DCD5C9; /* More distinct border */
+  --border-color-light: #E8E0D3; /* Lighter border for subtle lines */
+  --modal-bg: #FCF9F3; /* Adjusted to match new card background */
+  --modal-border: #E8E0D3; /* Adjusted to match new card border */
+  --modal-overlay-bg: rgba(75, 63, 54, 0.5); /* Overlay based on text color */
+  --hero-text-shadow: 1px 1px 2px rgba(75, 63, 54, 0.1);
+  --card-shadow: 0 4px 12px var(--shadow-color); /* Softer shadow */
+  --card-shadow-lg: 0 8px 20px var(--shadow-color); /* Larger shadow */
+  --card-shadow-xl: 0 12px 24px rgba(75, 63, 54, 0.1); /* Even larger for hover effects */
+  --button-bg: #A3B899; /* Soft Mint ( 유지 ) */
+  --button-hover-bg: #8FA87F; /* Darker Soft Mint ( 유지 ) */
+  --button-text: var(--text-primary); /* Dark Cappuccino text for better contrast on Soft Mint */
+  --button-secondary-bg: #EFEAE0;
+  --button-secondary-text: var(--text-secondary);
+  --button-secondary-border: var(--border-color);
+  --button-secondary-hover-bg: var(--border-color-light);
+  --button-danger-bg: #E57373; /* Softer red */
+  --button-danger-text: #FFFFFF;
+  --button-danger-hover-bg: #EF5350; 
+  --button-danger-text-alt: #D32F2F; /* Darker red for text on light bg, if needed */
+  --button-danger-border-alt: #D32F2F; /* Darker red for border on light bg */
+  --button-disabled-bg: #E0E0E0; /* General disabled background for light mode */
+  --button-disabled-text: #BDBDBD; /* General disabled text for light mode */
+
+  /* Typography */
+  --font-body: 'Pretendard Variable', sans-serif;
+  --font-heading: 'Pretendard Variable', serif;
+  --font-size-xs: 0.75rem;  /* 12px */
+  --font-size-sm: 0.875rem; /* 14px */
+  --font-size-md: 1rem;     /* 16px */
+  --font-size-lg: 1.125rem; /* 18px */
+  --font-size-xl: 1.25rem;  /* 20px */
+  --font-size-xxl: 1.5rem; /* 24px */
+  --font-size-xxxl: 2rem;  /* 32px */
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;  /* 4px */
+  --spacing-sm: 0.5rem;   /* 8px */
+  --spacing-md: 1rem;     /* 16px */
+  --spacing-lg: 1.5rem;   /* 24px */
+  --spacing-xl: 2rem;     /* 32px */
+  --spacing-xxl: 3rem;    /* 48px */
+
+  /* Layout */
+  --container-max-width: 1200px;
+  --page-padding: 2rem 1.5rem;
+
+  /* Borders & Radius */
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --card-border-radius: var(--border-radius-md);
+  --card-border-radius-lg: var(--border-radius-lg);
+  --modal-border-radius: var(--border-radius-lg);
+  --input-border-radius: var(--border-radius-sm);
+
+  /* Inputs & Forms */
+  --input-bg: var(--card-bg);
+  --input-border: var(--border-color);
+  --input-text: var(--text-primary);
+  --input-placeholder: var(--text-secondary);
+  --input-focus-border: var(--accent-color);
+  --input-padding-y: 0.6rem;
+  --input-padding-x: 1rem;
+
+  /* Animation */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+}
+
+.dark {
+  /* Dark Theme Colors - Highly Visible Text (my_pjt base) */
+  --background-primary: #2C2A2E; /* Deep Charcoal */
+  --background-gradient: linear-gradient(135deg, #2C2A2E 0%, #3E3B42 50%, #4F4C55 100%); /* Charcoal to Dark Slate */
+  --background-secondary: #3E3B42; /* 카드 배경과 동일한 어두운 슬레이트 색상 */
+  --text-primary: #F8F8F8; /* Off-White */
+  --text-secondary: #B0B0B0; /* Lighter Gray than D7D7D7 for better secondary contrast */
+  --accent-color: #A3B899; /* Soft Mint (from my_pjt dark theme) */
+  --accent-hover: #8FA87F; /* Darker Soft Mint (from my_pjt dark theme) */
+  --card-bg: #3E3B42; /* Dark Slate */
+  --card-border: #4F4C55; /* Medium Slate */
+  --border-color-light: #4F4C55; /* Lighter border for subtle lines in dark mode */
+  --header-bg: rgba(44, 42, 46, 0.85); /* Semi-transparent Deep Charcoal */
+  --footer-bg: #2C2A2E; /* Deep Charcoal */
+  --shadow-color: rgba(0, 0, 0, 0.25); /* Darker Shadow for contrast */
+  --border-color: #5A575F; /* Slightly Lighter than card border for more distinction */
+  --modal-bg: #3A373E; /* Slightly lighter than card-bg for modals */
+  --modal-border: #4F4C55;
+  --modal-overlay-bg: rgba(0, 0, 0, 0.7);
+  --hero-text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+  --card-shadow: 0 6px 15px var(--shadow-color);
+  --card-shadow-lg: 0 10px 25px var(--shadow-color);
+  --card-shadow-xl: 0 15px 30px rgba(0,0,0,0.3);
+  --button-bg: #A3B899; /* Soft Mint (from my_pjt dark theme) */
+  --button-hover-bg: #8FA87F; /* Darker Soft Mint (from my_pjt dark theme) */
+  --button-text: var(--text-primary); /* Changed to ensure visibility in dark mode */
+  --button-secondary-bg: #4F4C55;
+  --button-secondary-text: var(--text-primary); /* Ensure secondary button text is also light */
+  --button-secondary-border: #5A575F;
+  --button-secondary-hover-bg: #5A575F; 
+  --button-danger-bg: #B71C1C; /* Darker red for dark mode */
+  --button-danger-text: #F8F8F8;
+  --button-danger-hover-bg: #C62828;
+  --button-danger-text-alt: #FF8A80; /* Lighter, more visible red for text on dark bg */
+  --button-danger-border-alt: #FF8A80; /* Lighter, more visible red for border on dark bg */
+  --button-disabled-bg: #424242;    /* Darker disabled background for dark mode */
+  --button-disabled-text: #757575;  /* Darker disabled text for dark mode */
+
+  /* Inputs & Forms for Dark mode */
+  --input-bg: #37343A;
+  --input-border: #5A575F;
+  --input-text: var(--text-primary);
+  --input-placeholder: #8A878F;
+}
+
+/* Global Action Button Styles */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--input-padding-y, 0.6rem) var(--input-padding-x, 1rem);
+  font-size: var(--font-size-sm, 0.9rem);
+  font-weight: 500;
+  font-family: var(--font-body);
+  border-radius: var(--input-border-radius, 6px);
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+}
+.action-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+.action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.action-btn i, .action-btn .icon {
+  margin-right: var(--spacing-sm, 0.5rem);
+}
+.action-btn i:only-child, .action-btn .icon:only-child {
+  margin-right: 0;
+}
+
+/* Primary Button */
+.primary-btn {
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border-color: var(--button-bg);
+}
+.primary-btn:hover:not(:disabled) {
+  background-color: var(--button-hover-bg);
+  border-color: var(--button-hover-bg);
+}
+
+/* Secondary Button */
+.secondary-btn, .secondary-btn-global {
+  background-color: var(--button-secondary-bg);
+  color: var(--button-secondary-text);
+  border-color: var(--button-secondary-border);
+}
+.secondary-btn:hover:not(:disabled), .secondary-btn-global:hover:not(:disabled) {
+  background-color: var(--button-secondary-hover-bg);
+  color: var(--text-primary); /* Hover text can be primary for better visibility */
+}
+
+/* Danger Button */
+.danger-btn, .delete-btn-global {
+  background-color: var(--button-danger-bg);
+  color: var(--button-danger-text);
+  border-color: var(--button-danger-bg);
+}
+.danger-btn:hover:not(:disabled), .delete-btn-global:hover:not(:disabled) {
+  background-color: var(--button-danger-hover-bg);
+  border-color: var(--button-danger-hover-bg);
+}
+
+/* Watch Button (can be a variation of secondary or accent) */
+.watch-btn-global {
+  background-color: transparent;
+  color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+.watch-btn-global:hover:not(:disabled) {
+  background-color: rgba(var(--accent-color-rgb, 163, 184, 153), 0.1); /* Use RGB for transparent bg */
+  color: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+
+/* Global Form Control Styles */
+.form-control-global {
+  display: block;
+  width: 100%;
+  padding: var(--input-padding-y, 0.6rem) var(--input-padding-x, 1rem);
+  font-size: var(--font-size-sm, 0.9rem);
+  font-family: var(--font-body);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--input-text);
+  background-color: var(--input-bg);
+  background-clip: padding-box;
+  border: 1px solid var(--input-border);
+  appearance: none; /* For select, etc. */
+  border-radius: var(--input-border-radius, 6px);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-control-global:focus {
+  color: var(--input-text);
+  background-color: var(--input-bg);
+  border-color: var(--input-focus-border);
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(var(--accent-color-rgb, 163, 184, 153), 0.25); /* Use RGB for transparent shadow */
+}
+
+.form-control-global::placeholder {
+  color: var(--input-placeholder);
+  opacity: 1; 
+}
+
+/* Helper for accent-color-rgb, assuming --accent-color: #A3B899; */
+/* This is a conceptual helper. Actual RGB values need to be manually set or handled by JS if dynamic. */
+/* For #A3B899 -> R:163, G:184, B:153 */
+:root {
+  --accent-color-rgb: 163, 184, 153;
+}
+.dark {
+  --accent-color-rgb: 163, 184, 153; /* Same for dark, or can be different if accent color changes */
+}
