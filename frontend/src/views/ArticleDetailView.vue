@@ -537,8 +537,6 @@ onMounted(() => {
 }
 
 .avatar-wrapper {
-  width: 48px; /* Larger avatar */
-  height: 48px;
   border-radius: 50%;
   overflow: hidden;
   margin-right: 1rem;
@@ -546,6 +544,12 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+}
+
+.article-meta .avatar-wrapper {
+  width: 48px;
+  height: 48px;
 }
 
 .avatar {
@@ -560,10 +564,22 @@ onMounted(() => {
   font-weight: 600;
 }
 
+.comments-list .comment-author .avatar-wrapper {
+  width: 36px;
+  height: 36px;
+  margin-right: 0.75rem;
+}
+
+.avatar-small {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .avatar-placeholder.small {
   font-size: 1rem;
-  width: 32px;
-  height: 32px;
+  color: var(--accent-color);
+  font-weight: 600;
 }
 
 .author-details {
@@ -686,7 +702,7 @@ onMounted(() => {
 
 .content-container {
   line-height: 1.7;
-  color: #334155;
+  color: var(--text-primary);
   font-size: 1.05rem;
 }
 
@@ -696,7 +712,7 @@ onMounted(() => {
 
 /* Comments Section */
 .comments-section {
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--border-color);
   padding-top: 30px;
 }
 
@@ -710,7 +726,7 @@ onMounted(() => {
   gap: 8px;
   font-size: 1.4rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -720,7 +736,7 @@ onMounted(() => {
 
 .comment-count {
   font-size: 1rem;
-  color: #64748b;
+  color: var(--text-secondary);
   font-weight: 400;
 }
 
@@ -745,6 +761,11 @@ onMounted(() => {
   border-radius: 50%;
   overflow: hidden;
   margin-right: 0.75rem;
+  background-color: var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .comment-form .avatar-small {
@@ -762,19 +783,19 @@ onMounted(() => {
   width: 100%;
   min-height: 100px;
   padding: 1rem;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--input-border);
   border-radius: 8px;
   font-size: 1rem;
   line-height: 1.6;
   resize: vertical;
-  background-color: var(--card-bg); /* Slightly different for textarea */
-  color: var(--text-primary);
+  background-color: var(--input-bg);
+  color: var(--input-text);
   transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
 }
 
 .comment-form textarea:focus {
   outline: none;
-  border-color: var(--accent-color);
+  border-color: var(--input-focus-border);
   box-shadow: 0 0 0 3px rgba(var(--accent-color-rgb, 163, 184, 153), 0.2);
 }
 
@@ -796,13 +817,14 @@ onMounted(() => {
 }
 
 .comment-form .cancel-comment-btn {
-  background-color: transparent;
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
+  background-color: var(--button-secondary-bg);
+  color: var(--button-secondary-text);
+  border: 1px solid var(--button-secondary-border);
 }
 
 .comment-form .cancel-comment-btn:hover {
-  background-color: var(--border-color);
+  background-color: var(--button-secondary-hover-bg);
+  color: var(--text-primary);
 }
 
 .comment-form .submit-comment-btn {
@@ -866,14 +888,15 @@ onMounted(() => {
 }
 
 .comment {
-  background-color: #f8fafc;
+  background-color: var(--card-bg);
   border-radius: 12px;
   padding: 15px;
   transition: background-color 0.2s;
+  border: 1px solid var(--border-color-light);
 }
 
 .comment:hover {
-  background-color: #f1f5f9;
+  background-color: var(--background-secondary);
 }
 
 .comment-header {
@@ -930,12 +953,13 @@ onMounted(() => {
 }
 
 .comment-actions .action-btn.delete {
-  color: #ef4444;
-  border: 1px solid var(--border-color); 
+  color: var(--button-danger-text-alt, #ef4444);
+  border: 1px solid var(--button-danger-border-alt, #ef4444);
 }
 .comment-actions .action-btn.delete:hover {
-  background-color: rgba(239, 68, 68, 0.1);
-  border-color: #ef4444;
+  background-color: var(--button-danger-bg);
+  color: var(--button-danger-text);
+  border-color: var(--button-danger-bg);
 }
 
 .edit-comment-form {
@@ -945,17 +969,20 @@ onMounted(() => {
 .edit-comment-form textarea {
   width: 100%;
   padding: 10px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--input-border);
   border-radius: 6px;
   font-size: 0.95rem;
   resize: vertical;
   min-height: 60px;
   margin-bottom: 10px;
+  background-color: var(--input-bg);
+  color: var(--input-text);
 }
 
 .edit-comment-form textarea:focus {
   outline: none;
-  border-color: #4f46e5;
+  border-color: var(--input-focus-border);
+  box-shadow: 0 0 0 3px rgba(var(--accent-color-rgb, 163, 184, 153), 0.2);
 }
 
 .edit-actions {
@@ -975,33 +1002,38 @@ onMounted(() => {
 }
 
 .cancel-btn {
-  background-color: #f1f5f9;
-  color: #64748b;
+  background-color: var(--button-secondary-bg);
+  color: var(--button-secondary-text);
+  border: 1px solid var(--button-secondary-border);
 }
 
 .cancel-btn:hover {
-  background-color: #e2e8f0;
+  background-color: var(--button-secondary-hover-bg);
+  color: var(--text-primary);
 }
 
 .save-btn {
-  background-color: #4f46e5;
-  color: white;
+  background-color: var(--accent-color);
+  color: var(--button-text);
+  border: 1px solid var(--accent-color);
 }
 
 .save-btn:hover {
-  background-color: #4338ca;
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
 
 .save-btn:disabled {
-  background-color: #e2e8f0;
-  color: #94a3b8;
+  background-color: var(--button-disabled-bg);
+  color: var(--button-disabled-text);
+  border: 1px solid var(--button-disabled-bg);
   cursor: not-allowed;
 }
 
 .no-comments {
   text-align: center;
   padding: 30px 0;
-  color: #64748b;
+  color: var(--text-secondary);
 }
 
 .empty-icon {
@@ -1045,6 +1077,15 @@ onMounted(() => {
   }
   .comment-content {
     padding-left: 0; /* Adjust for smaller screens */
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
 </style>

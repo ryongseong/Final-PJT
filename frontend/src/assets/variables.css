@@ -31,6 +31,10 @@
   --button-danger-bg: #E57373; /* Softer red */
   --button-danger-text: #FFFFFF;
   --button-danger-hover-bg: #EF5350; 
+  --button-danger-text-alt: #D32F2F; /* Darker red for text on light bg, if needed */
+  --button-danger-border-alt: #D32F2F; /* Darker red for border on light bg */
+  --button-disabled-bg: #E0E0E0; /* General disabled background for light mode */
+  --button-disabled-text: #BDBDBD; /* General disabled text for light mode */
 
   /* Typography */
   --font-body: 'Noto Sans KR', sans-serif;
@@ -104,14 +108,18 @@
   --card-shadow-xl: 0 15px 30px rgba(0,0,0,0.3);
   --button-bg: #A3B899; /* Soft Mint (from my_pjt dark theme) */
   --button-hover-bg: #8FA87F; /* Darker Soft Mint (from my_pjt dark theme) */
-  --button-text: #2C2A2E; /* Deep Charcoal for button text for better contrast */
+  --button-text: var(--text-primary); /* Changed to ensure visibility in dark mode */
   --button-secondary-bg: #4F4C55;
-  --button-secondary-text: var(--text-secondary);
+  --button-secondary-text: var(--text-primary); /* Ensure secondary button text is also light */
   --button-secondary-border: #5A575F;
-  --button-secondary-hover-bg: #5A575F;
+  --button-secondary-hover-bg: #5A575F; 
   --button-danger-bg: #B71C1C; /* Darker red for dark mode */
   --button-danger-text: #F8F8F8;
   --button-danger-hover-bg: #C62828;
+  --button-danger-text-alt: #FF8A80; /* Lighter, more visible red for text on dark bg */
+  --button-danger-border-alt: #FF8A80; /* Lighter, more visible red for border on dark bg */
+  --button-disabled-bg: #424242;    /* Darker disabled background for dark mode */
+  --button-disabled-text: #757575;  /* Darker disabled text for dark mode */
 
   /* Inputs & Forms for Dark mode */
   --input-bg: #37343A;

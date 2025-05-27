@@ -559,7 +559,7 @@ export default {
   font-size: var(--font-size-sm, 0.9rem);
   min-width: 150px;
   background-color: var(--input-bg, #fff);
-  color: var(--text-input, #333);
+  color: var(--input-text);
   flex-grow: 1;
 }
 
@@ -652,6 +652,46 @@ export default {
 .bank-distance {
   font-size: var(--font-size-xs, 0.8rem);
   color: var(--accent-color, #007bff);
+}
+
+/* Explicit dark mode styling for search results text */
+::v-deep .dark .search-results h3,
+::v-deep .dark .bank-list .bank-item .bank-name {
+  color: var(--text-primary); /* Uses light color from variables.css in dark mode */
+}
+
+::v-deep .dark .bank-list .bank-item .bank-address {
+  color: var(--text-secondary); /* Uses light color from variables.css in dark mode */
+}
+
+/* Explicit dark mode styling for location selector and search button */
+::v-deep .dark .location-selector select {
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border-color: var(--input-border);
+}
+
+/* To ensure select dropdown options also follow dark theme (browser dependent) */
+::v-deep .dark .location-selector select option {
+  background-color: var(--input-bg);
+  color: var(--input-text);
+}
+
+::v-deep .dark .search-button {
+  background-color: var(--button-secondary-bg);
+  color: var(--button-secondary-text);
+  border: 1px solid var(--button-secondary-border);
+}
+
+::v-deep .dark .search-button:hover:not(:disabled) {
+  background-color: var(--button-secondary-hover-bg);
+  border-color: var(--button-secondary-border); /* Keep border consistent or use hover border if defined */
+}
+
+::v-deep .dark .search-button:disabled {
+  background-color: var(--button-disabled-bg, #4a4a4a); /* Using a specific dark disabled bg */
+  color: var(--button-disabled-text, #888888);
+  opacity: 0.5;
 }
 
 /* Kakao InfoWindow Customization */

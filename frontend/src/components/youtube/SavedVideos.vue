@@ -47,10 +47,10 @@
             target="_blank"
             class="action-btn watch-btn-global"
           >
-            <i class="bi bi-play-circle"></i> {{ $t('common.watch') }}
+            <i class="bi bi-play-circle"></i> {{ $t('youtube.watch') }}
           </a>
           <button @click="confirmDelete(savedVideo)" class="action-btn delete-btn-global">
-            <i class="bi bi-trash"></i> {{ $t('common.remove') }}
+            <i class="bi bi-trash"></i> {{ $t('youtube.remove') }}
           </button>
         </div>
       </div>
@@ -68,7 +68,7 @@
         </div>
         <div class="modal-footer-global">
           <button class="action-btn secondary-btn-global" @click="cancelDelete">{{ $t('common.cancel') }}</button>
-          <button @click="deleteVideo" class="action-btn delete-btn-global">{{ $t('common.remove') }}</button>
+          <button @click="deleteVideo" class="action-btn delete-btn-global">{{ $t('youtube.remove') }}</button>
         </div>
       </div>
     </div>
@@ -195,7 +195,7 @@ export default {
   text-align: center;
 }
 
-/* 전역 에러 메시지 (기존 스타일이 이미 전역적일 수 있으므로 확인 필요) */
+/* 전역 에러 메시지 */
 .error-message-global {
   background-color: var(--background-error, #fee2e2);
   color: var(--text-error, #b91c1c);
@@ -206,7 +206,7 @@ export default {
   text-align: center;
 }
 
-/* 전역 로딩 (기존 스타일이 이미 전역적일 수 있으므로 확인 필요) */
+/* 전역 로딩 */
 .loading-container-global {
   display: flex;
   flex-direction: column;
@@ -232,7 +232,7 @@ export default {
   align-items: center;
   justify-content: center;
   padding: var(--spacing-xxl, 4rem) var(--spacing-lg, 2rem);
-  background-color: var(--background-secondary-accent, var(--background-secondary)); /* 약간 다른 배경 */
+  background-color: var(--background-secondary-accent, var(--background-secondary));
   border-radius: var(--card-border-radius-lg, 16px);
   text-align: center;
   color: var(--text-secondary);
@@ -240,7 +240,7 @@ export default {
 }
 
 .empty-state-icon {
-  font-size: 4rem; /* 아이콘 크기 키움 */
+  font-size: 4rem;
   color: var(--text-placeholder, var(--text-secondary-light));
   margin-bottom: var(--spacing-lg, 1.5rem);
 }
@@ -251,90 +251,117 @@ export default {
   color: var(--text-primary);
 }
 
-/* 비디오 그리드 (YoutubeSearch.vue 와 유사하게) */
+/* 비디오 그리드 */
 .video-grid-global {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); /* 카드 최소 너비 조정 */
-  gap: var(--spacing-xl, 2rem); /* 카드 간 간격 조정 */
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--spacing-xl, 2rem);
 }
 
-/* 비디오 카드 (YoutubeSearch.vue 와 유사하게) */
+/* 비디오 카드 - ProductCard.vue 스타일 참조하여 대폭 수정 */
 .video-card-global {
-  background: var(--card-bg, white);
-  border: 1px solid var(--card-border, #e0e0e0);
-  border-radius: var(--card-border-radius-lg, 16px); /* 더 둥근 모서리 */
-  box-shadow: var(--shadow-lg, 0 8px 16px rgba(0,0,0,0.1)); /* 좀 더 부드러운 그림자 */
-  overflow: hidden;
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius-lg); /* ProductCard와 동일한 변수 사용 가정 */
+  padding: 1.5rem; /* ProductCard와 동일 */
+  transition: all var(--transition-speed);
   display: flex;
   flex-direction: column;
-  transition: transform var(--transition-fast, 0.2s), box-shadow var(--transition-fast, 0.2s);
+  height: 100%;
+  box-shadow: var(--card-shadow-sm); /* ProductCard와 동일 */
 }
 
 .video-card-global:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-xl, 0 12px 24px rgba(0,0,0,0.15));
+  transform: translateY(-4px); /* ProductCard와 동일 */
+  box-shadow: var(--card-shadow); /* ProductCard와 동일 */
+  /* border-color: rgba(var(--accent-color-rgb), 0.5); ProductCard와 동일하게 하려면 이 부분도 추가 */
 }
 
 .video-thumbnail-global img {
   width: 100%;
   aspect-ratio: 16 / 9;
   object-fit: cover;
-  border-bottom: 1px solid var(--card-border);
+  border-bottom: 1px solid var(--card-border); /* ProductCard에는 없으나, 썸네일 구분을 위해 유지 또는 조정 */
+  border-radius: var(--border-radius-md); /* 썸네일에 약간의 둥근 모서리 추가 */
+  margin-bottom: 1rem; /* 컨텐츠와의 간격 */
 }
 
 .video-content-global {
-  padding: var(--card-padding-lg, 1.5rem);
+  /* padding: var(--card-padding-lg, 1.5rem); 카드 전체 패딩으로 이동 */
   flex-grow: 1;
   display: flex;
   flex-direction: column;
 }
 
 .video-title-global {
-  font-size: var(--font-size-xl, 1.3rem);
+  font-size: 1.25rem; /* ProductCard 이름과 유사하게 */
   font-weight: 700;
-  color: var(--text-heading, var(--text-primary));
+  color: var(--text-primary);
   font-family: var(--font-heading);
-  margin: 0 0 var(--spacing-md, 0.75rem) 0;
+  margin: 0 0 var(--spacing-sm, 0.5rem) 0; /* 간격 조정 */
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-height: calc(1.3rem * 1.4 * 2); /* 2줄 높이 확보 */
+  min-height: calc(1.25rem * 1.4 * 2); 
 }
 
 .video-channel-global,
 .video-date-global {
-  font-size: var(--font-size-sm, 0.9rem);
+  font-size: 0.9rem; /* ProductCard 은행명과 유사하게 */
   color: var(--text-secondary);
-  margin-bottom: var(--spacing-sm, 0.5rem);
+  margin-bottom: var(--spacing-xs, 0.25rem); /* 간격 조정 */
   line-height: 1.5;
+}
+.video-date-global {
+  margin-bottom: var(--spacing-md, 1rem); /* 메모 입력창과의 간격 */
 }
 
 .notes-input-area {
-  margin-top: var(--spacing-md, 1rem);
-  flex-grow: 1; /* 남은 공간 채우도록 */
-  display: flex; /* 내부 textarea 높이 100%를 위해 */
+  margin-top: auto; /* 제목, 채널, 날짜 밑으로 밀기 & 버튼 위로 */
+  margin-bottom: var(--spacing-md, 1rem); /* 버튼과의 간격 */
+  flex-grow: 0; /* ProductCard 처럼 내용만큼만 차지하도록 변경, 이전엔 flex-grow:1 이었음 */
 }
 
 .notes-textarea-custom {
-  /* .form-control-global 스타일 상속 + 추가 */
-  min-height: 80px; /* 최소 높이 */
-  resize: vertical; /* 수직 리사이즈만 허용 */
+  min-height: 80px;
+  resize: vertical;
   font-size: var(--font-size-sm, 0.9rem);
   width: 100%;
+  padding: var(--input-padding-y) var(--input-padding-x);
+  border: 1px solid var(--input-border);
+  border-radius: var(--input-border-radius);
+  background-color: var(--input-bg);
+  color: var(--input-text);
 }
+.notes-textarea-custom::placeholder {
+  color: var(--input-placeholder);
+}
+
 
 .video-actions-global {
-  padding: var(--spacing-md, 1rem) var(--card-padding-lg, 1.5rem);
-  border-top: 1px solid var(--card-border-light, var(--border-color-light));
+  /* padding: var(--spacing-md, 1rem) var(--card-padding-lg, 1.5rem); 카드 전체 패딩으로 대체 */
+  /* border-top: 1px solid var(--card-border-light, var(--border-color-light)); ProductCard 스타일 따름 */
+  margin-top: auto; /* Push actions to the bottom */
+  padding-top: 1rem; /* Space above buttons, ProductCard와 유사하게 */
+  border-top: 1px solid var(--border-color); /* ProductCard와 유사하게 */
   display: flex;
   gap: var(--spacing-md, 1rem);
-  background-color: var(--background-secondary-ultralight, rgba(0,0,0,0.02)); /* 액션 영역 배경 구분 */
+  /* background-color: var(--background-secondary-ultralight, rgba(0,0,0,0.02)); ProductCard에는 없는 부분이므로 제거 또는 조정 */
 }
 
-/* 모달 스타일 (App.vue 또는 전역 모달 스타일 참조) */
+/* 버튼 스타일은 전역 스타일(action-btn 등)을 따르도록 variables.css에 정의된 것을 사용합니다. */
+/* SavedVideos.vue의 .watch-btn-global, .delete-btn-global은 이미 전역 클래스명을 따르고 있을 수 있습니다. */
+/* ProductCard의 .details-btn 스타일을 참고하여, 전역 버튼 스타일이 없다면 여기에 유사하게 정의합니다. */
+
+/* .action-btn i { 이미 전역일 수 있음
+  margin-right: var(--spacing-xs, 0.4rem);
+} */
+
+
+/* 모달 스타일 (기존 유지) */
 .modal-overlay-global {
   position: fixed;
   top: 0;
@@ -414,12 +441,59 @@ export default {
 /* 특정 버튼에 대한 추가 스타일 (필요시) */
 .watch-btn-global {
   /* 시청 버튼 고유 스타일 (필요시) */
+  /* 기본적으로 secondary-btn-global 스타일을 따르도록 variables.css 또는 App.vue에서 정의 권장 */
 }
 
 .delete-btn-global {
   /* 제거 버튼 고유 스타일 (필요시) */
-  /* 예: background-color: var(--button-danger-bg); color: var(--button-danger-text); */
+  /* 기본적으로 delete-btn-global 스타일을 따르도록 variables.css 또는 App.vue에서 정의 권장 */
 }
+
+/* Dark mode specific styles for this component */
+/* 카드 자체의 다크모드는 variables.css의 --card-bg, --card-border 등이 처리 */
+
+.dark .notes-textarea-custom,
+.dark ::v-deep .notes-textarea-custom {
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border-color: var(--input-border);
+}
+
+.dark .notes-textarea-custom::placeholder,
+.dark ::v-deep .notes-textarea-custom::placeholder {
+  color: var(--input-placeholder);
+}
+
+/* 버튼 다크모드는 variables.css의 버튼 변수들이 처리해야 함 */
+/* SavedVideos.vue의 이전 다크모드 버튼 스타일은 variables.css 의존으로 변경 */
+/*
+.dark .watch-btn-global,
+.dark ::v-deep .watch-btn-global {
+  background-color: var(--button-secondary-bg);
+  color: var(--button-secondary-text);
+  border: 1px solid var(--button-secondary-border);
+}
+
+.dark .watch-btn-global:hover,
+.dark ::v-deep .watch-btn-global:hover {
+  background-color: var(--button-secondary-hover-bg);
+  color: var(--text-primary); 
+  border-color: var(--button-secondary-hover-bg);
+}
+
+.dark .delete-btn-global,
+.dark ::v-deep .delete-btn-global {
+  background-color: var(--button-danger-bg); 
+  color: var(--button-danger-text);
+  border: 1px solid var(--button-danger-bg);
+}
+
+.dark .delete-btn-global:hover,
+.dark ::v-deep .delete-btn-global:hover {
+  background-color: var(--button-danger-hover-bg);
+  border-color: var(--button-danger-hover-bg);
+}
+*/
 
 @keyframes modal-fade-in {
   from {
@@ -445,6 +519,7 @@ export default {
   .page-title {
     font-size: var(--font-size-xxl, 2rem);
   }
+  /* 카드 내부 폰트 등 반응형 조정 필요시 추가 */
 }
 
 @media (max-width: 480px) {
@@ -454,6 +529,12 @@ export default {
    .modal-container-global {
     margin: 1rem;
     padding: 1.5rem;
+  }
+  .video-card-global {
+    padding: 1rem; /* 모바일에서 카드 패딩 약간 줄임 */
+  }
+  .video-title-global {
+    font-size: 1.1rem; /* 모바일에서 제목 약간 줄임 */
   }
 }
 </style>
