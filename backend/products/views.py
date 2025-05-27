@@ -920,6 +920,63 @@ def get_kosdaq_data(request):
     return Response(json_ready, status=status.HTTP_200_OK)
 
 
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def get_stock_rankings(request):
+    import requests
+
+    response = requests.post(
+        "https://wts-cert-api.tossinvest.com/api/v2/dashboard/wts/overview/ranking",
+        headers={
+            "Content-Type": "application/json",
+            "X-Xss-Protection": "1; mode=block",
+            "User-Agent": "Mozilla/5.0",
+            "Authorization": "Bearer YOUR_TOKEN",
+        },
+        json={
+            "id": "biggest_total_amount",
+            "filters": [
+                "MARKET_CAP_GREATER_THAN_50M",
+                "STOCKS_PRICE_GREATER_THAN_ONE_DOLLAR",
+                "KRX_MANAGEMENT_STOCK",
+            ],
+            "duration": "realtime",
+            "tag": "all",
+        },
+    )
+
+    if response.status_code == 200:
+        return Response(response.json(), status=status.HTTP_200_OK)
+    return Response(
+        {"detail": "주식 순위 데이터를 가져오는 데 실패했습니다."},
+        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    )
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def get_stock_details(request, stock_code):
+    import requests
+
+    API_URL = f"https://wts-info-api.tossinvest.com/api/v1/c-chart/kr-s/{stock_code}/day:1?count=100&useAdjustedRate=true"
+
+    response = requests.get(
+        API_URL,
+        headers={
+            "Content-Type": "application/json",
+            "X-Xss-Protection": "1; mode=block",
+            "User-Agent": "Mozilla/5.0",
+        },
+    )
+
+    if response.status_code == 200:
+        return Response(response.json(), status=status.HTTP_200_OK)
+    return Response(
+        {"detail": "주식 상세 정보를 가져오는 데 실패했습니다."},
+        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    )
+
+
 # Admin API endpoints for updating financial products
 @api_view(["POST"])
 @permission_classes([IsAdminUser])

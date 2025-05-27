@@ -136,6 +136,19 @@ const routes = [
     meta: { requiresAuth: false },
   },
   {
+    path: '/products/stocks',
+    name: 'stockRankings',
+    component: () => import('@/views/products/StockView.vue'),
+    meta: { requiresAuth: false },
+  },
+  {
+    path: '/products/stocks/:stockCode',
+    name: 'stockDetail',
+    component: () => import('@/views/products/StockDetail.vue'),
+    meta: { requiresAuth: false },
+    props: true,
+  },
+  {
     path: '/settings',
     name: 'Settings',
     component: () => import('@/views/SettingsView.vue'),

@@ -69,6 +69,16 @@ urlpatterns = [
         views.get_kospi_data,
         name="kospi-stock-market-data",
     ),
+    path(
+        "stock-rankings/",
+        views.get_stock_rankings,
+        name="stock-rankings",
+    ),
+    path(
+        "stock-details/<str:stock_code>/",
+        views.get_stock_details,
+        name="stock-details",
+    ),
     # Admin endpoints for updating financial product data
     path("admin/update-all/", views.update_all_products, name="update-all-products"),
     path(
